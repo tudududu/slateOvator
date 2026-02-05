@@ -1,8 +1,8 @@
 // slateOvator3 insertSlate
-// 240106
+// 240105
 
 //  slateOvator_part3
-//  v08b
+//  v08c
 //  Insert slate into composition
 
 (function (thisObj) {
@@ -70,18 +70,22 @@ app.endUndoGroup();
             var slate = app.project.item(i);
             var newSlate = slate.duplicate();
                 theComp.layers.add(newSlate);
+            var scaleTo = fitToCompSize(theComp, newSlate);
+            fitToCompScaleAction(newSlate, scaleTo);
+        /*
+        var myScale = newSlate.property("scale");
+        alert(myScale);
+        myScale.setValue([scaleTo, scaleTo]);  
+        */
                 theComp.displayStartTime = -1;
-                
-                fitToCompSize(theComp, newSlate);
-
-                break;  //  verze s regexem jinak cykli
+            break;  //  verze s regexem jinak cykli
             }
         }
     }
 
     function fitToCompSize(myComp, myLayer) {
-    alert(myComp.name);
-    alert(myLayer.name);
+        //alert(myComp.name);
+        //alert(myLayer.name);
         
         var myLayerSize = [myLayer.width, myLayer.height];
         var myCompSize = [myComp.width, myComp.height];
@@ -110,7 +114,7 @@ app.endUndoGroup();
 
         var scaleX = scaleCondition(myCompSize[0], hd80X, 1920);
         var scaleY = scaleCondition(myCompSize[1], hd80Y, 1080);
-//  alert("scaleX: " + scaleX + ", scaleY: " + scaleY);
+        //  alert("scaleX: " + scaleX + ", scaleY: " + scaleY);
         
         function scaleAspectCondition(compAspect, scaleX, scaleY) {
             var scaleResultB
@@ -122,16 +126,13 @@ app.endUndoGroup();
             return scaleResultB;
         }
         
-        var fitToCompScale = scaleAspectCondition(compAspect, scaleX, scaleY);
-
-    //alert(scale);
+        return scaleAspectCondition(compAspect, scaleX, scaleY);
         
-        function fitToCompScaleAction(myLayer, fitToCompScale) {
-            var myScale = myLayer.scale;
+    }
+    
+    function fitToCompScaleAction(myLayer, fitToCompScale) {
+        var myScale = myLayer.scale;
         myScale.setValue([fitToCompScale, fitToCompScale]);
-        }
-        
-        fitToCompScaleAction(myLayer, fitToCompScale);
     }
 }
 

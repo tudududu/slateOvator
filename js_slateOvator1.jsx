@@ -1,6 +1,6 @@
 //  slateOvator_part1
-//  v05
-//  change media, sound, operator field in multiple slates
+//  v06
+//  change media, sound, operator field
 
 (function (thisObj) {
     
@@ -25,40 +25,37 @@
             panelOneGroupTwo.orientation = 'row';
         var panelOneGroupThree = panelOne.add('group', undefined, 'panelOneGroupThree');
             panelOneGroupThree.orientation = 'row';
-        
-        var groupTwo = win.add('group');
-            groupTwo.orientation = 'column';
-            groupTwo.alignChildren = 'fill';
-        var groupThree = win.add('group');
-            groupThree.orientation = 'column';
-            groupThree.alignChildren = 'fill';
-        
+   
         //  label
         var labelOne = panelOneGroupOne.add('statictext', undefined, 'Media: ');
         var labelTwo = panelOneGroupTwo.add('statictext', undefined, 'SoundLevel: ');
         var labelThree = panelOneGroupThree.add('statictext', undefined, 'Operator: ');
         //  input text
-        var inputMedia = panelOneGroupOne.add('edittext', undefined, 'TV');
+        //var inputMedia = panelOneGroupOne.add('edittext', undefined, 'TV');
+        var inputMedia = panelOneGroupOne.add('edittext', undefined, 'TV', {enterKeySignalsOnChange: true});
             inputMedia.characters = 10;
-        var inputSoundLevel = panelOneGroupTwo.add('edittext', undefined, 'soundLevel');
+        //var inputSoundLevel = panelOneGroupTwo.add('edittext', undefined, 'soundLevel');
+        var inputSoundLevel = panelOneGroupTwo.add('edittext', undefined, 'soundLevel', {enterKeySignalsOnChange: true});
             inputSoundLevel.characters = 10;
-        var inputOperator = panelOneGroupThree.add('edittext', undefined, 'yourName');
+        //var inputOperator = panelOneGroupThree.add('edittext', undefined, 'yourName');
+        var inputOperator = panelOneGroupThree.add('edittext', undefined, 'yourName', {enterKeySignalsOnChange: true});
             inputOperator.characters = 10;
         //  apply Button
+        /*
         var buttonOne = panelOneGroupOne.add('button', undefined, 'OK');
             //buttonOne.size = buttonSize;
         var buttonTwo = panelOneGroupTwo.add('button', undefined, 'OK');
         var buttonThree = panelOneGroupThree.add('button', undefined, 'OK');
-        
+        */
 
         // --- Action ---
-        buttonOne.onClick = function () {
+        inputMedia.onChange = function () {
         slateOvator1('Media', inputMedia.text);
         }
-        buttonTwo.onClick = function () {
+        inputSoundLevel.onChange = function () {
         slateOvator1('SoundLevel', inputSoundLevel.text);
         }
-        buttonThree.onClick = function () {
+        inputOperator.onChange = function () {
         slateOvator1('Operator', inputOperator.text);
         }
 

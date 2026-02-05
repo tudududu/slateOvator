@@ -2,7 +2,7 @@
 // 240114
 
 //  The FinalCountdown
-//  240114_03a
+//  240114_04a
 //  out0vator
 
 
@@ -13,27 +13,29 @@ app.beginUndoGroup("Prebal0vator");
     var selected = app.project.selection;
     //var regex = slateRegex();
     var outFolderName = "compsOut";
+    var masterFolderName = "masters";
 
     if (selected.length == 0) {
         alert("Select a composition");
     } else {
-        placeSlateMultiComp(selected, outFolderName);
+        prebalovator(selected, outFolderName, masterFolderName);
     }
 app.endUndoGroup();
 
 //var projItems = app.project.items;
 //var myCompMaster = app.project.activeItem;
 
-function placeSlateMultiComp(compSelection, folderName) {
+function prebalovator(compSelection, folderName1, folderName2) {
         for (var j = 0; j < compSelection.length; j++) {
             if (compSelection[j] instanceof CompItem) {
-            finalCountdown(compSelection[j], folderName);
+            finalCountdown(compSelection[j], folderName1, folderName2);
             }
         }
     }
 
 //criar "out" folder se ja nao existe
     function makeFolder(folderName) {
+        //  scan proj if folder exist
         var testArr = [];
         for (var i = 1; i <= app.project.numItems; i++){
             if (app.project.item(i) instanceof FolderItem && app.project.item(i).name == folderName) {
@@ -43,9 +45,10 @@ function placeSlateMultiComp(compSelection, folderName) {
             //alert("numero dos outF: " + testArr.length);
             var folderObj;
             if (testArr.length == 0) {
-    //create a new FolderItem in project, with name "compsOut"
+            //create a new FolderItem in project, with name VAR
                 app.project.items.addFolder(folderName);
             }
+            //find folderObj in the proj and put it to var
             for (var i = 1; i <= app.project.numItems; i++){
             if (app.project.item(i) instanceof FolderItem && app.project.item(i).name == folderName) {
                 folderObj = app.project.item(i);
@@ -54,15 +57,23 @@ function placeSlateMultiComp(compSelection, folderName) {
             return folderObj;
         }
 
-    function finalCountdown(myCompMaster, folderName) {
+    function finalCountdown(myCompMaster, folderName1, folderName2) {
         var myCompMasterDur = myCompMaster.duration;
+        
+        //alert('myCompMasterNameHolder: ' + myCompMasterNameHolder);
         var myCompOut = myCompMaster.duplicate();
             myCompOut.duration = myCompMasterDur + 1;
             myCompOut.displayStartTime = -1;
-
-        var myCompOutLayers = myCompOut.layers;
-
+        //  naming
+        var compNameArr = [];
+        compNameArr.push(myCompMaster.name);
+        compNameArr.push(myCompOut.name);
+        var masterAppendix = "_master";
+        myCompMaster.name = compNameArr[0] + masterAppendix;
+        myCompOut.name = compNameArr[0];
+        
         //  delete layer in myCompOut
+        var myCompOutLayers = myCompOut.layers;
         for (var i = myCompOutLayers.length; i >= 1; i--) {
             var curLayer = myCompOutLayers[i];
             curLayer.remove();
@@ -73,8 +84,10 @@ function placeSlateMultiComp(compSelection, folderName) {
             myCompOut.layer(1).startTime = 1;
     //move myCompOut into new folder by setting
     //comp Item's parentFolder to "compsOut" folder
-            var compFolder = makeFolder(folderName);
-            myCompOut.parentFolder = compFolder;
+            var myOutCompFolder = makeFolder(folderName1);
+            myCompOut.parentFolder = myOutCompFolder;
+            var myMasterCompFolder = makeFolder(folderName2);
+            myCompMaster.parentFolder = myMasterCompFolder;
     }
 }
 

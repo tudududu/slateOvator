@@ -1,5 +1,5 @@
 //  slateOvator_part1
-//  v02
+//  v03
 //  change operator field in multiple slates
 
 (function (thisObj) {
@@ -20,10 +20,10 @@
         //  input text
         var startTimeInput = groupOne.add('edittext', undefined, 'yourName');
             startTimeInput.characters = 10;
-        
         //  apply Button
-        var applyBtn = groupOne.add('button', undefined, 'Apply', {name: "ok"});
-        
+        var applyBtn = groupOne.add('button', undefined, 'Apply');
+            //  applyBtn.size = [50, 25];
+
         // --- Action ---
             applyBtn.onClick = function () {
             slateOvator1(startTimeInput.text);
@@ -39,10 +39,9 @@
 
     }
 
-app.beginUndoGroup("slateOvator1");
-
-
 function slateOvator1(newTextInput) {
+
+app.beginUndoGroup("slateOvator1");
     var newText = newTextInput;
     var selected = app.project.selection; //array
 
@@ -52,6 +51,7 @@ function slateOvator1(newTextInput) {
         slateOvatorEngine(selected, newText);
     }
     
+app.endUndoGroup();
     
     function slateOvatorEngine(arr, newText) {
         for (var j = 0; j < arr.length; j++) {
@@ -65,6 +65,5 @@ function slateOvator1(newTextInput) {
     }
 }
 
-app.endUndoGroup();
 
 })(this);

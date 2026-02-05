@@ -2,7 +2,7 @@
 // 240105
 
 //  slateOvator_part3
-//  v08c
+//  v08d
 //  Insert slate into composition
 
 (function (thisObj) {
@@ -71,7 +71,7 @@ app.endUndoGroup();
             var newSlate = slate.duplicate();
                 theComp.layers.add(newSlate);
             var scaleTo = fitToCompSize(theComp, newSlate);
-            fitToCompScaleAction(newSlate, scaleTo);
+            abcLoop(theComp, newSlate, scaleTo);
         /*
         var myScale = newSlate.property("scale");
         alert(myScale);
@@ -82,6 +82,21 @@ app.endUndoGroup();
             }
         }
     }
+
+
+function abcLoop(comp, layer, scaleA) {
+        var layerArr = comp.layers;
+    
+        for (var i = 1; i <= layerArr.length; i++) {
+            //fitToCompScaleAction(layer, scaleA);
+        /*
+        var myScale = layer.property("scale");
+        alert(myScale.value);
+        myScale.setValue([scaleA, scaleA]);
+        */
+        }
+    }
+
 
     function fitToCompSize(myComp, myLayer) {
         //alert(myComp.name);

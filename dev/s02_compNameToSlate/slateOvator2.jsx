@@ -1,27 +1,44 @@
-var projectItems = app.project.items;
+// slateOvator2 compNameToSlate 231207
+
+//var projectItems = app.project.items;
 var selected = app.project.selection;
-var activeItem = app.project.activeItem;
+//var activeItem = app.project.activeItem;
 
-
+/*
 app.beginUndoGroup("slateOvator_v02");
 
-    var parentCompName = compNames[0];  //arr to string
-    var newExpression = "comp(\"" + parentCompName + "\"" + ").name;";
+    //var parentCompName = compNames[0];  //arr to string
+    //var newExpression = "comp(\"" + parentCompName + "\"" + ").name;";
     var selected = app.project.selection; // compositions
 
     if (selected.length == 0) {
         alert("Select a composition");
-    } else if (compNames.length > 1) {
-        alert("Slate can only be used once.");
+    /*} else if (compNames.length > 1) {
+        alert("Slate can only be used once.");*/
     }   else {
-        slateOvatorEngine(activeItem, newExpression);
+        slateOvatorEngine(selected);
     }
-    var usedInList = activeItem.usedIn;
 
 app.endUndoGroup();
+*/
+function compNamesMultiFx(selectedArr) {
+    var usedInListArr = [];
+    for (var j = 0; j < selectedArr.length; j++) {
+    var oneCompUsedInList = selectedArr[j].usedIn;
+        if (oneCompUsedInList.length == 1) {
+            usedInList.push(selectedArr[j].usedIn);
+        } else {
+            alert("Slate can only be used once.");
+        }
+    }
+    return usedInListArr;
+}
+var usedInList = compNamesMultiFx(selected);
 
+alert(usedInList);
+
+/*
 var compNames = compNamesFx();
-
 function compNamesFx() {
     var arr1 = [];
     for (var i = 0; i < usedInList.length; i++) {
@@ -39,3 +56,4 @@ function slateOvatorEngine(arr, newText) {
                 }
             }
         }
+*/

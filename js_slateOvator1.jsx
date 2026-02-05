@@ -1,6 +1,7 @@
 //  slateOvator_part1
-//  240111_v08
-//  change media, sound, operator field
+//  240111_v09
+//  change field in multiple slates
+//  switch tags
 
 (function (thisObj) {
     
@@ -25,11 +26,21 @@
             panelOneGroupTwo.orientation = 'row';
         var panelOneGroupThree = panelOne.add('group', undefined, 'panelOneGroupThree');
             panelOneGroupThree.orientation = 'row';
-   
+
+        var panelTwo = win.add('panel', undefined, 'Tags');
+            panelTwo.orientation = 'column';
+            panelTwo.alignChildren = 'right';
+        var panelTwoGroupOne = panelTwo.add('group', undefined, 'panelTwoGroupOne');
+            panelTwoGroupOne.orientation = 'row';
+
         //  label
         var labelOne = panelOneGroupOne.add('statictext', undefined, 'Media: ');
         var labelTwo = panelOneGroupTwo.add('statictext', undefined, 'SoundLevel: ');
         var labelThree = panelOneGroupThree.add('statictext', undefined, 'Operator: ');
+        
+        //var labelTags = panelTwo.add('statictext', undefined, 'Tags: ');
+        //var labelSwitch = panelTwoGroupOne.add('statictext', undefined, 'Media:');
+
         //  input text
         //var inputMedia = panelOneGroupOne.add('edittext', undefined, 'TV');
         var inputMedia = panelOneGroupOne.add('edittext', undefined, 'TV', {enterKeySignalsOnChange: false});
@@ -40,6 +51,7 @@
         //var inputOperator = panelOneGroupThree.add('edittext', undefined, 'yourName');
         var inputOperator = panelOneGroupThree.add('edittext', undefined, 'yourName', {enterKeySignalsOnChange: false});
             inputOperator.characters = 10;
+        
         //  apply Button
         
         var buttonOne = panelOneGroupOne.add('button', undefined, 'OK');
@@ -49,17 +61,41 @@
         var buttonThree = panelOneGroupThree.add('button', undefined, 'OK');
             buttonThree.size = buttonSize;
 
+        //  switches
+        var checkbox_Media = panelTwoGroupOne.add("checkbox", undefined, ' Media:');
+        var checkbox_Sound = panelTwoGroupOne.add("checkbox", undefined, ' Sound:');
+/*resolution_Switch
+aspect_Switch
+framerate_Switch
+subtitle_Switch
+language_Switch
+brand_switch
+title_switch*/
         // --- Action ---
-         
+        function checkTagFnc(chkbx, effectName) {
+            var layerName = "controls";
+            slateOvator1(tlacitkovatOr, layerName, chkbx.value, effectName);
+        }
+        var checkTagMedia = checkTagFnc(checkbox_Media, 'media_Switch');
+        
+        /*function checkTagMedia() {
+            var layerName = "controls";
+            var effectName = "media_Switch";
+            slateOvator1(tlacitkovatOr, layerName, checkbox_Media.value, effectName);
+        }*/
+        checkbox_Media.onClick = checkTagMedia;
+
+        
         function triggerMedia() {
-        slateOvator1('Media', inputMedia.text);
+            slateOvator1(fieldRenamer, 'Media', inputMedia.text);
         }
         function triggerSoundLevel() {
-        slateOvator1('SoundLevel', inputSoundLevel.text);
+            slateOvator1(fieldRenamer, 'SoundLevel', inputSoundLevel.text);
         }
         function triggerOperator() {
-        slateOvator1('Operator', inputOperator.text);
+            slateOvator1(fieldRenamer, 'Operator', inputOperator.text);
         }
+        
         inputMedia.onChange = triggerMedia;
         inputOperator.onChange = triggerOperator;
         inputSoundLevel.onChange = triggerSoundLevel;
@@ -76,7 +112,7 @@
 
     }
 
-function slateOvator1(layerName, newTextInput) {
+function slateOvator1(callback, layerName, input, effect) {
 
 app.beginUndoGroup("Change field in multiple slates");
     var selectedComp = app.project.selection; //array
@@ -84,23 +120,41 @@ app.beginUndoGroup("Change field in multiple slates");
     if (selectedComp.length == 0) {
         alert("Select a composition");
     } else {
-        slateOvatorEngine(selectedComp, layerName, newTextInput);
+        callback(selectedComp, layerName, input, effect);
     }
     
 app.endUndoGroup();
     
-    function slateOvatorEngine(compSelection, layerName, newTextInput) {
+}
+    
+    function tlacitkovatOr(compSelection, layerName, switchInput, effectName) {
         for (var j = 0; j < compSelection.length; j++) {
             if (compSelection[j] instanceof CompItem) {
             var layerArr = compSelection[j].layers;
+            
             for (var i = 1; i <= layerArr.length; i++) {
                 if (layerArr[i].name == layerName) {
-                    layerArr[i].text.sourceText.setValue(newTextInput);
+                    layerArr[i].effect(effectName)("Checkbox").setValue(switchInput);
                     }
                 }
             }
         }
     }
-}
+
+    function fieldRenamer(compSelection, layerName, newTextInput) {
+            for (var j = 0; j < compSelection.length; j++) {
+                if (compSelection[j] instanceof CompItem) {
+                var layerArr = compSelection[j].layers;
+                for (var i = 1; i <= layerArr.length; i++) {
+                    if (layerArr[i].name == layerName) {
+                        layerArr[i].text.sourceText.setValue(newTextInput);
+                        }
+                    }
+                }
+            }
+        }
 
 })(this);
+
+//thisComp.layer("controls").effect("sound_Switch")("Checkbox").value;
+//var effectsX = projItem.layer(19).effect("sound_Switch")("Checkbox").value;

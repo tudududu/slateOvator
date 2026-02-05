@@ -1,8 +1,8 @@
 // slateOvator3 insertSlate
-// 240105
+// 240106
 
 //  slateOvator_part3
-//  v08d
+//  v08e
 //  Insert slate into composition
 
 (function (thisObj) {
@@ -39,70 +39,63 @@
 
 
 function slateOvator3() {
-app.beginUndoGroup("slateOvator3_v06c");
-var selected = app.project.selection;
+app.beginUndoGroup("slateOvator3_v08e");
+    var selected = app.project.selection;
+    var regex = /slate_\(v\d{6}\)/;
 
     if (selected.length == 0) {
         alert("Select a composition");
     } else {
-        placeMultipleSlate(selected);
+        placeMultipleSlate(selected, regex);
     }
 app.endUndoGroup();
 
     //  vyber komopzic
-    function placeMultipleSlate(compSelection) {
+    function placeMultipleSlate(compSelection, regex) {
         for (var j = 0; j < compSelection.length; j++) {
-            placeTheSlate(compSelection[j]);
+            placeTheSlate(compSelection[j], regex);
         }
     }
 
     //  vkladame kopii slatu do kompozice
-    function placeTheSlate(theComp) {
-        
-        var regex = /slate_\(v\d{6}\)/;
+    function placeTheSlate(theComp, regex) {
         
         for (var i = 1; i <= app.project.numItems; i++) {
-            var myStr = app.project.item(i).name;
-            var slateSearch = regex.test(myStr);
+            var testNameStr = app.project.item(i).name;
+            var slateSearch = regex.test(testNameStr);
             
             if (app.project.item(i) instanceof CompItem && slateSearch) {
 
             var slate = app.project.item(i);
             var newSlate = slate.duplicate();
                 theComp.layers.add(newSlate);
-            var scaleTo = fitToCompSize(theComp, newSlate);
-            abcLoop(theComp, newSlate, scaleTo);
-        /*
-        var myScale = newSlate.property("scale");
-        alert(myScale);
-        myScale.setValue([scaleTo, scaleTo]);  
-        */
-                theComp.displayStartTime = -1;
+            abcLoop(theComp, newSlate, regex);
+            theComp.displayStartTime = -1;
             break;  //  verze s regexem jinak cykli
             }
         }
     }
 
-
-function abcLoop(comp, layer, scaleA) {
+    function abcLoop(comp, layer, regex) {
+        
         var layerArr = comp.layers;
-    
+        var layerObj;
+        
         for (var i = 1; i <= layerArr.length; i++) {
-            //fitToCompScaleAction(layer, scaleA);
-        /*
-        var myScale = layer.property("scale");
-        alert(myScale.value);
-        myScale.setValue([scaleA, scaleA]);
-        */
+            var slateSearch = regex.test(layer.name);
+            if (layerArr[i] == slateSearch) {
+                layerObj = layerArr[i];
+                fitToCompSize(comp, layerObj);
+            }
         }
     }
 
-
+    
     function fitToCompSize(myComp, myLayer) {
         //alert(myComp.name);
         //alert(myLayer.name);
-        
-        var myLayerSize = [myLayer.width, myLayer.height];
+
+        //var myLayerSize = [myLayer.width, myLayer.height];
         var myCompSize = [myComp.width, myComp.height];
         var compAspect = (myCompSize[0] / myCompSize[1]).toFixed(2);
 
@@ -141,13 +134,14 @@ function abcLoop(comp, layer, scaleA) {
             return scaleResultB;
         }
         
-        return scaleAspectCondition(compAspect, scaleX, scaleY);
+        var fitToCompScale = scaleAspectCondition(compAspect, scaleX, scaleY);
         
-    }
-    
-    function fitToCompScaleAction(myLayer, fitToCompScale) {
-        var myScale = myLayer.scale;
-        myScale.setValue([fitToCompScale, fitToCompScale]);
+        function fitToCompScaleAction(myLayer, fitToCompScaleLoc) {
+            var myScale = myLayer.scale;
+        myScale.setValue([fitToCompScaleLoc, fitToCompScaleLoc]);
+        }
+        
+        fitToCompScaleAction(myLayer, fitToCompScale);   
     }
 }
 

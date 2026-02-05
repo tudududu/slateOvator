@@ -2,7 +2,7 @@
 // 240106
 
 //  slateOvator_part3
-//  v08e
+//  v08f
 //  Insert slate into composition
 
 (function (thisObj) {
@@ -39,7 +39,7 @@
 
 
 function slateOvator3() {
-app.beginUndoGroup("slateOvator3_v08e");
+app.beginUndoGroup("slateOvator3_v08f");
     var selected = app.project.selection;
     var regex = /slate_\(v\d{6}\)/;
 
@@ -54,6 +54,8 @@ app.endUndoGroup();
     function placeMultipleSlate(compSelection, regex) {
         for (var j = 0; j < compSelection.length; j++) {
             placeTheSlate(compSelection[j], regex);
+            velikostUpravovator(compSelection[j], regex);
+            theComp.displayStartTime = -1;
         }
     }
 
@@ -61,7 +63,7 @@ app.endUndoGroup();
     function placeTheSlate(theComp, regex) {
         
         for (var i = 1; i <= app.project.numItems; i++) {
-            var testNameStr = app.project.item(i).name;
+            var testNameStr = app.project.item(i).name; // procura do slate(name)
             var slateSearch = regex.test(testNameStr);
             
             if (app.project.item(i) instanceof CompItem && slateSearch) {
@@ -69,21 +71,20 @@ app.endUndoGroup();
             var slate = app.project.item(i);
             var newSlate = slate.duplicate();
                 theComp.layers.add(newSlate);
-            abcLoop(theComp, newSlate, regex);
-            theComp.displayStartTime = -1;
             break;  //  verze s regexem jinak cykli
             }
         }
     }
 
-    function abcLoop(comp, layer, regex) {
+    function velikostUpravovator(comp, regex) {
         
         var layerArr = comp.layers;
         var layerObj;
         
         for (var i = 1; i <= layerArr.length; i++) {
-            var slateSearch = regex.test(layer.name);
-            if (layerArr[i] == slateSearch) {
+            var layerName = layerArr[i].name;
+            var slateSearch = regex.test(layerName);
+            if (slateSearch) {
                 layerObj = layerArr[i];
                 fitToCompSize(comp, layerObj);
             }

@@ -2,7 +2,7 @@
 // 240106
 
 //  slateOvator_part3
-//  v08a
+//  v08b
 //  Insert slate into composition
 
 (function (thisObj) {
@@ -80,11 +80,9 @@ app.endUndoGroup();
     }
 
     function fitToCompSize(myComp, myLayer) {
-//alert(myComp.name);
-//alert(myLayer.name);
-        //var myScale = myLayer.scale;
-        var myScale = myLayer.property("scale");
-alert(myScale);
+    alert(myComp.name);
+    alert(myLayer.name);
+        
         var myLayerSize = [myLayer.width, myLayer.height];
         var myCompSize = [myComp.width, myComp.height];
         var compAspect = (myCompSize[0] / myCompSize[1]).toFixed(2);
@@ -113,15 +111,27 @@ alert(myScale);
         var scaleX = scaleCondition(myCompSize[0], hd80X, 1920);
         var scaleY = scaleCondition(myCompSize[1], hd80Y, 1080);
 //  alert("scaleX: " + scaleX + ", scaleY: " + scaleY);
-        var scaleAspectResult;
         
-        if (compAspect <= 1.78) {
-            scaleAspectResult = scaleX;
-        } else {
-            scaleAspectResult = scaleY;
+        function scaleAspectCondition(compAspect, scaleX, scaleY) {
+            var scaleResultB
+            if (compAspect <= 1.78) {
+                scaleResultB = scaleX;
+            } else {
+                scaleResultB = scaleY;
+            }
+            return scaleResultB;
         }
-        myScale.setValue([scaleAspectResult, scaleAspectResult]);
+        
+        var fitToCompScale = scaleAspectCondition(compAspect, scaleX, scaleY);
 
+    //alert(scale);
+        
+        function fitToCompScaleAction(myLayer, fitToCompScale) {
+            var myScale = myLayer.scale;
+        myScale.setValue([fitToCompScale, fitToCompScale]);
+        }
+        
+        fitToCompScaleAction(myLayer, fitToCompScale);
     }
 }
 

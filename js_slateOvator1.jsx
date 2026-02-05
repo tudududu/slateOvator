@@ -1,5 +1,5 @@
 //  slateOvator_part1
-//  v06
+//  v07
 //  change media, sound, operator field
 
 (function (thisObj) {
@@ -10,13 +10,13 @@
         var win = (thisObj instanceof Panel) ? thisObj 
         : new Window('palette', 'slateOvator', undefined);
         win.orientation = 'column';
-        //  win.preferredSize = [350, 300];
-        var buttonSize = [50, 25];
+        win.preferredSize = [200, 300];
+        var buttonSize = [30, 20];
 
-        var groupOne = win.add('group');
+        /*var groupOne = win.add('group');
             groupOne.orientation = 'column';
-            groupOne.alignChildren = 'fill';
-        var panelOne = groupOne.add('panel', undefined, 'Fields');
+            groupOne.alignChildren = 'fill';*/
+        var panelOne = win.add('panel', undefined, 'Fields');
             panelOne.orientation = 'column';
             panelOne.alignChildren = 'right';
         var panelOneGroupOne = panelOne.add('group', undefined, 'panelOneGroupOne');
@@ -32,32 +32,40 @@
         var labelThree = panelOneGroupThree.add('statictext', undefined, 'Operator: ');
         //  input text
         //var inputMedia = panelOneGroupOne.add('edittext', undefined, 'TV');
-        var inputMedia = panelOneGroupOne.add('edittext', undefined, 'TV', {enterKeySignalsOnChange: true});
+        var inputMedia = panelOneGroupOne.add('edittext', undefined, 'TV', {enterKeySignalsOnChange: false});
             inputMedia.characters = 10;
         //var inputSoundLevel = panelOneGroupTwo.add('edittext', undefined, 'soundLevel');
-        var inputSoundLevel = panelOneGroupTwo.add('edittext', undefined, 'soundLevel', {enterKeySignalsOnChange: true});
+        var inputSoundLevel = panelOneGroupTwo.add('edittext', undefined, 'soundLevel', {enterKeySignalsOnChange: false});
             inputSoundLevel.characters = 10;
         //var inputOperator = panelOneGroupThree.add('edittext', undefined, 'yourName');
-        var inputOperator = panelOneGroupThree.add('edittext', undefined, 'yourName', {enterKeySignalsOnChange: true});
+        var inputOperator = panelOneGroupThree.add('edittext', undefined, 'yourName', {enterKeySignalsOnChange: false});
             inputOperator.characters = 10;
         //  apply Button
-        /*
+        
         var buttonOne = panelOneGroupOne.add('button', undefined, 'OK');
-            //buttonOne.size = buttonSize;
+            buttonOne.size = buttonSize;
         var buttonTwo = panelOneGroupTwo.add('button', undefined, 'OK');
+            buttonTwo.size = buttonSize;
         var buttonThree = panelOneGroupThree.add('button', undefined, 'OK');
-        */
+            buttonThree.size = buttonSize;
 
         // --- Action ---
-        inputMedia.onChange = function () {
+         
+        function triggerMedia() {
         slateOvator1('Media', inputMedia.text);
         }
-        inputSoundLevel.onChange = function () {
+        function triggerSoundLevel() {
         slateOvator1('SoundLevel', inputSoundLevel.text);
         }
-        inputOperator.onChange = function () {
+        function triggerOperator() {
         slateOvator1('Operator', inputOperator.text);
         }
+        inputMedia.onChange = triggerMedia;
+        inputOperator.onChange = triggerOperator;
+        inputSoundLevel.onChange = triggerSoundLevel;
+        buttonOne.onClick = triggerMedia;
+        buttonTwo.onClick = triggerSoundLevel;
+        buttonThree.onClick = triggerOperator;
 
         // --- ACTIONS ---
         win.onResizing = win.onResize = function () {
@@ -81,9 +89,9 @@ app.beginUndoGroup("slateOvator1");
     
 app.endUndoGroup();
     
-    function slateOvatorEngine(comp, layerName, newTextInput) {
-        for (var j = 0; j < comp.length; j++) {
-            var layerArr = comp[j].layers;
+    function slateOvatorEngine(compSelection, layerName, newTextInput) {
+        for (var j = 0; j < compSelection.length; j++) {
+            var layerArr = compSelection[j].layers;
             for (var i = 1; i <= layerArr.length; i++) {
                 if (layerArr[i].name == layerName) {
                     layerArr[i].text.sourceText.setValue(newTextInput);

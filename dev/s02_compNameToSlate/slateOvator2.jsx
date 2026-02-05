@@ -2,12 +2,11 @@
 
 //var projectItems = app.project.items;
 //var activeItem = app.project.activeItem;
-var selected = app.project.selection; // compositions
-    //var parentCompName = compNames[0];  //arr to string
-    //var newExpression = "comp(\"" + parentCompName + "\"" + ").name;";
 
 
 app.beginUndoGroup("slateOvator_v02");
+
+var selected = app.project.selection; // compositions
 
     if (selected.length == 0) {
         alert("Select a composition");
@@ -43,18 +42,3 @@ function slateOvatorEngine(slateComp, newText) {
                 }
             }
         }
-
-/*var usedInList = compNamesMultiFx(selected);
-alert(usedInList);
-
-var compNames = compNamesFx(usedInList);
-alert(compNames);
-
-function compNamesFx(arr) {
-    var compNamesArr = [];
-    for (var i = 0; i < usedInList.length; i++) {
-    compNamesArr.push(arr[i][0].name);
-    }
-    return compNamesArr;
-}
-*/

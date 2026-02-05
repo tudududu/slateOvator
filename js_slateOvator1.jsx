@@ -1,5 +1,5 @@
 //  slateOvator_part1
-//  v07
+//  240111_v08
 //  change media, sound, operator field
 
 (function (thisObj) {
@@ -78,7 +78,7 @@
 
 function slateOvator1(layerName, newTextInput) {
 
-app.beginUndoGroup("slateOvator1");
+app.beginUndoGroup("Change field in multiple slates");
     var selectedComp = app.project.selection; //array
 
     if (selectedComp.length == 0) {
@@ -91,10 +91,12 @@ app.endUndoGroup();
     
     function slateOvatorEngine(compSelection, layerName, newTextInput) {
         for (var j = 0; j < compSelection.length; j++) {
+            if (compSelection[j] instanceof CompItem) {
             var layerArr = compSelection[j].layers;
             for (var i = 1; i <= layerArr.length; i++) {
                 if (layerArr[i].name == layerName) {
                     layerArr[i].text.sourceText.setValue(newTextInput);
+                    }
                 }
             }
         }

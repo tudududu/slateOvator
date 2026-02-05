@@ -2,7 +2,7 @@
 // 240107
 
 //  slateOvator_part3
-//  v08h
+//  v08i
 //  Insert slate into composition
 
 (function (thisObj) {
@@ -149,10 +149,16 @@ app.endUndoGroup();
         
         function fitToCompScaleAction(myLayer, fitToCompScaleLoc) {
             var myScale = myLayer.scale;
-        myScale.setValue([fitToCompScaleLoc, fitToCompScaleLoc]);
+            myScale.setValue([fitToCompScaleLoc, fitToCompScaleLoc]);
         }
         
-        fitToCompScaleAction(myLayer, fitToCompScale);   
+        function centerCompPosition(myCompSize, myLayer) {
+            var myPosition = myLayer.position;
+            myPosition.setValue([myCompSize[0]/2, myCompSize[1]/2]);
+        }
+
+        fitToCompScaleAction(myLayer, fitToCompScale);
+        centerCompPosition(myCompSize, myLayer);
     }
 }
 

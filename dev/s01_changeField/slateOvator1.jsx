@@ -1,15 +1,17 @@
 //  slateOvator_part1
-//  240212_v093
+//  240215_v09
 //  change field in multiple slates
 //  switch tags
 
 (function (thisObj) {
     
+var vers = "9.4";
+
     newPanel(thisObj);
 
     function newPanel(thisObj) {
         var win = (thisObj instanceof Panel) ? thisObj 
-        : new Window('palette', 'slateOvator', undefined);
+        : new Window('palette', 'slateOvator_part1 (v' + vers + ')', undefined);
         win.orientation = 'column';
         win.preferredSize = [200, 300];
         var buttonSize = [30, 20];
@@ -26,16 +28,6 @@
             panelOneGroupTwo.orientation = 'row';
         var panelOneGroupThree = panelOne.add('group', undefined, 'panelOneGroupThree');
             panelOneGroupThree.orientation = 'row';
-
-        var panelTwo = win.add('panel', undefined, 'Tags');
-            panelTwo.orientation = 'row';
-            panelTwo.alignChildren = 'fill';
-        var panelTwoGroupOne = panelTwo.add('group', undefined, 'panelTwoGroupOne');
-            panelTwoGroupOne.orientation = 'column';
-            panelTwoGroupOne.alignChildren = 'left';
-        var panelTwoGroupTwo = panelTwo.add('group', undefined, 'panelTwoGroupTwo');
-            panelTwoGroupTwo.orientation = 'column';
-            panelTwoGroupOne.alignChildren = 'left';
 
         //  label
         var labelOne = panelOneGroupOne.add('statictext', undefined, 'Media: ');
@@ -65,58 +57,6 @@
         var buttonThree = panelOneGroupThree.add('button', undefined, 'OK');
             buttonThree.size = buttonSize;
 
-        //  switches
-        var checkbox_Media = panelTwoGroupOne.add("checkbox", undefined, ' Media');
-        var checkbox_Sound = panelTwoGroupOne.add("checkbox", undefined, ' Sound');
-        var checkbox_Aspect = panelTwoGroupOne.add("checkbox", undefined, ' Aspect');
-        var checkbox_Resolution = panelTwoGroupOne.add("checkbox", undefined, ' Resolution');
-        var checkbox_Framerate = panelTwoGroupOne.add("checkbox", undefined, ' Framerate');
-        var checkbox_Subtitle = panelTwoGroupTwo.add("checkbox", undefined, ' Subtitle');
-        var checkbox_Language = panelTwoGroupTwo.add("checkbox", undefined, ' Language');
-        var checkbox_Brand = panelTwoGroupTwo.add("checkbox", undefined, ' Brand');
-        var checkbox_Title = panelTwoGroupTwo.add("checkbox", undefined, ' Title');
-        
-        // --- Action ---
-        
-            var switchesLayerName = "controls";
-        function checkTagMedia() {
-            slateOvator1(tlacitkovatOr, switcheslayerName, checkbox_Media.value, 'media_Switch');
-        }
-        function checkTagSound() {
-            slateOvator1(tlacitkovatOr, switcheslayerName, checkbox_Sound.value, "sound_Switch");
-        }
-        function checkTagAspect() {
-            slateOvator1(tlacitkovatOr, switcheslayerName, checkbox_Aspect.value, "aspect_Switch");
-        }
-        function checkTagResolution() {
-            slateOvator1(tlacitkovatOr, switcheslayerName, checkbox_Resolution.value, "resolution_Switch");
-        }
-        function checkTagFps() {
-            slateOvator1(tlacitkovatOr, switcheslayerName, checkbox_Framerate.value, "framerate_Switch");
-        }
-        function checkTagSubtit() {
-            slateOvator1(tlacitkovatOr, switcheslayerName, checkbox_Subtitle.value, "subtitle_Switch");
-        }
-        function checkTagLang() {
-            slateOvator1(tlacitkovatOr, switcheslayerName, checkbox_Language.value, "language_Switch");
-        }
-        function checkTagBrand() {
-            slateOvator1(tlacitkovatOr, switcheslayerName, checkbox_Brand.value, "brand_switch");
-        }
-        function checkTagTitle() {
-            slateOvator1(tlacitkovatOr, switcheslayerName, checkbox_Title.value, "title_switch");
-        }
-        
-        checkbox_Media.onClick = checkTagMedia;
-        checkbox_Sound.onClick = checkTagSound;
-        checkbox_Aspect.onClick = checkTagAspect;
-        checkbox_Resolution.onClick = checkTagResolution;
-        checkbox_Framerate.onClick = checkTagFps;
-        checkbox_Subtitle.onClick = checkTagSubtit;
-        checkbox_Language.onClick = checkTagLang;
-        checkbox_Brand.onClick = checkTagBrand;
-        checkbox_Title.onClick = checkTagTitle;
-
         function triggerMedia() {
             slateOvator1(fieldRenamer, 'Media', inputMedia.text);
         }
@@ -134,6 +74,73 @@
         buttonTwo.onClick = triggerSoundLevel;
         buttonThree.onClick = triggerOperator;
 
+        //  switches
+
+        var panelTwo = win.add('panel', undefined, 'Tags');
+            panelTwo.orientation = 'row';
+            panelTwo.alignChildren = 'fill';
+        var panelTwoGroupOne = panelTwo.add('group', undefined, 'panelTwoGroupOne');
+            panelTwoGroupOne.orientation = 'column';
+            //panelTwoGroupOne.alignChildren = 'left';
+        var panelTwoGroupTwo = panelTwo.add('group', undefined, 'panelTwoGroupTwo');
+            panelTwoGroupTwo.orientation = 'column';
+            //panelTwoGroupOne.alignChildren = 'left';
+
+        var checkbox_Media = panelTwoGroupOne.add("checkbox", [undefined,undefined,100,18], ' Media');
+        var checkbox_Sound = panelTwoGroupOne.add("checkbox", [undefined,undefined,100,18], ' Sound');
+        var checkbox_Aspect = panelTwoGroupOne.add("checkbox", [undefined,undefined,100,18], ' Aspect');
+        var checkbox_Resolution = panelTwoGroupOne.add("checkbox", [undefined,undefined,100,18], ' Resolution');
+        var checkbox_Framerate = panelTwoGroupOne.add("checkbox", [undefined,undefined,100,18], ' Framerate');
+        var checkbox_Subtitle = panelTwoGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Subtitle');
+        var checkbox_Language = panelTwoGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Language');
+        var checkbox_Brand = panelTwoGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Brand');
+        var checkbox_Title = panelTwoGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Title');
+        var checkbox_Logo = panelTwoGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Logo');
+        
+        // --- Action ---
+        
+            var switchesLayerName = "controls";
+        function checkTagMedia() {
+            slateOvator1(tlacitkovatOr, switchesLayerName, checkbox_Media.value, 'media_Switch');
+        }
+        function checkTagSound() {
+            slateOvator1(tlacitkovatOr, switchesLayerName, checkbox_Sound.value, "sound_Switch");
+        }
+        function checkTagAspect() {
+            slateOvator1(tlacitkovatOr, switchesLayerName, checkbox_Aspect.value, "aspect_Switch");
+        }
+        function checkTagResolution() {
+            slateOvator1(tlacitkovatOr, switchesLayerName, checkbox_Resolution.value, "resolution_Switch");
+        }
+        function checkTagFps() {
+            slateOvator1(tlacitkovatOr, switchesLayerName, checkbox_Framerate.value, "framerate_Switch");
+        }
+        function checkTagSubtit() {
+            slateOvator1(tlacitkovatOr, switchesLayerName, checkbox_Subtitle.value, "subtitle_Switch");
+        }
+        function checkTagLang() {
+            slateOvator1(tlacitkovatOr, switchesLayerName, checkbox_Language.value, "language_Switch");
+        }
+        function checkTagBrand() {
+            slateOvator1(tlacitkovatOr, switchesLayerName, checkbox_Brand.value, "brand_switch");
+        }
+        function checkTagTitle() {
+            slateOvator1(tlacitkovatOr, switchesLayerName, checkbox_Title.value, "title_switch");
+        }
+        function checkLogo() {
+            slateOvator1(tlacitkovatOr, switchesLayerName, checkbox_Media.value, 'logo_Switch');
+        }
+        checkbox_Media.onClick = checkTagMedia;
+        checkbox_Sound.onClick = checkTagSound;
+        checkbox_Aspect.onClick = checkTagAspect;
+        checkbox_Resolution.onClick = checkTagResolution;
+        checkbox_Framerate.onClick = checkTagFps;
+        checkbox_Subtitle.onClick = checkTagSubtit;
+        checkbox_Language.onClick = checkTagLang;
+        checkbox_Brand.onClick = checkTagBrand;
+        checkbox_Title.onClick = checkTagTitle;
+        checkbox_Logo.onClick = checkLogo;
+
         // --- ACTIONS ---
         win.onResizing = win.onResize = function () {
             this.layout.resize();
@@ -145,16 +152,16 @@
 
 function slateOvator1(callback, layerName, input, effect) {
 
-app.beginUndoGroup("Change field in multiple slates");
-    var selectedComp = app.project.selection; //array
+    app.beginUndoGroup("Change field in multiple slates");
+        var selectedComp = app.project.selection; //array
 
-    if (selectedComp.length == 0) {
-        alert("Select a composition");
-    } else {
-        callback(selectedComp, layerName, input, effect);
-    }
-    
-app.endUndoGroup();
+        if (selectedComp.length == 0) {
+            alert("Select a composition");
+        } else {
+            callback(selectedComp, layerName, input, effect);
+        }
+        
+    app.endUndoGroup();
     
 }
     

@@ -1,8 +1,8 @@
 // slate0vator4 v01 duplicator_inRoot
-// 240129
+// 240130
 
 //  The FinalCountdown
-//  240127_05b
+//  240127_06
 //  out0vator prebal0vator
 
 function slateOvator_part04() {
@@ -75,7 +75,7 @@ function prebalVyber(compSelection, folderNameOut, folderNameMaster) {
         }
         //  passar o master pro outComp
             myCompOutLayers.add(myCompMaster);
-        var myCompMasterLayerStartTime = myCompOut.layer(1).startTime;
+        //var myCompMasterLayerStartTime = myCompOut.layer(1).startTime;
             myCompOut.layer(1).startTime = 1;
         //  move myCompOut into new folder by setting
         //  comp Item's parentFolder to "compsOut" folder

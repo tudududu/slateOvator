@@ -1,6 +1,6 @@
-//  slateOvator_part1_SoundLevel
-//  v03
-//  change operator field in multiple slates
+//  slateOvator_part1
+//  v04
+//  change operator, media, sound field in multiple slates
 
 (function (thisObj) {
     
@@ -12,22 +12,41 @@
         //  win.preferredSize = [350, 300];
 
         var groupOne = win.add('group');
-            groupOne.orientation = 'row';
+            groupOne.orientation = 'column';
             groupOne.alignChildren = 'fill';
+        var groupTwo = win.add('group');
+            groupTwo.orientation = 'column';
+            groupTwo.alignChildren = 'fill';
+        var groupThree = win.add('group');
+            groupThree.orientation = 'column';
+            groupThree.alignChildren = 'fill';
         
         //  label
-        var label = groupOne.add('statictext', undefined, 'SoundLevel: ');
+        var labelOne = groupOne.add('statictext', undefined, 'Media: ');
+        var labelTwo = groupTwo.add('statictext', undefined, 'SoundLevel: ');
+        var labelThree = groupThree.add('statictext', undefined, 'Operator: ');
         //  input text
-        var startTimeInput = groupOne.add('edittext', undefined, 'SoundLevel');
-            startTimeInput.characters = 10;
+        var inputMedia = groupOne.add('edittext', undefined, 'TV');
+            inputMedia.characters = 10;
+        var inputSoundLevel = groupOne.add('edittext', undefined, 'soundLevel');
+            inputSoundLevel.characters = 10;
+        var inputOperator = groupOne.add('edittext', undefined, 'yourName');
+            inputOperator.characters = 10;
         //  apply Button
-        var applyBtn = groupOne.add('button', undefined, 'Apply');
-            //  applyBtn.size = [50, 25];
+        var applyBtnOne = groupOne.add('button', undefined, 'Apply');
+        var applyBtnTwo = groupOne.add('button', undefined, 'Apply');
+        var applyBtnThree = groupOne.add('button', undefined, 'Apply');
+        //  applyBtn.size = [50, 25];
 
         // --- Action ---
-            applyBtn.onClick = function () {
-            slateOvator1(startTimeInput.text);
-            //startTimeInput.active = true; // ---pokus o Enter minsto button click
+        applyBtnOne.onClick = function () {
+        slateOvator1('Media', inputMedia.text);
+        }
+        applyBtnTwo.onClick = function () {
+        slateOvator1('SoundLevel', inputSoundLevel.text);
+        }
+        applyBtnTwo.onClick = function () {
+        slateOvator1('Operator', inputOperator.text);
         }
 
         // --- ACTIONS ---
@@ -39,31 +58,29 @@
 
     }
 
-function slateOvator1(newTextInput) {
+function slateOvator1(layer, newTextInput) {
 
-app.beginUndoGroup("slateOvator1_SoundLevel");
-    var newText = newTextInput;
-    var selected = app.project.selection; //array
+app.beginUndoGroup("slateOvator1");
+    var selectedComp = app.project.selection; //array
 
-    if (selected.length == 0) {
+    if (selectedComp.length == 0) {
         alert("Select a composition");
     } else {
-        slateOvatorEngine(selected, newText);
+        slateOvatorEngine(selectedComp, newText);
     }
     
 app.endUndoGroup();
     
-    function slateOvatorEngine(arr, newText) {
-        for (var j = 0; j < arr.length; j++) {
-            var layerArr = arr[j].layers;
+    function slateOvatorEngine(comp, layer, newText) {
+        for (var j = 0; j < comp.length; j++) {
+            var layerArr = comp[j].layers;
             for (var i = 1; i <= layerArr.length; i++) {
-                if (layerArr[i].name == "SoundLevel") {
+                if (layerArr[i].name == layer) {
                     layerArr[i].text.sourceText.setValue(newText);
                 }
             }
         }
     }
 }
-
 
 })(this);

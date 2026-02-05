@@ -1,6 +1,6 @@
-// slateOvator2 compNameToSlate 231207
+// slateOvator2 compNameToSlate 231211
 
-//  slateOvator2_v23
+//  slateOvator2_v25
 //  change the compName in slate
 
 (function (thisObj) {
@@ -13,15 +13,15 @@
         //  win.preferredSize = [350, 300];
 
         var groupOne = win.add('group');
-            groupOne.orientation = 'row';
+            groupOne.orientation = 'column';
             groupOne.alignChildren = 'fill';
         /*
-        //  label
-        var label = groupOne.add('statictext', undefined, 'operator: ');
         //  input text    
         var startTimeInput = groupOne.add('edittext', undefined, 'yourName');
             startTimeInput.characters = 10;
         */
+        //  label
+        var label = groupOne.add('statictext', undefined, 'pass the compName to the slate');
         //  apply Button
         var applyBtn = groupOne.add('button', undefined, 'Apply', {name: "ok"});
         
@@ -61,7 +61,6 @@ function compNamesMultiFx(selectedArr) {
         if (parentComp.length == 1) {
             var parentCompName = parentComp[0].name;  //arr to string
             var newExpression = "comp(\"" + parentCompName + "\"" + ").name;";
-            //  alert(parentCompName);
             slateOvatorEngine(selectedArr[j], newExpression);
         } else {
             alert("Slate can only be used once.");
@@ -71,7 +70,7 @@ function compNamesMultiFx(selectedArr) {
 }
 
 function slateOvatorEngine(slateComp, newText) {
-    //for (var j = 0; j < arr.length; j++) {
+    
         var layerArr = slateComp.layers;
         for (var i = 1; i <= layerArr.length; i++) {
             if (layerArr[i].name == "compName") {

@@ -29,9 +29,10 @@
 
         var panelTwo = win.add('panel', undefined, 'Tags');
             panelTwo.orientation = 'column';
-            panelTwo.alignChildren = 'right';
+            panelTwo.alignChildren = 'fill';
         var panelTwoGroupOne = panelTwo.add('group', undefined, 'panelTwoGroupOne');
-            panelTwoGroupOne.orientation = 'row';
+            panelTwoGroupOne.orientation = 'column';
+            panelTwoGroupOne.alignChildren = 'left';
 
         //  label
         var labelOne = panelOneGroupOne.add('statictext', undefined, 'Media: ');
@@ -62,8 +63,15 @@
             buttonThree.size = buttonSize;
 
         //  switches
-        var checkbox_Media = panelTwoGroupOne.add("checkbox", undefined, ' Media:');
-        var checkbox_Sound = panelTwoGroupOne.add("checkbox", undefined, ' Sound:');
+        var checkbox_Media = panelTwoGroupOne.add("checkbox", undefined, ' Media');
+        var checkbox_Sound = panelTwoGroupOne.add("checkbox", undefined, ' Sound');
+        var checkbox_Aspect = panelTwoGroupOne.add("checkbox", undefined, ' Aspect');
+        var checkbox_Resolution = panelTwoGroupOne.add("checkbox", undefined, ' Resolution');
+        var checkbox_Framerate = panelTwoGroupOne.add("checkbox", undefined, ' Framerate');
+        var checkbox_Subtitle = panelTwoGroupOne.add("checkbox", undefined, ' Subtitle');
+        var checkbox_Language = panelTwoGroupOne.add("checkbox", undefined, ' Language');
+        var checkbox_Brand = panelTwoGroupOne.add("checkbox", undefined, ' Brand');
+        var checkbox_Title = panelTwoGroupOne.add("checkbox", undefined, ' Title');
 /*resolution_Switch
 aspect_Switch
 framerate_Switch
@@ -72,19 +80,20 @@ language_Switch
 brand_switch
 title_switch*/
         // --- Action ---
-        function checkTagFnc(chkbx, effectName) {
+        /*function checkTagFnc(chkbx, effectName) {
             var layerName = "controls";
             slateOvator1(tlacitkovatOr, layerName, chkbx.value, effectName);
         }
         var checkTagMedia = checkTagFnc(checkbox_Media, 'media_Switch');
-        
-        /*function checkTagMedia() {
+        checkbox_Media.onClick = checkTagMedia;
+        */
+
+        function checkTagMedia() {
             var layerName = "controls";
             var effectName = "media_Switch";
             slateOvator1(tlacitkovatOr, layerName, checkbox_Media.value, effectName);
-        }*/
+        }
         checkbox_Media.onClick = checkTagMedia;
-
         
         function triggerMedia() {
             slateOvator1(fieldRenamer, 'Media', inputMedia.text);
@@ -155,6 +164,3 @@ app.endUndoGroup();
         }
 
 })(this);
-
-//thisComp.layer("controls").effect("sound_Switch")("Checkbox").value;
-//var effectsX = projItem.layer(19).effect("sound_Switch")("Checkbox").value;

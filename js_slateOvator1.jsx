@@ -1,5 +1,5 @@
 //  slateOvator_part1
-//  240213_v092
+//  240212_v093
 //  change field in multiple slates
 //  switch tags
 
@@ -29,13 +29,13 @@
 
         var panelTwo = win.add('panel', undefined, 'Tags');
             panelTwo.orientation = 'row';
-            panelTwo.alignChildren = 'left';
+            panelTwo.alignChildren = 'fill';
         var panelTwoGroupOne = panelTwo.add('group', undefined, 'panelTwoGroupOne');
             panelTwoGroupOne.orientation = 'column';
-            //panelTwoGroupOne.alignChildren = 'left';
+            panelTwoGroupOne.alignChildren = 'left';
         var panelTwoGroupTwo = panelTwo.add('group', undefined, 'panelTwoGroupTwo');
             panelTwoGroupTwo.orientation = 'column';
-            //panelTwoGroupOne.alignChildren = 'left';
+            panelTwoGroupOne.alignChildren = 'left';
 
         //  label
         var labelOne = panelOneGroupOne.add('statictext', undefined, 'Media: ');
@@ -66,26 +66,18 @@
             buttonThree.size = buttonSize;
 
         //  switches
-        var checkbox_Media = panelTwoGroupOne.add("checkbox", [undefined,undefined,100,18], ' Media');
-        var checkbox_Sound = panelTwoGroupOne.add("checkbox", [undefined,undefined,100,18], ' Sound');
-        var checkbox_Aspect = panelTwoGroupOne.add("checkbox", [undefined,undefined,100,18], ' Aspect');
-        var checkbox_Resolution = panelTwoGroupOne.add("checkbox", [undefined,undefined,100,18], ' Resolution');
-        var checkbox_Framerate = panelTwoGroupOne.add("checkbox", [undefined,undefined,100,18], ' Framerate');
-        var checkbox_Subtitle = panelTwoGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Subtitle');
-        var checkbox_Language = panelTwoGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Language');
-        var checkbox_Brand = panelTwoGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Brand');
-        var checkbox_Title = panelTwoGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Title');
-        var checkbox_Title = panelTwoGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Logo');
+        var checkbox_Media = panelTwoGroupOne.add("checkbox", undefined, ' Media');
+        var checkbox_Sound = panelTwoGroupOne.add("checkbox", undefined, ' Sound');
+        var checkbox_Aspect = panelTwoGroupOne.add("checkbox", undefined, ' Aspect');
+        var checkbox_Resolution = panelTwoGroupOne.add("checkbox", undefined, ' Resolution');
+        var checkbox_Framerate = panelTwoGroupOne.add("checkbox", undefined, ' Framerate');
+        var checkbox_Subtitle = panelTwoGroupTwo.add("checkbox", undefined, ' Subtitle');
+        var checkbox_Language = panelTwoGroupTwo.add("checkbox", undefined, ' Language');
+        var checkbox_Brand = panelTwoGroupTwo.add("checkbox", undefined, ' Brand');
+        var checkbox_Title = panelTwoGroupTwo.add("checkbox", undefined, ' Title');
+        
         // --- Action ---
         
-        /*function checkTagFnc(tlacitkovatOr, chkbx, effectName) {
-            var layerName = "controls";
-            //chkbx.value
-            slateOvator1(tlacitkovatOr, layerName, chkbx.value, effectName);
-        }
-        function checkTagMedia() {checkTagFnc(tlacitkovatOr, checkbox_Media, 'media_Switch');}
-        checkbox_Media.onClick = checkTagMedia;
-        */
             var switchesLayerName = "controls";
         function checkTagMedia() {
             slateOvator1(tlacitkovatOr, switcheslayerName, checkbox_Media.value, 'media_Switch');

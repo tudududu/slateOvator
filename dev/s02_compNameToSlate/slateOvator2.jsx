@@ -1,37 +1,50 @@
 // slateOvator2 compNameToSlate 231207
 
 //var projectItems = app.project.items;
-var selected = app.project.selection;
 //var activeItem = app.project.activeItem;
-
-/*
-app.beginUndoGroup("slateOvator_v02");
-
+var selected = app.project.selection; // compositions
     //var parentCompName = compNames[0];  //arr to string
     //var newExpression = "comp(\"" + parentCompName + "\"" + ").name;";
-    var selected = app.project.selection; // compositions
+
+
+app.beginUndoGroup("slateOvator_v02");
 
     if (selected.length == 0) {
         alert("Select a composition");
     } else {
-        slateOvatorEngine(selected);
+        compNamesMultiFx(selected);
     }
 
 app.endUndoGroup();
-*/
+
 function compNamesMultiFx(selectedArr) {
-    var usedInListArr = [];
+    
     for (var j = 0; j < selectedArr.length; j++) {
-    var oneCompUsedIn = selectedArr[j].usedIn;
-        if (oneCompUsedIn.length == 1) {
-            usedInListArr.push(oneCompUsedIn[0].name);
+            var parentComp = selectedArr[j].usedIn;
+        
+        if (parentComp.length == 1) {
+            var parentCompName = parentComp[0].name;  //arr to string
+            var newExpression = "comp(\"" + parentCompName + "\"" + ").name;";
+            //  alert(parentCompName);
+            slateOvatorEngine(selectedArr[j], newExpression);
         } else {
             alert("Slate can only be used once.");
         }
     }
-    return usedInListArr;
+    
 }
-var usedInList = compNamesMultiFx(selected);
+
+function slateOvatorEngine(slateComp, newText) {
+        //for (var j = 0; j < arr.length; j++) {
+            var layerArr = slateComp.layers;
+            for (var i = 1; i <= layerArr.length; i++) {
+                if (layerArr[i].name == "compName") {
+                    layerArr[i].text.sourceText.expression = newText;
+                }
+            }
+        }
+
+/*var usedInList = compNamesMultiFx(selected);
 alert(usedInList);
 
 var compNames = compNamesFx(usedInList);
@@ -44,14 +57,4 @@ function compNamesFx(arr) {
     }
     return compNamesArr;
 }
-/*
-function slateOvatorEngine(arr, newText) {
-        //for (var j = 0; j < arr.length; j++) {
-            var layerArr = activeItem.layers;
-            for (var i = 1; i <= layerArr.length; i++) {
-                if (layerArr[i].name == "compName") {
-                    layerArr[i].text.sourceText.expression = newText;
-                }
-            }
-        }
 */

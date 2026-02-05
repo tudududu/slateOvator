@@ -1,5 +1,5 @@
 //  slateOvator_part1
-//  240111_v09
+//  240213_v09
 //  change field in multiple slates
 //  switch tags
 
@@ -72,21 +72,8 @@
         var checkbox_Language = panelTwoGroupOne.add("checkbox", undefined, ' Language');
         var checkbox_Brand = panelTwoGroupOne.add("checkbox", undefined, ' Brand');
         var checkbox_Title = panelTwoGroupOne.add("checkbox", undefined, ' Title');
-/*resolution_Switch
-aspect_Switch
-framerate_Switch
-subtitle_Switch
-language_Switch
-brand_switch
-title_switch*/
+
         // --- Action ---
-        /*function checkTagFnc(chkbx, effectName) {
-            var layerName = "controls";
-            slateOvator1(tlacitkovatOr, layerName, chkbx.value, effectName);
-        }
-        var checkTagMedia = checkTagFnc(checkbox_Media, 'media_Switch');
-        checkbox_Media.onClick = checkTagMedia;
-        */
 
         function checkTagMedia() {
             var layerName = "controls";

@@ -1,8 +1,8 @@
 // slateOvator3 insertSlate
-// 240106
+// 240107
 
 //  slateOvator_part3
-//  v08g
+//  v08h
 //  Insert slate into composition
 
 (function (thisObj) {
@@ -39,7 +39,7 @@
 
 
 function slateOvator3() {
-app.beginUndoGroup("slateOvator3_v08f");
+app.beginUndoGroup("slateOvator3_v08h");
     var selected = app.project.selection;
     var regex = /slate_\(v\d{6}\)/;
 
@@ -54,7 +54,7 @@ app.endUndoGroup();
     function placeMultipleSlate(compSelection, regex) {
         for (var j = 0; j < compSelection.length; j++) {
             //placeTheSlate(compSelection[j], regex);
-            velikostUpravovator(compSelection[j], regex);
+            aplikaceDoComp(compSelection[j], regex);
         }
     }
 
@@ -75,38 +75,40 @@ app.endUndoGroup();
         }
     }
 
-    function velikostUpravovator(comp, regex) {
+    function aplikaceDoComp(comp, regex) {
         
         var layerArr = comp.layers;
-        var layerObj;
         
-        for (var i = 1; i <= layerArr.length; i++) {
-            var layerName = layerArr[i].name;
-            var slateSearch = regex.test(layerName);
+        if (layerArr.length == 0) {
+            placeTheSlate(comp, regex);
+        } else if (layerArr.length > 0) {
 
-            if (slateSearch == false || i < 1) {
-                placeTheSlate(comp, regex);
-                break;
+            for (var i = 1; i <= layerArr.length; i++) {
+                var layerName = layerArr[i].name;
+                var slateSearch = regex.test(layerName);
+
+                if (slateSearch) {
+                    break;
+                } else {
+                    placeTheSlate(comp, regex);
+                    break;
+                }
             }
         }
-            
+
         for (var i = 1; i <= layerArr.length; i++) {
             var layerName = layerArr[i].name;
             var slateSearch = regex.test(layerName);
             if (slateSearch) {
-                layerObj = layerArr[i];
+                var layerObj = layerArr[i];
                 fitToCompSize(comp, layerObj);
-            //comp.displayStartTime = -1;
             }
         }
+        comp.displayStartTime = -1;
     }
 
-    
     function fitToCompSize(myComp, myLayer) {
-        //alert(myComp.name);
-        //alert(myLayer.name);
-
-        //var myLayerSize = [myLayer.width, myLayer.height];
+        
         var myCompSize = [myComp.width, myComp.height];
         var compAspect = (myCompSize[0] / myCompSize[1]).toFixed(2);
 
@@ -127,14 +129,12 @@ app.endUndoGroup();
             } else if (myCompSizeLocal > topMargin) {
                 scaleResult = scale_02;
             }
-
             return scaleResult;
         }
 
         var scaleX = scaleCondition(myCompSize[0], hd80X, 1920);
         var scaleY = scaleCondition(myCompSize[1], hd80Y, 1080);
-        //  alert("scaleX: " + scaleX + ", scaleY: " + scaleY);
-        
+                
         function scaleAspectCondition(compAspect, scaleX, scaleY) {
             var scaleResultB
             if (compAspect <= 1.78) {

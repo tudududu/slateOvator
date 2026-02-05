@@ -1,4 +1,4 @@
-//  slateOvator_part1
+//  slateOvator_part1_Media
 //  v03
 //  change operator field in multiple slates
 
@@ -16,9 +16,9 @@
             groupOne.alignChildren = 'fill';
         
         //  label
-        var label = groupOne.add('statictext', undefined, 'Operator: ');
+        var label = groupOne.add('statictext', undefined, 'Media: ');
         //  input text
-        var startTimeInput = groupOne.add('edittext', undefined, 'yourName');
+        var startTimeInput = groupOne.add('edittext', undefined, 'Media');
             startTimeInput.characters = 10;
         //  apply Button
         var applyBtn = groupOne.add('button', undefined, 'Apply');
@@ -41,7 +41,7 @@
 
 function slateOvator1(newTextInput) {
 
-app.beginUndoGroup("slateOvator1");
+app.beginUndoGroup("slateOvator1_Media");
     var newText = newTextInput;
     var selected = app.project.selection; //array
 
@@ -57,7 +57,7 @@ app.endUndoGroup();
         for (var j = 0; j < arr.length; j++) {
             var layerArr = arr[j].layers;
             for (var i = 1; i <= layerArr.length; i++) {
-                if (layerArr[i].name == "Operator") {
+                if (layerArr[i].name == "Media") {
                     layerArr[i].text.sourceText.setValue(newText);
                 }
             }

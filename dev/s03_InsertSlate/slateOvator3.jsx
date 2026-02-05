@@ -2,7 +2,7 @@
 // 240106
 
 //  slateOvator_part3
-//  v08f
+//  v08g
 //  Insert slate into composition
 
 (function (thisObj) {
@@ -53,9 +53,8 @@ app.endUndoGroup();
     //  vyber komopzic
     function placeMultipleSlate(compSelection, regex) {
         for (var j = 0; j < compSelection.length; j++) {
-            placeTheSlate(compSelection[j], regex);
+            //placeTheSlate(compSelection[j], regex);
             velikostUpravovator(compSelection[j], regex);
-            theComp.displayStartTime = -1;
         }
     }
 
@@ -84,9 +83,20 @@ app.endUndoGroup();
         for (var i = 1; i <= layerArr.length; i++) {
             var layerName = layerArr[i].name;
             var slateSearch = regex.test(layerName);
+
+            if (slateSearch == false || i < 1) {
+                placeTheSlate(comp, regex);
+                break;
+            }
+        }
+            
+        for (var i = 1; i <= layerArr.length; i++) {
+            var layerName = layerArr[i].name;
+            var slateSearch = regex.test(layerName);
             if (slateSearch) {
                 layerObj = layerArr[i];
                 fitToCompSize(comp, layerObj);
+            //comp.displayStartTime = -1;
             }
         }
     }

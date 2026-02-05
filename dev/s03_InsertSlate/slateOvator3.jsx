@@ -1,8 +1,8 @@
 // slateOvator3 insertSlate
-// 240104
+// 240106
 
 //  slateOvator_part3
-//  v06
+//  v08a
 //  Insert slate into composition
 
 (function (thisObj) {
@@ -49,7 +49,7 @@ var selected = app.project.selection;
     }
 app.endUndoGroup();
 
-    //  vyber
+    //  vyber komopzic
     function placeMultipleSlate(compSelection) {
         for (var j = 0; j < compSelection.length; j++) {
             placeTheSlate(compSelection[j]);
@@ -60,8 +60,7 @@ app.endUndoGroup();
     function placeTheSlate(theComp) {
         
         var regex = /slate_\(v\d{6}\)/;
-        //var projItem = app.project.item;
-
+        
         for (var i = 1; i <= app.project.numItems; i++) {
             var myStr = app.project.item(i).name;
             var slateSearch = regex.test(myStr);
@@ -72,11 +71,58 @@ app.endUndoGroup();
             var newSlate = slate.duplicate();
                 theComp.layers.add(newSlate);
                 theComp.displayStartTime = -1;
+                
+                fitToCompSize(theComp, newSlate);
+
                 break;  //  verze s regexem jinak cykli
             }
         }
     }
-}
 
+    function fitToCompSize(myComp, myLayer) {
+//alert(myComp.name);
+//alert(myLayer.name);
+        //var myScale = myLayer.scale;
+        var myScale = myLayer.property("scale");
+alert(myScale);
+        var myLayerSize = [myLayer.width, myLayer.height];
+        var myCompSize = [myComp.width, myComp.height];
+        var compAspect = (myCompSize[0] / myCompSize[1]).toFixed(2);
+
+        var hd80X = 1920 * 0.81;    // bottomMargin = 80% HDx
+        var hd80Y = 1080 * 0.75;
+
+        function scaleCondition(myCompSizeLocal, bottomMargin, topMargin) {
+
+            var scaleResult;
+            var scale_00 = 100;
+            var scale_01 = myCompSizeLocal / bottomMargin * 100;    // zmensujem od 80% HD
+            var scale_02 = myCompSizeLocal / topMargin * 100; // zvetsujem nad 1920
+
+            if (myCompSizeLocal >= bottomMargin && myCompSizeLocal <= topMargin) {
+                scaleResult = scale_00;
+            } else if (myCompSizeLocal < bottomMargin) {
+                scaleResult = scale_01;
+            } else if (myCompSizeLocal > topMargin) {
+                scaleResult = scale_02;
+            }
+
+            return scaleResult;
+        }
+
+        var scaleX = scaleCondition(myCompSize[0], hd80X, 1920);
+        var scaleY = scaleCondition(myCompSize[1], hd80Y, 1080);
+//  alert("scaleX: " + scaleX + ", scaleY: " + scaleY);
+        var scaleAspectResult;
+        
+        if (compAspect <= 1.78) {
+            scaleAspectResult = scaleX;
+        } else {
+            scaleAspectResult = scaleY;
+        }
+        myScale.setValue([scaleAspectResult, scaleAspectResult]);
+
+    }
+}
 
 })(this);

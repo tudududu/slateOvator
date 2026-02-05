@@ -1,8 +1,8 @@
 // slateOvator3 insertSlate
-// 240107
+// 240108
 
 //  slateOvator_part3
-//  v08i
+//  v08j
 //  Insert slate into composition
 
 (function (thisObj) {
@@ -39,7 +39,9 @@
 
 
 function slateOvator3() {
-app.beginUndoGroup("slateOvator3_v08h");
+
+app.beginUndoGroup("Insert slate into composition");
+
     var selected = app.project.selection;
     var regex = /slate_\(v\d{6}\)/;
 
@@ -53,7 +55,6 @@ app.endUndoGroup();
     //  vyber komopzic
     function placeMultipleSlate(compSelection, regex) {
         for (var j = 0; j < compSelection.length; j++) {
-            //placeTheSlate(compSelection[j], regex);
             aplikaceDoComp(compSelection[j], regex);
         }
     }

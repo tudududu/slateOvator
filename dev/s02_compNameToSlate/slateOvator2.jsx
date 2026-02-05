@@ -1,7 +1,6 @@
-// slateOvator2 compNameToSlate 231211
-
-//  slateOvator2_v25
-//  change the compName in slate
+//  slateOvator_part2
+//  v03 240113
+//  Pass the compName to the slate
 
 (function (thisObj) {
     
@@ -21,14 +20,13 @@
             startTimeInput.characters = 10;
         */
         //  label
-        var label = groupOne.add('statictext', undefined, 'pass the compName to the slate');
+        var label = groupOne.add('statictext', undefined, 'Pass the compName to the slate');
         //  apply Button
         var applyBtn = groupOne.add('button', undefined, 'Apply', {name: "ok"});
         
         // --- Action ---
             applyBtn.onClick = function () {
             slateOvator2();
-            //startTimeInput.active = true; // ---pokus o Enter minsto button click
         }
 
         // --- ACTIONS ---
@@ -40,7 +38,9 @@
 
     }
 
+
 function slateOvator2() {
+
 app.beginUndoGroup("slateOvator2");
 
 var selected = app.project.selection; // compositions
@@ -53,24 +53,27 @@ var selected = app.project.selection; // compositions
 
 app.endUndoGroup();
 
-function compNamesMultiFx(selectedArr) {
-    
-    for (var j = 0; j < selectedArr.length; j++) {
-            var parentComp = selectedArr[j].usedIn;
-        
-        if (parentComp.length == 1) {
-            var parentCompName = parentComp[0].name;  //arr to string
-            var newExpression = "comp(\"" + parentCompName + "\"" + ").name;";
-            slateOvatorEngine(selectedArr[j], newExpression);
-        } else {
-            alert("Slate can only be used once.");
+    //  Pro vybrane slaty spusti vkladac,
+    //  ktery vrati pole parentComp
+    function compNamesMultiFx(selectedArr) {
+        for (var j = 0; j < selectedArr.length; j++) {
+            if (selectedArr[j] instanceof CompItem) {
+                var parentComp = selectedArr[j].usedIn;
+            // a pokud je parentComp jen jedna spusti vkladac
+            if (parentComp.length == 1) {
+                var parentCompName = parentComp[0].name;  //arr to string
+                var newExpression = "comp(\"" + parentCompName + "\"" + ").name;";
+                slateOvatorEngine(selectedArr[j], newExpression);
+            } else {
+                alert("Slate can only be used once.");
+            }
         }
     }
-    
 }
 
-function slateOvatorEngine(slateComp, newText) {
-    
+    // vkladame parent compName do slatu
+    function slateOvatorEngine(slateComp, newText) {
+        
         var layerArr = slateComp.layers;
         for (var i = 1; i <= layerArr.length; i++) {
             if (layerArr[i].name == "compName") {
@@ -78,6 +81,7 @@ function slateOvatorEngine(slateComp, newText) {
             }
         }
     }
+
 }
 
 })(this);

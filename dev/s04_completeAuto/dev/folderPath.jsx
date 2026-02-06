@@ -26,16 +26,19 @@ var myFolderParentL5 = myFolderParentL4.parentFolder;
 var mFPL5 = folderNameFNC(myFolderParentL5);
 
 function folderNameFNC(item) {
-    var result;
-    if (item != null && item instanceof FolderItem) {
-        result = item.name;
-    } else {
-        result = null;
+    var folderParent;
+    if (item instanceof FolderItem) {
+        folderParent = item.parentFolder;
     }
-    return result;
+    return folderParent;
 }
 
-var pathArr = [mFPL1, mFPL2, mFPL3, mFPL5, null ,mFPL4];
-var nullArr = [mFPL5, null];
+function cesta(item) {
+    while (item.parentFolder !== )
+}
+/*
+var pathArr = [mFPL1, mFPL2, mFPL3, mFPL4, mFPL5];
+var nullArr = [mFPL5];
 alert(pathArr);
-alert(mFPL5);
+*/
+alert(myFolderParentL5);

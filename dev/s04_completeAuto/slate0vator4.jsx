@@ -16,7 +16,7 @@ newFolder.parentFolder = myCompFolder;
 */
 
 function makeFolder(folderName, folderParent) {
-    var newFolder = app.project.items.addFolder(folderName);
+    var newFolder = app.project.items.addFolder(folderName + '_');
     if (!(folderParent == null)) {
             newFolder.parentFolder = folderParent;
         }
@@ -43,7 +43,7 @@ function copy(myCompMaster) {
 
     naming(myCompMaster, myCompOut);
 
-    folderStructure(myCompMaster, myCompOut);
+    folderStructure(myCompMaster, myCompMaster);
     
 }
 
@@ -51,14 +51,18 @@ copy(myComp);
 
 app.endUndoGroup();
 
-function folderStructure(item, compOut) {
+function folderStructure(item, compMaster) {
     var objArr = [];
-        
+    var itemPF = item.parentFolder;
+    var folder = makeFolder(itemPF.name);
+        compMaster.parentFolder = folder;
+    
     do {
         if(item.parentFolder != app.project.rootFolder) {
             item = item.parentFolder;
+            
+            var folderX = makeFolder(item.name, );
         }
-        makeFolder(item.name, item.parentFolder);
     } while(item.parentFolder != app.project.rootFolder);
     
 }

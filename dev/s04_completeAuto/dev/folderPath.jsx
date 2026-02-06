@@ -1,5 +1,5 @@
 // folderPath
-// 240122
+// 240123
 // pokus dostat cestu ve strukture slozek
 
 /*
@@ -9,8 +9,8 @@ var myCompFolder = myComp.parentFolder;
 var myCompFolderName = myCompFolder.name;
 */
 
-var myFolder = app.project.activeItem;
-var myFolderParentL1 = myFolder.parentFolder;
+var selection = app.project.activeItem;
+var myFolderParentL1 = selection.parentFolder;
 var mFPL1 = folderNameFNC(myFolderParentL1);
 
 var myFolderParentL2 = myFolderParentL1.parentFolder;
@@ -34,11 +34,33 @@ function folderNameFNC(item) {
 }
 
 function cesta(item) {
-    while (item.parentFolder !== )
+    
+    var objArr = [];
+        
+    do {
+        if(item.parentFolder != app.project.rootFolder) {
+            item = item.parentFolder;           
+        }
+        objArr.push(item.name);
+    } while(item.parentFolder != app.project.rootFolder);
+    
+    return objArr;
+}
+
+alert(cesta(selection));
+
+
+/*
+function cesta(item) {
+    var arr = [];
+    while (item.parentFolder !== null) {
+    do 
+    }
+    
 }
 /*
 var pathArr = [mFPL1, mFPL2, mFPL3, mFPL4, mFPL5];
 var nullArr = [mFPL5];
 alert(pathArr);
-*/
 alert(myFolderParentL5);
+*/

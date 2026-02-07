@@ -5,29 +5,27 @@
 app.beginUndoGroup("Create Square");
 
 var projItem = app.project.activeItem;
+var selectedComp = app.project.selection;
 
-var testnameOne = "controls";
+var testNameOne = "controls";
+var effectName = "sound_Switch";
+var switchInput = true;
 
-//var slateSearch = regex.test(myStr);
-//var mySolid = projItem.layer(testnameOne);
-//alert(projItem.layers[1].name);
-//var myLayerSize = [mySolid.width, mySolid.height];
-//var myCompSize = [projItem.width, projItem.height];
-
-var effectsX = projItem.layer(19).effect("sound_Switch")("Checkbox").value;
-var effectsY = projItem.layer(19).Effects;
-var effectsZ = projItem.layer(19).Effects.numProperties;
-var layer0 = projItem.layer(19);
-var effectsArr = [];
-
-for (var i = 1; i <= effectsZ; i++) {
-    var effectLocal = layer0.effect(i);
-    effectsArr.push(effectLocal.name);
-    
+function tlacitkovatOr(compSelection, layerName, effectName, switchInput) {
+    for (var j = 0; j < compSelection.length; j++) {
+        if (compSelection[j] instanceof CompItem) {
+        var layerArr = compSelection[j].layers;
+        //var newValue = parseInt(switchInput);
+        for (var i = 1; i <= layerArr.length; i++) {
+            if (layerArr[i].name == layerName) {
+                layerArr[i].effect(effectName)("Checkbox").setValue(switchInput);
+                }
+            }
+        }
+    }
 }
 
-alert(effectsArr);
-
+tlacitkovatOr(selectedComp, testNameOne, effectName, switchInput);
 
 app.endUndoGroup();
 

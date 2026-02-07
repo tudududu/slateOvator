@@ -1,6 +1,6 @@
 // dev slateSearch 
 // search for the slate from the very project or its newest instance
-// 240430_v06c
+// 240431_v06d
 
 Array.prototype.myIncludes = function(callback) {
       var result;
@@ -41,19 +41,39 @@ var undoTitle = 'slateSearch';
 
 app.beginUndoGroup(undoTitle);
 
-var selected = app.project.selection; // compositions
+var selectionIn = app.project.selection; // compositions
+var selectedIn = app.project.activeItem;
 var regexSlateGlobal = slateRegex();
 
-    if (selected.length == 0) {
+    if (selectedIn == null) {
         alert("Select a composition");
     } else {
-        //alert(slateSearch1(regexSlateGlobal, selected[0]));
-          alert(theNewestSlateName(slateSearch2(regexSlateGlobal)));
+        alert(rozhoz(selectedIn).name);
+        
+        //alert(slateSearch1(regexSlateGlobal, selectedIn));
+        //alert(theBlueprint(slateSearch1(regexSlateGlobal, selectedIn)));
+        
+          //alert(theNewestSlateName(slateSearch2(regexSlateGlobal)));    //nejnovejsi slate dle data v nazvu
+          //alert(slateRegexNewest(regexSlateGlobal));    //vysledny regex
+          //alert(theBlueprint(theNewest(regexSlateGlobal))); //.name
     }
 
 app.endUndoGroup();
+
+function rozhoz(selectedComp) {
+    var result;
+    var slateInPlaceTest = slateSearch1(regexSlateGlobal, selectedIn);
+    if(slateInPlaceTest.length > 0){
+        result = theBlueprint(slateInPlaceTest);
+    } else {
+        result = theBlueprint(theNewest(regexSlateGlobal));
+    }
+    return result;
+}
+
 //---------------------------------------------------
 // -------------------- regex
+    //zavorky musi byt oznaceny '\', aby byly string, ex: /^slate_\(v240300\)/;
 function slateRegex() {
     var slateRegex = /^slate_\(v\d{6}\)/;
     return slateRegex;
@@ -61,6 +81,20 @@ function slateRegex() {
 function slateRegexSimple() {
     var slateRegex = /^slate_/;
     return slateRegex;
+}
+function slateRegexNewest(regexG) {
+    var str = theNewestSlateName(slateSearch2(regexG));
+    //var str = "/^" + name + "/";  
+    //neni mozne takto vkladat promennou do regexu, je pak string a be objekt
+    //pridavame backslash do regexu pred zavorky
+        var fixRegex1 = /\(/;
+        var fixRegex2 = /\)/;
+        var replaceText1 = "\\(";   //  jeden backSlash do regexu a jeden k zavorce v tomto stringu
+        var replaceText2 = "\\)";
+        var resultHalf = str.replace(fixRegex1, replaceText1);
+        var result = resultHalf.replace(fixRegex2, replaceText2);
+        //promenna do regexu
+    return new RegExp("^" + result);
 }
 // --------------------
 
@@ -107,14 +141,11 @@ function slateSearch1(regex, selectedComp) {
         
         if (slateSearch && app.project.item(i) instanceof CompItem) {
         var slate = app.project.item(i);
-        var slateName = slate.name;
         var slatePath = cesta(slate);
         comparePath = commonArray(selectedCompPath, slatePath);
-        //alert(slateName);
-        //alert(comparePath);
-        
-            if (comparePath.length > 2) {
-        slateArr.push(slateName);
+        // pokud je v poli shoda alespon v jedne polozce (kazda shoda je 2x)
+        if (comparePath.length > 2) {
+            slateArr.push(slate);
             }
         }
     }
@@ -140,8 +171,10 @@ function slateSearch2(regexL) {
         }
     }
     return slateArr;
-
 }
+//---------------------------------------------------
+//  2. sort
+//pozor funguje i s polem stringu, ale spatne
 function sortAlphabetOrder(arr) {
   var arrCopy = arr.slice();
   return arrCopy.sort(function(a, b) {
@@ -175,21 +208,7 @@ function theNewestSlateName(slateArr) {
 //---------------------------------------------------
 //  4. regex pro hledani nejnov
 // -------------------- regex
-    //zavorky musi byt oznaceny '\'
-    //var slateRegex = /^slate_\(v240300\)/;
-    
-function slateRegexNewest(regexG) {
-    var str = theNewestSlateName(slateSearch2(regexG));
-    //var str = "/^" + name + "/";  
-    //neni mozne takto vkladat promennou do regexu, je pak string a be objekt
-        var fixRegex1 = /\(/;
-        var fixRegex2 = /\)/;
-        var replaceText1 = "\\(";
-        var replaceText2 = "\\)";
-        var resultHalf = str.replace(fixRegex1, replaceText1);
-        var result = resultHalf.replace(fixRegex2, replaceText2);
-    return new RegExp("^" + result);
-}
+
 
 //---------------------------------------------------
 //  5. pole nejnovejsich
@@ -213,8 +232,9 @@ function theNewest(regexG) {
 function theBlueprint(arr) {
     //var newestSlatesArr = theNewest(regexSlateGlobal);
     var arrSorted = sortAlphabetOrder(arr);
-    return arrSorted[0].name;
+    return arrSorted[0];
 }
-alert(theBlueprint(theNewest(regexSlateGlobal)));
 
 //  zvazit jestli nehledat primo (bez 4. a 5.)
+//  tj. hledat primo jmeno s cislem 01
+//  neni universalni

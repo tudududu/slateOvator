@@ -1,5 +1,5 @@
 //  slateOvator
-//  240220_v14a
+//  240220_14b
 //  v08 zacleneni part3 do part4
 //  v09 insert compName via callback
 //  v11 uprava prepisovace poli pro slate i comp
@@ -10,7 +10,7 @@
 //  vXX focus target
 //  vXX z callback fci oddelat instanceof pokud nejsou potreba
 
-var vers = '14a';
+var vers = '14b';
 var title = 'slate0vator (v' + vers + ')';
 
 
@@ -268,9 +268,10 @@ function slateRegex() {
         var bgCompNameRegex = /slateBg_DuoLogo/;
         //  hledame bgLayer ve slatu dle jmena
         var slateBgLayer = layerInspection2(compSelection, bgCompNameRegex);
+        // mozna jeste upravit
         var sbgID = slateBgLayer[0].source.id;
         //  search bgComp in proj by id
-        var slateBgComp = findSlateCompID(sbgID);
+        var slateBgComp = findCompByID(sbgID);
         var layerArr = slateBgComp.layers;
         //  search layer in bgComp
         for (var i = 1; i <= layerArr.length; i++) {
@@ -281,7 +282,8 @@ function slateRegex() {
         }
     //}
 
-    function findSlateCompID(sbgID) {
+//======================================helper fnc for sl2
+    function findCompByID(sbgID) {
         
         for (var i = 1; i <= app.project.numItems; i++) {
             
@@ -295,27 +297,30 @@ function slateRegex() {
             }
         return result;
         }
-//======================================callback funkce pro sl2
+
+//  hleda jmena slatu v comp - zrusit a vymenit za layerInspection2
     function layerInspection2(comp, wantedCompName) {
         var regex = wantedCompName;
-        var layerArr = comp.layers; // prohlidka vrstev
-        var slateArrL = [];
-        for (var j = 1; j <= layerArr.length; j++) {
-            var layerName = layerArr[j].name;
+        var compLayerArr = comp.layers; // prohlidka vrstev
+        var foundLayersArr = [];
+        for (var j = 1; j <= compLayerArr.length; j++) {
+            var layerName = compLayerArr[j].name;
             //alert(layerName);
             var slateSearch = regex.test(layerName);    //  je vrstva slate?
             //alert(slateSearch);
 
             if (slateSearch) {  // pokud je vrstva slate jdeme ho hledat
-                slateArrL.push(layerArr[j]);
+                foundLayersArr.push(compLayerArr[j]);
             }
         }
-        //alert(slateArrL);
-        return slateArrL;                  
+        //alert(foundLayersArr);
+        return foundLayersArr;                  
     }
-//======================================callback funkce pro sl2
+
+//======================================
+
 //  SlateOvator_part_02
-//  v13
+//  v14
 var slateOvator2Undo = 'Change something in multiple slates';
 //  oznacit lze slate nebo kompozici
 
@@ -360,30 +365,12 @@ app.endUndoGroup();
             }
         }
     }
-    //  hleda jmena slatu v comp - zrusit a vymenit za layerInspection2
-    function layerInspection(comp, wantedCompName) {
-        var regex = wantedCompName;
-        var layerArr = comp.layers; // prohlidka vrstev
-        var slateLayersArr = [];
-        for (var j = 1; j <= layerArr.length; j++) {
-            var layerName = layerArr[j].name;
-            //alert(layerName);
-            var slateSearch = regex.test(layerName);    //  je vrstva slate?
-            //alert(slateSearch);
-
-            if (slateSearch) {  // pokud je vrstva slate jdeme ho hledat
-                slateLayersArr.push(layerArr[j]);
-            }
-        }
-        //alert(slateNamesArr);
-        return slateLayersArr;                  
-    }
-    
+        
         //  hledame slateComp (dle jmena)
         function findSlateComp(layer, fieldLayerName, newTextInput, effectName) {
             var layerSourceCompID = layer.source.id;
             
-            var slateCompL = findSlateCompID(layerSourceCompID);
+            var slateCompL = findCompByID(layerSourceCompID);
             //  nasli jsme comp (slate) =>
             compNamesMultiSlate(slateCompL, callback, fieldLayerName, newTextInput, effectName);
             

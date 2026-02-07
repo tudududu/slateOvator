@@ -1,5 +1,5 @@
 // slateOvator_part04
-// 240129_v14
+// 240130_v15
 // duplicator with path
 // duplikat kompozice s apendixem (_master) do podslozky v parentFoldru
 
@@ -8,6 +8,7 @@
 // compOut jdou do out, mastery zustavaji
 // zruseni zvlastni funkce makeFolder pro 'out' folder:
 // zadanim parentFolder pro 'out' ve funkci folderStructure => promenna folderParentParent
+// added into copy() function: deleteLayers() a prebalovator()
 
 function slateOvator_part04a() {
 
@@ -40,11 +41,30 @@ function copy(myCompMaster) {
         myCompOut.displayStartTime = -1;
 
     naming(myCompMaster, myCompOut);
+    deleteLayers(myCompOut);
+    prebalovator(myCompMaster, myCompOut);
+
     var pathItemsArr = folderPath(myCompMaster);
-    
+    //  folderStructure vraci prvni slozku v rade za selectedComp
     var myCompOutFolderParent = folderStructure(pathItemsArr);
-    // setting FP for outComp
+    //  setting FP for outComp
     myCompOut.parentFolder = myCompOutFolderParent;
+}
+
+    //  delete layers in myCompOut
+function deleteLayers(comp) {         
+    var compLayers = comp.layers;
+    for (var i = compLayers.length; i >= 1; i--) {
+        var curLayer = compLayers[i];
+        curLayer.remove();
+    }
+}
+
+    //  passar o master pro outComp
+function prebalovator(compMaster, compOut) {
+    var compOutLayers = compOut.layers;
+        compOutLayers.add(compMaster);
+        compOut.layer(1).startTime = 1;
 }
 
 
@@ -96,17 +116,17 @@ function folderStructure(itemsArr) {
     var folderParent = makeFolder(outFolderName, folderParentParent);
 
     //  prochazime cestu delame slozky
-    //  zaciname L2 (za projektem = work), koncime pred kompozici (L.length-1)
-    for (var i = itemsArr.length - 1; i > 1; i--) {
+    //  zacatek za selectedComp (i > 1)
+    //  konec (path.length-3) obsah 'comp'
+    for (var i = itemsArr.length - 3; i > 1; i--) {
         var folderName = itemsArr[i-1].name;
         var newFolder = makeFolder(folderName, folderParent);
         folderParent = newFolder;
-        //  kompozici soupeme postupne az do konce cesty
-        //  itemsArr[0].parentFolder = folderParent;
     }
     return folderParent;
 }
 
+//  path to selected item
 function folderPath(item) {
     var objArr = [item];
     

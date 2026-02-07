@@ -1,6 +1,6 @@
 // dev slateSearch 
 // search for the slate from the very project or its newest instance
-// 240431_v06d
+// 240401_v06e
 
 Array.prototype.myIncludes = function(callback) {
       var result;
@@ -17,7 +17,7 @@ Array.prototype.myIncludes = function(callback) {
   }
 
 Array.prototype.myFilter = function(callback) {
-  var newArray = [];
+  const newArray = [];
   for(var i = 0; i < this.length; i++) {
     if (callback(this[i], i, this)) {
       newArray.push(this[i]);
@@ -27,7 +27,7 @@ Array.prototype.myFilter = function(callback) {
 }
 
 Array.prototype.myMap = function(callback) {
-    var newArray = [];
+    const newArray = [];
     for(var i = 0; i < this.length; i++) {
         newArray.push(callback(this[i], i, this));
     }
@@ -37,9 +37,7 @@ Array.prototype.myMap = function(callback) {
 //---------------------------------------------------
 //---------------------------------------------------
 
-var undoTitle = 'slateSearch';
-
-app.beginUndoGroup(undoTitle);
+app.beginUndoGroup('slateSearch');
 
 var selectionIn = app.project.selection; // compositions
 var selectedIn = app.project.activeItem;
@@ -48,22 +46,25 @@ var regexSlateGlobal = slateRegex();
     if (selectedIn == null) {
         alert("Select a composition");
     } else {
-        alert(rozhoz(selectedIn).name);
+        alert(slateSearch(selectedIn, regexSlateGlobal).name);
         
         //alert(slateSearch1(regexSlateGlobal, selectedIn));
         //alert(theBlueprint(slateSearch1(regexSlateGlobal, selectedIn)));
         
-          //alert(theNewestSlateName(slateSearch2(regexSlateGlobal)));    //nejnovejsi slate dle data v nazvu
-          //alert(slateRegexNewest(regexSlateGlobal));    //vysledny regex
-          //alert(theBlueprint(theNewest(regexSlateGlobal))); //.name
+        //alert(theNewestSlateName(slateSearch2(regexSlateGlobal)));    //nejnovejsi slate dle data v nazvu
+        //alert(slateRegexNewest(regexSlateGlobal));    //vysledny regex
+        //alert(theBlueprint(theNewest(regexSlateGlobal))); //.name
     }
 
 app.endUndoGroup();
 
-function rozhoz(selectedComp) {
+//---------------------------------------------------
+//---------------------------------------------------
+
+function slateSearch(selectedComp, regexSlateGlobal) {
     var result;
-    var slateInPlaceTest = slateSearch1(regexSlateGlobal, selectedIn);
-    if(slateInPlaceTest.length > 0){
+    const slateInPlaceTest = slateSearch1(selectedComp, regexSlateGlobal);
+    if(slateInPlaceTest.length > 0) {
         result = theBlueprint(slateInPlaceTest);
     } else {
         result = theBlueprint(theNewest(regexSlateGlobal));
@@ -102,7 +103,7 @@ function slateRegexNewest(regexG) {
 // cesta ve strukture slozek
 function cesta(projectItem) {
     
-    var objArr = [];
+    const objArr = [];
         
     do {
         if(projectItem.parentFolder != app.project.rootFolder) {
@@ -117,9 +118,9 @@ function cesta(projectItem) {
 //  v obou stejne
 function commonArray(arr1, arr2) {
 
-  var oneArr = arr1.concat(arr2);
+  const oneArr = arr1.concat(arr2);
   
-    var newArr = oneArr.myFilter(function(item) {
+    const newArr = oneArr.myFilter(function(item) {
     return arr1.myIncludes(item) && arr2.myIncludes(item);
     })
   return newArr;
@@ -130,33 +131,35 @@ function commonArray(arr1, arr2) {
 //---------------------------------------------------
 //  1. the slate from the very project
 //---------------------------------------------------
-function slateSearch1(regex, selectedComp) {
-    var slateArr = [];
+function slateSearch1(selectedComp, regex) {
+    const slateArr = [];
     var selectedCompPath = cesta(selectedComp);
     var comparePath = [];   //vysledek srovnani obou cest
     //uklada to co je v obou stejne, vse je tedy 2x
     for (var i = 1; i <= app.project.numItems; i++) { // procura do slate(name)
+        if (app.project.item(i) instanceof CompItem) {
         var testNameStr = app.project.item(i).name;
         var slateSearch = regex.test(testNameStr);
         
-        if (slateSearch && app.project.item(i) instanceof CompItem) {
+        if (slateSearch) {
         var slate = app.project.item(i);
         var slatePath = cesta(slate);
         comparePath = commonArray(selectedCompPath, slatePath);
         // pokud je v poli shoda alespon v jedne polozce (kazda shoda je 2x)
         if (comparePath.length > 2) {
             slateArr.push(slate);
+                }
             }
         }
     }
     return slateArr;
 }
 //---------------------------------------------------
-//  2. search for the newest instance of the slate
+//  2. search in the whole project for the newest instance of the slate
 //---------------------------------------------------
 //  1. vyhledame vsechny slaty v proj
 function slateSearch2(regexL) {
-    var slateArr = [];
+    const slateArr = [];
     for (var i = 1; i <= app.project.numItems; i++) { // procura do slate(name)
     if (app.project.item(i) instanceof CompItem) {
         var testNameStr = app.project.item(i).name;
@@ -176,14 +179,14 @@ function slateSearch2(regexL) {
 //  2. sort
 //pozor funguje i s polem stringu, ale spatne
 function sortAlphabetOrder(arr) {
-  var arrCopy = arr.slice();
+  const arrCopy = arr.slice();
   return arrCopy.sort(function(a, b) {
     return a.name === b.name ? 0 : a.name > b.name ? 1 : -1;
   })
 }
 
 function sortReverseOrder(arr) {
-  var arrCopy = arr.slice();
+  const arrCopy = arr.slice();
   return arrCopy.sort(function(a, b) {
     return a.name === b.name ? 0 : a.name < b.name ? 1 : -1;
   })
@@ -193,7 +196,7 @@ function sortReverseOrder(arr) {
 function theNewestSlateName(slateArr) {
     //var slateArr = slateSearch2(regexSlateGlobal);
     //  abecedni serazeni sestupne
-    var slateArrSorted = sortReverseOrder(slateArr);
+    const slateArrSorted = sortReverseOrder(slateArr);
     //  test sort fce - jen pro zobrazeni jestli funguje
     /*var testArr = slateArrSorted.myMap(function(item) {
         return item.name;
@@ -214,9 +217,9 @@ function theNewestSlateName(slateArr) {
 //  5. pole nejnovejsich
 
 function theNewest(regexG) {
-    var slateArr = slateSearch2(regexSlateGlobal);
+    const slateArr = slateSearch2(regexSlateGlobal);
     var regexL = slateRegexNewest(regexG);
-    var slateArrSorted = sortReverseOrder(slateArr);
+    const slateArrSorted = sortReverseOrder(slateArr);
     var newestOnly = slateArrSorted.myFilter(function(item) {
         
         return regexL.test(item.name);
@@ -231,9 +234,11 @@ function theNewest(regexG) {
 //  6. cislo 01
 function theBlueprint(arr) {
     //var newestSlatesArr = theNewest(regexSlateGlobal);
-    var arrSorted = sortAlphabetOrder(arr);
+    const arrSorted = sortAlphabetOrder(arr);
     return arrSorted[0];
 }
+//---------------------------------------------------
+//---------------------------------------------------
 
 //  zvazit jestli nehledat primo (bez 4. a 5.)
 //  tj. hledat primo jmeno s cislem 01

@@ -1,22 +1,29 @@
 // changing text.sourceText.value of text layer
 // 231204
 
-app.beginUndoGroup("test");
-var selected = app.project.selection; //array
-//var comp = app.project.activeItem;
-var layers = selected[0].layers;
-//alert(selected[0].name);
-//alert(layers[1].name);
+function slateOvator(newTextInput) {
+    app.beginUndoGroup("test");
+    var newText = newTextInput;
+    var selected = app.project.selection; //array
 
-var layerName;
-
-for (var i = 1; i <= layers.length; i++) {
-    if (layers[i].name == "Operator") {
-        layers[i].text.sourceText.setValue("Honza");
-        alert(layers[i].text.sourceText.value);
+    if (selected.length == 0) {
+        alert("Select a composition");
+    } else {
+        zkracOvatorEngine(selected, startTime);
     }
-}
+    app.endUndoGroup();
+    
+    for (var j = 0; j < selected.length; j++) {
+    var layerArr = selected[j].layers;
 
-//alert(layerName);
+        for (var i = 1; i <= layerArr.length; i++) {
+            if (layerArr[i].name == "Operator") {
+                layerArr[i].text.sourceText.setValue("BBBB");
+                //alert(layers[i].text.sourceText.value);
+            }
+        }
+    }
 
 app.endUndoGroup();
+
+}

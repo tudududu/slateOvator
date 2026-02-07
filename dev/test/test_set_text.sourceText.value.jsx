@@ -6,17 +6,17 @@ var selected = app.project.selection; //array
 //var comp = app.project.activeItem;
 var layers = selected[0].layers;
 //alert(selected[0].name);
-alert(layers[1].name);
-/*
+//alert(layers[1].name);
+
 var layerName;
 
-for (var i = 0; i < layers.legth; i++) {
+for (var i = 1; i <= layers.length; i++) {
     if (layers[i].name == "Operator") {
-        //layers[i].SourceText = "Honza";
-        alert(layers[i].name);
+        layers[i].Text.sourceText = "Honza";
+        //alert(layers[i].name);
     }
 }
 
-alert(layerName);
-*/
+//alert(layerName);
+
 app.endUndoGroup();

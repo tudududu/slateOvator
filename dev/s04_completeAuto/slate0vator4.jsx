@@ -1,5 +1,5 @@
 // slateOvator_part04
-// 240130_v16
+// 240130_v17
 // duplicator with path
 // duplikat kompozice s apendixem (_master) do podslozky v parentFoldru
 
@@ -15,19 +15,18 @@ function slateOvator_part04a() {
 
         var selected = app.project.selection;
         var outFolderName = "outComps";
-        //var masterFolderName = "masters";
 
         if (selected.length == 0) {
             alert("Select a composition");
         } else {
-            copySelection(selected/*, outFolderName, masterFolderName*/);
+            copySelection(selected);
         }
     app.endUndoGroup();
 
-    function copySelection(compSelection/*, folderName1, folderName2*/) {
+    function copySelection(compSelection) {
             for (var j = 0; j < compSelection.length; j++) {
                 if (compSelection[j] instanceof CompItem) {
-                copy(compSelection[j]/*, folderName1, folderName2*/);
+                copy(compSelection[j]);
                 }
             }
         }
@@ -50,7 +49,7 @@ function slateOvator_part04a() {
         myCompOut.parentFolder = myCompOutFolderParent;
     }
 
-        //  delete layers in myCompOut
+    //  delete layers in myCompOut
     function deleteLayers(comp) {         
         var compLayers = comp.layers;
         for (var i = compLayers.length; i >= 1; i--) {
@@ -59,7 +58,7 @@ function slateOvator_part04a() {
         }
     }
 
-        //  passar o master pro outComp
+    //  passar o master pro outComp
     function prebalovator(compMaster, compOut) {
         var compOutLayers = compOut.layers;
             compOutLayers.add(compMaster);
@@ -78,10 +77,7 @@ function slateOvator_part04a() {
                 testArr.push(true);
             }
         }
-        //var folderParentName = folderParent.name;
-        //alert('slozek \'' + folderName + '\' ve slozce \'' + folderParentName + '\' je ' + testArr.length);
-        //alert('testArr: ' + testArr.toString());
-
+    
         //  caso a pasta nao existir
         //  create a new FolderItem in project and pass it in the 'folderObj'
             var folderObj;
@@ -98,14 +94,11 @@ function slateOvator_part04a() {
                 }
             }
 
-        //alert('folder: \'' + folderObj.name + '\'\; folderParent: \'' + folderParent.name +'\'');
-
         if (folderParent !== null) {
             folderObj.parentFolder = folderParent;
             }
         return folderObj;
     }
-
 
     function folderStructure(itemsArr) {
         //  parent pro 'out' je konec cesty - tedy 'project'
@@ -143,7 +136,7 @@ function slateOvator_part04a() {
     function naming(myCompMaster, myCompOut) {
         var compNameArr = [];
         compNameArr.push(myCompMaster.name);
-        //compNameArr.push(myCompOut.name);
+
         var masterAppendix = "_master";
         myCompMaster.name = compNameArr[0] + masterAppendix;
         myCompOut.name = compNameArr[0];

@@ -1,10 +1,10 @@
 //  slateOvator
-//  240205_v10_pokus2
+//  240208_v11
 //  v08 zacleneni part3 do part4
 //  v09 insert compName via callback
-//  v10 uprava prepisovace poli pro slate i comp
+//  v11 uprava prepisovace poli pro slate i comp
 
-var title = "slate0vator_v10";
+var title = "slate0vator_v11";
 
 (function (thisObj) {
     
@@ -88,14 +88,19 @@ var title = "slate0vator_v10";
         
         // --- Action ---
         function triggerMedia() {
-        slateOvator1('Media', inputMedia.text);
+        var newTextInput = inputMedia.text;
+        var fieldLayerName = 'Media';
+        slateOvator2(renameField, newTextInput, fieldLayerName);
         }
         function triggerSoundLevel() {
-        slateOvator1('SoundLevel', inputSoundLevel.text);
+        var newTextInput = inputSoundLevel.text;
+        var fieldLayerName = 'SoundLevel';
+        slateOvator2(renameField, newTextInput, fieldLayerName);
         }
         function triggerOperator() {
-        //slateOvator1('Operator', inputOperator.text);
-        slateOvator2(renameField, inputOperator.text, 'Operator');
+        var newTextInput = inputOperator.text;
+        var fieldLayerName = 'Operator';
+        slateOvator2(renameField, newTextInput, fieldLayerName);
         }
         function triggerCompName() {
         slateOvator2(compNameVkladOvator);
@@ -254,7 +259,11 @@ app.endUndoGroup();
                 if (parentComp.length == 1) {
                     var parentCompName = parentComp[0].name;  //arr to string
                     var newExpression = "comp(\"" + parentCompName + "\"" + ").name;";
-                    //var newTextInput = newExpression;
+                    
+                    if (callback == compNameVkladOvator) {
+                        newTextInput = newExpression;
+                    }
+                    
                     callback(selectedComp, newTextInput, fieldLayerName);
                     //compNameVkladOvator(selectedComp, newExpression);
                 } else if (parentComp.length > 1) {

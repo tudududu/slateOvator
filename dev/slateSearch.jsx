@@ -1,6 +1,6 @@
 // dev slateSearch 
 // search for the slate from the very project or its newest instance
-// 240430_v06b
+// 240430_v06c
 
 Array.prototype.myIncludes = function(callback) {
       var result;
@@ -194,22 +194,27 @@ function slateRegexNewest(regexG) {
 //---------------------------------------------------
 //  5. pole nejnovejsich
 
-function theNewest(arr, regexG) {
-    //var slateArr = slateSearch2(regexSlateGlobal);
+function theNewest(regexG) {
+    var slateArr = slateSearch2(regexSlateGlobal);
     var regexL = slateRegexNewest(regexG);
-    var slateArrSorted = sortReverseOrder(arr);
+    var slateArrSorted = sortReverseOrder(slateArr);
     var newestOnly = slateArrSorted.myFilter(function(item) {
         
         return regexL.test(item.name);
     })
     //test
-    var newestOnlyNames = newestOnly.myMap(function(item) {
+    /*var newestOnlyNames = newestOnly.myMap(function(item) {
         return item.name;
-    })
-    return newestOnlyNames;
+    })*/
+    return newestOnly;
 }
 
-alert(theNewest(slateSearch2(regexSlateGlobal), regexSlateGlobal));
 //  6. cislo 01
+function theBlueprint(arr) {
+    //var newestSlatesArr = theNewest(regexSlateGlobal);
+    var arrSorted = sortAlphabetOrder(arr);
+    return arrSorted[0].name;
+}
+alert(theBlueprint(theNewest(regexSlateGlobal)));
 
 //  zvazit jestli nehledat primo (bez 4. a 5.)

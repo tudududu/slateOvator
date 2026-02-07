@@ -1,11 +1,14 @@
 //  slateOvator
-//  240217_v12a
+//  240217_v12b
 //  v08 zacleneni part3 do part4
 //  v09 insert compName via callback
 //  v11 uprava prepisovace poli pro slate i comp
 //  v12 vypinace tagy
+//  vXX logo bg pouzite ve slatu
+//  vXX UI - level closable
+//  vXX focus target
 
-var vers = '12a';
+var vers = '12b';
 var title = 'slate0vator (v' + vers + ')';
 
 
@@ -362,24 +365,25 @@ app.endUndoGroup();
         }
     }
 
-                function layerInspection(comp) {
-                    var regex = slateRegex();
-                    var layerArr = comp.layers; // prohlidka vrstev
-                    var slateArrL = [];
-                    for (var j = 1; j <= layerArr.length; j++) {
-                        var layerName = layerArr[j].name;
-                        //alert(layerName);
-                        var slateSearch = regex.test(layerName);    //  je vrstva slate?
-                        //alert(slateSearch);
+    function layerInspection(comp) {
+        var regex = slateRegex();
+        var layerArr = comp.layers; // prohlidka vrstev
+        var slateArrL = [];
+        for (var j = 1; j <= layerArr.length; j++) {
+            var layerName = layerArr[j].name;
+            //alert(layerName);
+            var slateSearch = regex.test(layerName);    //  je vrstva slate?
+            //alert(slateSearch);
 
-                        if (slateSearch) {  // pokud je vrstva slate jdeme ho hledat
-                            slateArrL.push(layerName);
-                        }
-                    }
-                    //alert(slateArrL);
-                    return slateArrL;                  
-                }
-//  varianta 2 asks if layers have slate...?    //  pouzita
+            if (slateSearch) {  // pokud je vrstva slate jdeme ho hledat
+                slateArrL.push(layerName);
+            }
+        }
+        //alert(slateArrL);
+        return slateArrL;                  
+    }
+    
+//  varianta 2 asks if layers have slate...?
 /*    function compNamesMultiFnc(selectedComps, callback, fieldLayerName, newTextInput, effectName) {
         var regex = slateRegex();
 

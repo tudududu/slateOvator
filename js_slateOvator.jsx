@@ -1,11 +1,11 @@
 //  slateOvator
-//  240215
+//  240217_v12a
 //  v08 zacleneni part3 do part4
 //  v09 insert compName via callback
 //  v11 uprava prepisovace poli pro slate i comp
 //  v12 vypinace tagy
 
-var vers = '12';
+var vers = '12a';
 var title = 'slate0vator (v' + vers + ')';
 
 
@@ -117,13 +117,14 @@ var title = 'slate0vator (v' + vers + ')';
         inputMedia.onChange = triggerMedia;
         inputOperator.onChange = triggerOperator;
         inputSoundLevel.onChange = triggerSoundLevel;
+
         buttonOne.onClick = triggerMedia;
         buttonTwo.onClick = triggerSoundLevel;
         buttonThree.onClick = triggerOperator;
+        
         compNameBtn.onClick = triggerCompName;
         slateInsertBtn.onClick = triggerSlateInsert;
         prebalovatorBtn.onClick = triggerPrebalovator;
-
 
 
         //  switches
@@ -317,50 +318,93 @@ function slateOvator0(compName, layerName, input, effectName) {
 
 //  SlateOvator_part_02
 //  v03
-//  Pass the compName to the slate
+var slateOvator2Undo = 'Change something in multiple slates';
 //  oznacit lze slate nebo kompozici - na reseni dale pracovat
 
 function slateOvator2(callback, fieldLayerName, newTextInput, effectName) {
 
-app.beginUndoGroup("Pass the compName to the slate");
+app.beginUndoGroup(slateOvator2Undo);
 
 var selected = app.project.selection; // compositions
 
     if (selected.length == 0) {
         alert("Select a composition");
     } else {
-        compNamesMultiFnc(selected, callback, fieldLayerName, newTextInput, effectName);
+        compOrSlate(selected, callback, fieldLayerName, newTextInput, effectName);
     }
 
 app.endUndoGroup();
 
 //  slate or comp?
 //  varianta 1 asks if compName is slate...?
-//  varianta 2 asks if layers have slate...?
-    function compNamesMultiFnc(selectedComps, callback, fieldLayerName, newTextInput, effectName) {  //  varianta 2
+    function compOrSlate(selectedComps, callback, fieldLayerName, newTextInput, effectName) {
         var regex = slateRegex();
-    
-        for (var j = 0; j < selectedComps.length; j++) {
-                if (selectedComps[j] instanceof CompItem) {
-                var layerArr = selectedComps[j].layers; // prohlidka vrstev
-    //make func (deduplicate)
-                for (var i = 1; i <= layerArr.length; i++) {
-                    var layerName = layerArr[i].name;
-                    var slateSearch = regex.test(layerName);    //  je vrstva slate?
+        //  prochazime vyber
+        for (var i = 0; i < selectedComps.length; i++) {
+            if (selectedComps[i] instanceof CompItem) {
+            
+                var compName = selectedComps[i].name;
+                var slateSearch = regex.test(compName);    //  je comp slate?
 
-                    if (slateSearch) {  // pokud je vrstva slate
-                                        // jde do slatu a vklada
-                        findSlateComp(layerName, fieldLayerName, newTextInput, effectName);
-                        break;
-                    } else {    //  ne, hledame slate
-                        compNamesMultiSlate(selectedComps[j], callback, fieldLayerName, newTextInput, effectName);
-                        break;  //
+                if (slateSearch) {  // pokud je comp slate jdeme dovnitr
+                    compNamesMultiSlate(selectedComps[i], callback, fieldLayerName, newTextInput, effectName);
+                            //break;
+                } else {    //  neni, hledame jestli je uvnitr slate
+                var slateArr = layerInspection(selectedComps[i]);
+                if (slateArr.length == 1) {
+                    var layerName = slateArr[0];
+                    findSlateComp(layerName, fieldLayerName, newTextInput, effectName);
+                } else {
+                    alert('Too many or no slates.')
                     }
                 }
             }
         }
     }
 
+                function layerInspection(comp) {
+                    var regex = slateRegex();
+                    var layerArr = comp.layers; // prohlidka vrstev
+                    var slateArrL = [];
+                    for (var j = 1; j <= layerArr.length; j++) {
+                        var layerName = layerArr[j].name;
+                        //alert(layerName);
+                        var slateSearch = regex.test(layerName);    //  je vrstva slate?
+                        //alert(slateSearch);
+
+                        if (slateSearch) {  // pokud je vrstva slate jdeme ho hledat
+                            slateArrL.push(layerName);
+                        }
+                    }
+                    //alert(slateArrL);
+                    return slateArrL;                  
+                }
+//  varianta 2 asks if layers have slate...?    //  pouzita
+/*    function compNamesMultiFnc(selectedComps, callback, fieldLayerName, newTextInput, effectName) {
+        var regex = slateRegex();
+
+        for (var j = 0; j < selectedComps.length; j++) {
+            if (selectedComps[j] instanceof CompItem) {
+            var layerArr = selectedComps[j].layers; // prohlidka vrstev
+    //make func (deduplicate)
+            for (var i = 1; i <= layerArr.length; i++) {
+                var layerName = layerArr[i].name;
+                var slateSearch = regex.test(layerName);    //  je vrstva slate?
+
+                if (slateSearch) {  // pokud je vrstva slate jdeme ho hledat
+                    findSlateComp(layerName, fieldLayerName, newTextInput, effectName);
+                    break;
+                } else {    //  slate v kompozici neni
+                            //  musime overit jestli kompozice je slate
+                    compNamesMultiSlate(selectedComps[j], callback, fieldLayerName, newTextInput, effectName);
+                    break;  //
+                    
+                    }
+                }
+            }
+        }
+    }
+*/
         //  hledame slateComp (dle jmena)
         function findSlateComp(slateCompName, fieldLayerName, newTextInput, effectName) {
         
@@ -397,8 +441,6 @@ app.endUndoGroup();
                 }
             }
         }
-    
-
 
 }
 

@@ -1,7 +1,8 @@
 //  slateOvator
-//  240202_v07b
+//  240203_v08
+//  zacleneni part3 do part4
 
-var title = "slate0vator_v07";
+var title = "slate0vator_v08";
 
 (function (thisObj) {
     
@@ -161,6 +162,8 @@ function slateRegex() {
 //  SlateOvator_part_02
 //  v03
 //  Pass the compName to the slate
+//  oznacit lze slate nebo kompozici - na reseni dale pracovat
+
 function slateOvator2() {
 
 app.beginUndoGroup("Pass the compName to the slate");
@@ -179,7 +182,7 @@ app.endUndoGroup();
 //  varianta 1 asks if compName is slate...?
 //  varianta 2 asks if layers have slate...?
     function compNamesMultiFnc(selectedComps) {  //  varianta 2
-    var regex = slateRegex();
+        var regex = slateRegex();
     
         for (var j = 0; j < selectedComps.length; j++) {
                 if (selectedComps[j] instanceof CompItem) {
@@ -191,7 +194,6 @@ app.endUndoGroup();
 
                     if (slateSearch) {  // pokud je vrstva slate
                                         // jde do slatu a vklada
-                        //var slateCompName = layerName;
                         findSlateComp(layerName);
                         break;
                     } else {    //  ne, hledame slate
@@ -216,12 +218,12 @@ app.endUndoGroup();
             }
         }
 
-    //  Pro vybrane slaty spusti vkladac,
+    //  Spusti vkladac pokud je slate pouzit prave v jedne kompozici
         function compNamesMultiSlate(selectedComps) {
-            //  ktery vrati pole parentComp
+            //  hledame pole parentComp (kde je pouzit)
             if (selectedComps instanceof CompItem) {
                     var parentComp = selectedComps.usedIn; //arr
-                // a pokud je parentComp jen jedna spusti vkladac
+                // pokud je parentComp jen jedna spusti vkladac
                 if (parentComp.length == 1) {
                     var parentCompName = parentComp[0].name;  //arr to string
                     var newExpression = "comp(\"" + parentCompName + "\"" + ").name;";
@@ -248,20 +250,12 @@ app.endUndoGroup();
 }
 
 //  slateOvator_part3
-//  v08h
+//  v09
 //  Insert slate into composition
+//  Rozdelen na dve pule, aby se engin dal pouzit v casti 4
+
 function slateOvator3() {
-
     app.beginUndoGroup("Insert slate into composition");
-        
-        slateOvator3a();
-
-    app.endUndoGroup();
-
-}
-    
-function slateOvator3a() {
-    
     var selected = app.project.selection;
     var regex = slateRegex();
 
@@ -270,126 +264,135 @@ function slateOvator3a() {
     } else {
         placeSlateMultiComp(selected, regex);
     }
+    app.endUndoGroup();
 
     //  vyber komopzic
     function placeSlateMultiComp(compSelection, regex) {
         for (var j = 0; j < compSelection.length; j++) {
             if (compSelection[j] instanceof CompItem) {
-            aplikaceDoComp(compSelection[j], regex);
+            slateOvator3engine(compSelection[j], regex);
             }
         }
     }
+}
 
-    //  vkladame kopii slatu do kompozice
-    function placeTheSlate(theComp, regex) {    // theComp je objekt (polozka z pole)
-        
-        for (var i = 1; i <= app.project.numItems; i++) { // procura do slate(name)
-            var testNameStr = app.project.item(i).name;
-            var slateSearch = regex.test(testNameStr);
+function slateOvator3engine(comp, regex) {
+    
+    aplikaceDoComp(comp, regex);
+
+        //  zjistuje jestli v kompozici uz neni slate
+        function aplikaceDoComp(comp, regex) { // theComp je objekt (polozka z pole)
             
-            if (app.project.item(i) instanceof CompItem && slateSearch) {
+            var layerArr = comp.layers;
+            
+            if (layerArr.length == 0) {
+                placeTheSlate(comp, regex);
+            } else if (layerArr.length > 0) {
+        //make func
+                for (var i = 1; i <= layerArr.length; i++) {
+                    var layerName = layerArr[i].name;
+                    var slateSearch = regex.test(layerName);
 
-            var slate = app.project.item(i);
-            var newSlate = slate.duplicate();
-                theComp.layers.add(newSlate);
-            break;  //  verze s regexem jinak cykli
+                    if (slateSearch) {  //pokud ano konci
+                        break;
+                    } else {
+                        placeTheSlate(comp, regex);
+                        break;
+                    }
+                }
             }
-        }
-    }
-    //  zjistuje jestli v kompozici uz neni slate
-    function aplikaceDoComp(comp, regex) { // theComp je objekt (polozka z pole)
-        
-        var layerArr = comp.layers;
-        
-        if (layerArr.length == 0) {
-            placeTheSlate(comp, regex);
-        } else if (layerArr.length > 0) {
-//make func
+
             for (var i = 1; i <= layerArr.length; i++) {
                 var layerName = layerArr[i].name;
                 var slateSearch = regex.test(layerName);
+                if (slateSearch) {
+                    var layerObj = layerArr[i];
+                    fitToCompSize(comp, layerObj);
+                }
+            }
+            comp.displayStartTime = -1; //musi to byt tady?
+        }
 
-                if (slateSearch) {  //pokus ano konci
-                    break;
-                } else {
-                    placeTheSlate(comp, regex);
-                    break;
+        //  vkladame kopii slatu do kompozice
+        function placeTheSlate(theComp, regex) {    // theComp je objekt (polozka z pole)
+            
+            for (var i = 1; i <= app.project.numItems; i++) { // procura do slate(name)
+                var testNameStr = app.project.item(i).name;
+                var slateSearch = regex.test(testNameStr);
+                
+                if (app.project.item(i) instanceof CompItem && slateSearch) {
+
+                var slate = app.project.item(i);
+                var newSlate = slate.duplicate();
+                    theComp.layers.add(newSlate);
+                break;  //  verze s regexem jinak cykli
                 }
             }
         }
 
-        for (var i = 1; i <= layerArr.length; i++) {
-            var layerName = layerArr[i].name;
-            var slateSearch = regex.test(layerName);
-            if (slateSearch) {
-                var layerObj = layerArr[i];
-                fitToCompSize(comp, layerObj);
+        function fitToCompSize(myComp, myLayer) {
+            
+            var myCompSize = [myComp.width, myComp.height];
+            var compAspect = (myCompSize[0] / myCompSize[1]).toFixed(2);
+
+            var hd80X = 1920 * 0.81;    // bottomMargin = 80% HDx
+            var hd80Y = 1080 * 0.75;
+
+            function scaleCondition(myCompSizeLocal, bottomMargin, topMargin) {
+
+                var scaleResult;
+                var scale_00 = 100;
+                var scale_01 = myCompSizeLocal / bottomMargin * 100;    // zmensujem od 80% HD
+                var scale_02 = myCompSizeLocal / topMargin * 100; // zvetsujem nad 1920
+
+                if (myCompSizeLocal >= bottomMargin && myCompSizeLocal <= topMargin) {
+                    scaleResult = scale_00;
+                } else if (myCompSizeLocal < bottomMargin) {
+                    scaleResult = scale_01;
+                } else if (myCompSizeLocal > topMargin) {
+                    scaleResult = scale_02;
+                }
+                return scaleResult;
             }
+
+            var scaleX = scaleCondition(myCompSize[0], hd80X, 1920);
+            var scaleY = scaleCondition(myCompSize[1], hd80Y, 1080);
+                    
+            function scaleAspectCondition(compAspect, scaleX, scaleY) {
+                var scaleResultB
+                if (compAspect <= 1.78) {
+                    scaleResultB = scaleX;
+                } else {
+                    scaleResultB = scaleY;
+                }
+                return scaleResultB;
+            }
+            
+            var fitToCompScale = scaleAspectCondition(compAspect, scaleX, scaleY);
+            
+            function fitToCompScaleAction(myLayer, fitToCompScaleLoc) {
+                var myScale = myLayer.scale;
+            myScale.setValue([fitToCompScaleLoc, fitToCompScaleLoc]);
+            }
+            
+            function centerCompPosition(myCompSize, myLayer) {
+                var myPosition = myLayer.position;
+                myPosition.setValue([myCompSize[0]/2, myCompSize[1]/2]);
+            }
+
+            fitToCompScaleAction(myLayer, fitToCompScale);
+            centerCompPosition(myCompSize, myLayer);
         }
-        comp.displayStartTime = -1; //musi to byt tady?
     }
 
-    function fitToCompSize(myComp, myLayer) {
-        
-        var myCompSize = [myComp.width, myComp.height];
-        var compAspect = (myCompSize[0] / myCompSize[1]).toFixed(2);
-
-        var hd80X = 1920 * 0.81;    // bottomMargin = 80% HDx
-        var hd80Y = 1080 * 0.75;
-
-        function scaleCondition(myCompSizeLocal, bottomMargin, topMargin) {
-
-            var scaleResult;
-            var scale_00 = 100;
-            var scale_01 = myCompSizeLocal / bottomMargin * 100;    // zmensujem od 80% HD
-            var scale_02 = myCompSizeLocal / topMargin * 100; // zvetsujem nad 1920
-
-            if (myCompSizeLocal >= bottomMargin && myCompSizeLocal <= topMargin) {
-                scaleResult = scale_00;
-            } else if (myCompSizeLocal < bottomMargin) {
-                scaleResult = scale_01;
-            } else if (myCompSizeLocal > topMargin) {
-                scaleResult = scale_02;
-            }
-            return scaleResult;
-        }
-
-        var scaleX = scaleCondition(myCompSize[0], hd80X, 1920);
-        var scaleY = scaleCondition(myCompSize[1], hd80Y, 1080);
-                
-        function scaleAspectCondition(compAspect, scaleX, scaleY) {
-            var scaleResultB
-            if (compAspect <= 1.78) {
-                scaleResultB = scaleX;
-            } else {
-                scaleResultB = scaleY;
-            }
-            return scaleResultB;
-        }
-        
-        var fitToCompScale = scaleAspectCondition(compAspect, scaleX, scaleY);
-        
-        function fitToCompScaleAction(myLayer, fitToCompScaleLoc) {
-            var myScale = myLayer.scale;
-        myScale.setValue([fitToCompScaleLoc, fitToCompScaleLoc]);
-        }
-        
-        function centerCompPosition(myCompSize, myLayer) {
-            var myPosition = myLayer.position;
-            myPosition.setValue([myCompSize[0]/2, myCompSize[1]/2]);
-        }
-
-        fitToCompScaleAction(myLayer, fitToCompScale);
-        centerCompPosition(myCompSize, myLayer);
-    }
-}
 
 //  slateOvator_part04a
-//  duplikat kompozice s apendixem do podslozky v parentFoldru
-//  240130_v16
+//  duplikat kompozice s apendixem do podslozky v parentFoldru + slate
+//  240202_v17
 //  compOut jdou do out, mastery zustavaji
 //  zruseni zvlastni funkce makeFolder pro 'out' folder:
 //  zadanim parentFolder pro 'out' ve funkci folderStructure => promenna folderParentParent
+//  pridano vkladani slatu
 
 function slateOvator_part04a(inputFolderLevelL) {
 
@@ -397,24 +400,25 @@ function slateOvator_part04a(inputFolderLevelL) {
 
         var selected = app.project.selection;
         var outFolderName = "outComps";
+        var regex = slateRegex();
 
         if (selected.length == 0) {
             alert("Select a composition");
         } else {
-            copySelection(selected);
+            copySelection(selected, regex);
         }
     app.endUndoGroup();
 
-    function copySelection(compSelection) {
+    function copySelection(compSelection, regex) {
             for (var j = 0; j < compSelection.length; j++) {
                 if (compSelection[j] instanceof CompItem) {
-                copy(compSelection[j]);
+                copy(compSelection[j], regex);
                 }
             }
         }
 
     //  kopirujeme masterComp
-    function copy(myCompMaster) {
+    function copy(myCompMaster, regex) {
         var myCompMasterDur = myCompMaster.duration;
         var myCompOut = myCompMaster.duplicate();
             myCompOut.duration = myCompMasterDur + 1;
@@ -422,7 +426,7 @@ function slateOvator_part04a(inputFolderLevelL) {
 
         naming(myCompMaster, myCompOut);
         deleteLayers(myCompOut);
-        prebalovator(myCompMaster, myCompOut);
+        prebalovator(myCompMaster, myCompOut, regex);
 
         var pathItemsArr = folderPath(myCompMaster);
         //  folderStructure vraci prvni slozku v rade za selectedComp
@@ -441,10 +445,11 @@ function slateOvator_part04a(inputFolderLevelL) {
     }
 
     //  passar o master pro outComp
-    function prebalovator(compMaster, compOut) {
+    function prebalovator(compMaster, compOut, regex) {
         var compOutLayers = compOut.layers;
             compOutLayers.add(compMaster);
             compOut.layer(1).startTime = 1;
+            slateOvator3engine(compOut, regex);
     }
 
     function makeFolder(folderName, folderParent) {

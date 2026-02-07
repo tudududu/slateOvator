@@ -1,27 +1,35 @@
 //  slateOvator
-//  240312_v15b
-//  v08 zacleneni part3 do part4
-//  v09 insert compName via callback
-//  v11 uprava prepisovace poli pro slate i comp
-//  v12 vypinace tagy
-//  v13 prepina se pouze logo bg pouzite ve slatu - id
-//  v14 totez pro slate: id misto jmena
-//  v14c deleteLayers() odemknuti zamcenych vrstev, aby se odstranily, pokud jsou zamčené
-//  v15 uprava copy() pro kopiruji masterComp vcetne parametru
+//  240401_15c
+
+// v01 240103 joining parts 1, 2, 3
+// v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
+// v03 slateOvator_part3 v08h limited to CompItem
+// v05 SlateOvator_part_02: compNamesMultiFnc
+// v07_wip fixing broken expressions due to the change of the name (fail)
+// v07 slateOvator_part04a duplikat kompozice s apendixem do podslozky v parentFoldru
+// v08 zacleneni part3 do part4
+// v09 insert compName via callback
+// v11 uprava prepisovace poli pro slate i comp
+// v12 vypinace tagy
+// v13 prepina se pouze logo bg pouzite ve slatu - id
+// v14 totez pro slate: id misto jmena
+// v14c deleteLayers() odemknuti zamcenych vrstev, aby se odstranily, pokud jsou zamčené
+// v15 uprava copy() pro kopiruji masterComp vcetne parametru
+// v15c slateSarch(regex) -- implementation in progress
 
 //  vXX UI - level closable
 //  vXX focus target
 //  vXX z callback fci oddelat instanceof pokud nejsou potreba
-
-var title = 'slate0vator (v' + vers + ')';
-var vers = '15b';
-
 
 (function (thisObj) {
     
     newPanel(thisObj);
 
     function newPanel(thisObj) {
+
+        var vers = '15c';
+        var title = 'slate0vator (v' + vers + ')';
+    
         var win = (thisObj instanceof Panel) ? thisObj 
         : new Window('palette', title, undefined);
         win.orientation = 'column';
@@ -216,6 +224,43 @@ var vers = '15b';
 
     }
 
+//---------------------------------------------------
+//---------------------------------------------------
+Array.prototype.myIncludes = function(callback) {
+      var result;
+      var i = 0;
+      do {
+        if (this[i] === callback) {
+        result = true;
+        } else {
+        result = false;
+        }
+        i = i + 1;
+      } while (i < this.length && result == false);
+      return result;
+  }
+
+Array.prototype.myFilter = function(callback) {
+  const newArray = [];
+  for(var i = 0; i < this.length; i++) {
+    if (callback(this[i], i, this)) {
+      newArray.push(this[i]);
+        }
+    }
+    return newArray;
+}
+
+Array.prototype.myMap = function(callback) {
+    var newArray = [];
+    for(var i = 0; i < this.length; i++) {
+        newArray.push(callback(this[i], i, this));
+    }
+    return newArray;
+}
+
+//---------------------------------------------------
+//---------------------------------------------------
+
 // -------------------- regex
 function slateRegex() {
     var slateRegex = /^slate_\(v\d{6}\)/;
@@ -348,6 +393,7 @@ app.endUndoGroup();
 //  slate or comp?
 //  varianta 1 asks if compName is slate...?
     function compOrSlate(selectedComps, callback, fieldLayerName, newTextInput, effectName) {
+        // ??? k cemu je zde
         var regex = slateRegexSimple();
         //  prochazime vyber
         for (var i = 0; i < selectedComps.length; i++) {
@@ -415,7 +461,7 @@ app.endUndoGroup();
 //  slateOvator_part3
 //  v09
 //  Insert slate into composition
-//  Rozdelen na dve pule, aby se engin dal pouzit v casti 4
+//  Rozdelen na engine a smycku, aby se engin dal pouzit v casti 4
 
 function slateOvator3() {
     app.beginUndoGroup("Insert slate into composition");
@@ -429,17 +475,17 @@ function slateOvator3() {
     }
     app.endUndoGroup();
 
-    //  vyber komopzic
+    //  opakovani pro vyber komopzic
     function placeSlateMultiComp(compSelection, regex) {
         for (var j = 0; j < compSelection.length; j++) {
             if (compSelection[j] instanceof CompItem) {
-            slateOvator3engine(compSelection[j], regex);
+            insertSlateEngine(compSelection[j], regex);
             }
         }
     }
 }
 
-function slateOvator3engine(comp, regex) {
+function insertSlateEngine(comp, regex) {
     
     aplikaceDoComp(comp, regex);
 
@@ -475,24 +521,58 @@ function slateOvator3engine(comp, regex) {
             }
             comp.displayStartTime = -1; //musi to byt tady?
         }
-
-        //  vkladame kopii slatu do kompozice
-        function placeTheSlate(theComp, regex) {    // theComp je objekt (polozka z pole)
-            
+//---------------------------------------------------
+//---------------------------------------------------
+//---------------------------------------------------
+/*
+// search for the newest instance of the slate or the one from the very project
+        function slateSarch(regex) {
+            var slateArr = [];
             for (var i = 1; i <= app.project.numItems; i++) { // procura do slate(name)
                 var testNameStr = app.project.item(i).name;
                 var slateSearch = regex.test(testNameStr);
                 
                 if (app.project.item(i) instanceof CompItem && slateSearch) {
 
-                var slate = app.project.item(i);
-                var newSlate = slate.duplicate();
-                    theComp.layers.add(newSlate);
-                break;  //  verze s regexem jinak cykli
+                //var slate = app.project.item(i);
+                slateArr.push(app.project.item(i));
                 }
             }
         }
+        */
+//---------------------------------------------------
+//---------------------------------------------------
+//---------------------------------------------------
+//---------------------------------------------------
+        //  vkladame kopii slatu do kompozice
+        function placeTheSlate(theComp, regex) {    // theComp je objekt (polozka z pole)
 
+            var slate = slateSearch(theComp, regex);
+            alert(slate.name);
+            var newSlate = slate.duplicate();
+                theComp.layers.add(newSlate);
+            }
+        /*
+        //---------------------------------------------------bak
+        function placeTheSlate(theComp, regex) {    // theComp je objekt (polozka z pole)
+            
+            for (var i = 1; i <= app.project.numItems; i++) { // procura do slate(name)
+                if (app.project.item(i) instanceof CompItem) {
+                    var testNameStr = app.project.item(i).name;
+                    var slateSearch = regex.test(testNameStr);
+                    
+                    if (slateSearch) {
+
+                    var slate = app.project.item(i);
+                    var newSlate = slate.duplicate();
+                        theComp.layers.add(newSlate);
+                    break;  //  verze s regexem jinak cykli
+                    }
+                }
+            }
+        }
+        //---------------------------------------------------
+        */
         function fitToCompSize(myComp, myLayer) {
             
             var myCompSize = [myComp.width, myComp.height];
@@ -620,7 +700,7 @@ function slateOvator_part04a(inputFolderLevelL) {
         var compOutLayers = compOut.layers;
             compOutLayers.add(compMaster);
             compOut.layer(1).startTime = 1;
-            slateOvator3engine(compOut, regex);
+            insertSlateEngine(compOut, regex);
     }
 
     function makeFolder(folderName, folderParent) {
@@ -702,5 +782,190 @@ function slateOvator_part04a(inputFolderLevelL) {
         }
 
 }
+
+//---------------------------------------------------
+//---------------------------------------------------
+
+function slateSearch(selectedComp, regexSlateGlobal) {
+    var result;
+    const slateInPlaceTest = slateSearch1(selectedComp, regexSlateGlobal);
+    if(slateInPlaceTest.length > 0) {
+        result = theBlueprint(slateInPlaceTest);
+    } else {
+        result = theBlueprint(theNewest(regexSlateGlobal));
+    }
+    return result;
+}
+
+//---------------------------------------------------
+// -------------------- regex
+    //zavorky musi byt oznaceny '\', aby byly string, ex: /^slate_\(v240300\)/;
+/*
+function slateRegex() {
+    var slateRegex = /^slate_\(v\d{6}\)/;
+    return slateRegex;
+}
+function slateRegexSimple() {
+    var slateRegex = /^slate_/;
+    return slateRegex;
+}
+*/
+function slateRegexNewest(regexG) {
+    var str = theNewestSlateName(slateSearch2(regexG));
+    //var str = "/^" + name + "/";  
+    //neni mozne takto vkladat promennou do regexu, je pak string a be objekt
+    //pridavame backslash do regexu pred zavorky
+        var fixRegex1 = /\(/;
+        var fixRegex2 = /\)/;
+        var replaceText1 = "\\(";   //  jeden backSlash do regexu a jeden k zavorce v tomto stringu
+        var replaceText2 = "\\)";
+        var resultHalf = str.replace(fixRegex1, replaceText1);
+        var result = resultHalf.replace(fixRegex2, replaceText2);
+        //promenna do regexu
+    return new RegExp("^" + result);
+}
+// --------------------
+
+//---------------------------------------------------
+// cesta ve strukture slozek
+function cesta(projectItem) {
+    
+    const objArr = [];
+        
+    do {
+        if(projectItem.parentFolder != app.project.rootFolder) {
+            projectItem = projectItem.parentFolder;           
+        }
+        objArr.push(projectItem.id);  //projectItem.name - pokud bychom potrebovali jmena
+    } while(projectItem.parentFolder != app.project.rootFolder);
+    
+    return objArr;
+}
+//---------------------------------------------------
+//  v obou stejne
+function commonArray(arr1, arr2) {
+
+  const oneArr = arr1.concat(arr2);
+  
+    const newArr = oneArr.myFilter(function(item) {
+    return arr1.myIncludes(item) && arr2.myIncludes(item);
+    })
+  return newArr;
+}
+
+//---------------------------------------------------
+//  search for the newest instance of the slate or the one from the very project
+//---------------------------------------------------
+//  1. the slate from the very project - tam kde ma byt
+//---------------------------------------------------
+function slateSearch1(selectedComp, regex) {
+    const slateArr = [];
+    var selectedCompPath = cesta(selectedComp);
+    var comparePath = [];   //vysledek srovnani obou cest
+    //uklada to co je v obou stejne, vse je tedy 2x
+    for (var i = 1; i <= app.project.numItems; i++) { // procura do slate(name)
+        if (app.project.item(i) instanceof CompItem) {
+        var testNameStr = app.project.item(i).name;
+        var slateSearch = regex.test(testNameStr);
+        
+        if (slateSearch) {
+        var slate = app.project.item(i);
+        var slatePath = cesta(slate);
+        comparePath = commonArray(selectedCompPath, slatePath);
+        // pokud je v poli shoda alespon v jedne polozce (kazda shoda je 2x)
+        if (comparePath.length > 2) {
+            slateArr.push(slate);
+                }
+            }
+        }
+    }
+    return slateArr;
+}
+//---------------------------------------------------
+//  2. search in the whole project for the newest instance of the slate
+//---------------------------------------------------
+//  1. vyhledame vsechny slaty v proj
+function slateSearch2(regexL) {
+    const slateArr = [];
+    for (var i = 1; i <= app.project.numItems; i++) { // procura do slate(name)
+    if (app.project.item(i) instanceof CompItem) {
+        var testNameStr = app.project.item(i).name;
+        var slateSearch = regexL.test(testNameStr);
+        
+        if (slateSearch) {
+        var slate = app.project.item(i);
+        //var slateName = slate.name;
+        slateArr.push(slate);
+        
+            }
+        }
+    }
+    return slateArr;
+}
+//---------------------------------------------------
+//  2. sort
+//pozor funguje i s polem stringu, ale spatne
+function sortAlphabetOrder(arr) {
+  const arrCopy = arr.slice();
+  return arrCopy.sort(function(a, b) {
+    return a.name === b.name ? 0 : a.name > b.name ? 1 : -1;
+  })
+}
+
+function sortReverseOrder(arr) {
+  const arrCopy = arr.slice();
+  return arrCopy.sort(function(a, b) {
+    return a.name === b.name ? 0 : a.name < b.name ? 1 : -1;
+  })
+}
+//---------------------------------------------------
+//  3. vybereme nejnovejsi slateName z pole vsech slatu
+function theNewestSlateName(slateArr) {
+    //var slateArr = slateSearch2(regexSlateGlobal);
+    //  abecedni serazeni sestupne
+    const slateArrSorted = sortReverseOrder(slateArr);
+    //  test sort fce - jen pro zobrazeni jestli funguje
+    /*var testArr = slateArrSorted.myMap(function(item) {
+        return item.name;
+    });*/
+    //  jmeno nejnovejsiho slatu
+    var latestSlateName = slateArrSorted[0].name;
+    //  date substr 
+    var latestSlateNameCrop = latestSlateName.substr(0, 15);
+    return latestSlateNameCrop;
+}
+
+//---------------------------------------------------
+//  4. regex pro hledani nejnov
+// -------------------- viz regex
+
+
+//---------------------------------------------------
+//  5. pole nejnovejsich
+
+function theNewest(regexG) {
+    const slateArr = slateSearch2(regexG);
+    var regexL = slateRegexNewest(regexG);
+    const slateArrSorted = sortReverseOrder(slateArr);
+    var newestOnly = slateArrSorted.myFilter(function(item) {
+        
+        return regexL.test(item.name);
+    })
+    //test
+    /*var newestOnlyNames = newestOnly.myMap(function(item) {
+        return item.name;
+    })*/
+    return newestOnly;
+}
+
+//  6. cislo 01
+function theBlueprint(arr) {
+    //var newestSlatesArr = theNewest(regexSlateGlobal);
+    const arrSorted = sortAlphabetOrder(arr);
+    return arrSorted[0];
+}
+//---------------------------------------------------
+//---------------------------------------------------
+
 
 })(this);

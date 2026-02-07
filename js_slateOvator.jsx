@@ -1,5 +1,5 @@
 //  slateOvator
-//  240401_15c
+//  240402_15c
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -627,7 +627,9 @@ function insertSlateEngine(comp, regex) {
             centerCompPosition(myCompSize, myLayer);
         }
     }
-
+//  osetrit cislovani novych slatu
+//  osetrit layer name vs. layer source name
+//  
 
 //  slateOvator_part04a
 //  duplikat kompozice s apendixem do podslozky v parentFoldru + slate
@@ -643,6 +645,7 @@ function slateOvator_part04a(inputFolderLevelL) {
 
         var selected = app.project.selection;
         var outFolderName = "out";
+        //var masterAppendix    //presunout sem
         var regex = slateRegex();
 
         if (selected.length == 0) {

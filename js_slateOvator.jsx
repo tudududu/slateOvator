@@ -1,5 +1,5 @@
 //  slateOvator
-//  240402_15c
+//  240402_15c3
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -16,6 +16,7 @@
 // v14c deleteLayers() odemknuti zamcenych vrstev, aby se odstranily, pokud jsou zamčené
 // v15 uprava copy() pro kopiruji masterComp vcetne parametru
 // v15c slateSarch(regex) -- implementation in progress
+// v15c3 wip 1 osetrit cislovani novych slatu, 2 osetrit layer name vs. layer source name
 
 //  vXX UI - level closable
 //  vXX focus target
@@ -627,9 +628,30 @@ function insertSlateEngine(comp, regex) {
             centerCompPosition(myCompSize, myLayer);
         }
     }
-//  osetrit cislovani novych slatu
-//  osetrit layer name vs. layer source name
-//  
+//---------------------------------------------------
+//  1 osetrit cislovani novych slatu
+//  2 osetrit layer name vs. layer source name
+/*
+This is why you won’t see the name property on the Layer page, but you can still use layer.name in your script; name is inherited from PropertyBase.name.
+
+PropertyBase.name¶
+app.project.item(index).layer(index).name
+app.project.item(index).layer(index).propertySpec.name
+
+Layer.isNameSet¶
+app.project.item(index).layer(index).isNameSet
+AVLayer.source¶
+app.project.item(index).layer(index).source
+The source AVItem for this layer. The value is null in a Text layer. Use AVLayer.replaceSource() to change the value.
+AVLayer.isNameFromSource¶
+app.project.item(index).layer(index).isNameFromSource
+Description
+True if the layer has no expressly set name, but contains a named source. In this case, layer.name has the same value as layer.source.name. False if the layer has an expressly set name, or if the layer does not have a source.
+Type
+Boolean; read-only.
+*/
+//  3 layer (search)/insert process
+//---------------------------------------------------
 
 //  slateOvator_part04a
 //  duplikat kompozice s apendixem do podslozky v parentFoldru + slate

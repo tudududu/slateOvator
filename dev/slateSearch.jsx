@@ -1,6 +1,6 @@
 // dev slateSearch 
 // search for the slate from the very project or its newest instance
-// 240429_v06
+// 240430_v06a
 
 Array.prototype.myIncludes = function(callback) {
       var result;
@@ -48,7 +48,7 @@ var regex = slateRegexSimple();
         alert("Select a composition");
     } else {
         //alert(slateSearch1(regex, selected[0]));
-          alert(slateSelection(slateSearch2(regex)));
+          alert(theNewestSlateName(slateSearch2(regex)));
     }
 
 app.endUndoGroup();
@@ -124,18 +124,19 @@ function slateSearch1(regex, selectedComp) {
 //  2. search for the newest instance of the slate
 //---------------------------------------------------
 //  1. vyhledame vsechny slaty v proj
-function slateSearch2(regex, selectedComp) {
+function slateSearch2(regexL) {
     var slateArr = [];
-
     for (var i = 1; i <= app.project.numItems; i++) { // procura do slate(name)
+    if (app.project.item(i) instanceof CompItem) {
         var testNameStr = app.project.item(i).name;
-        var slateSearch = regex.test(testNameStr);
+        var slateSearch = regexL.test(testNameStr);
         
-        if (slateSearch && app.project.item(i) instanceof CompItem) {
+        if (slateSearch) {
         var slate = app.project.item(i);
         //var slateName = slate.name;
         slateArr.push(slate);
         
+            }
         }
     }
     return slateArr;
@@ -155,14 +156,14 @@ function sortReverseOrder(arr) {
   })
 }
 //  3. vybereme nejnovejsi slateName z pole vsech slatu
-function slateSelection(slateArr) {
+function theNewestSlateName(slateArr) {
     //var slateArr = slateSearch2(regex, selected[0]);
     //  abecedni serazeni sestupne
     var slateArrSorted = sortReverseOrder(slateArr);
     //  test sort fce - jen pro zobrazeni jestli funguje
-    var testArr = slateArrSorted.myMap(function(item) {
+    /*var testArr = slateArrSorted.myMap(function(item) {
         return item.name;
-    });
+    });*/
     //  jmeno nejnovejsiho slatu
     var latestSlateName = slateArrSorted[0].name;
     //  date substr 
@@ -170,22 +171,68 @@ function slateSelection(slateArr) {
     return latestSlateNameCrop;
 }
 
-var latestSlateNameG = slateSelection(slateSearch2(regex));
 
 //  4. regex pro hledani nejnov
+    var latestSlateNameG = theNewestSlateName(slateSearch2(regex));
 // -------------------- regex
-function slateRegex2(name) {
-    var slateRegex = "/^" + latestSlateNameG + "/";
-    return slateRegex;
+function slateRegexNewest(name) {
+    ///var str = "/^" + name + "/";
+    var str = name;
+        var fixRegex = /\(/;
+        var fixRegex2 = /\)/;
+        var replaceText = "\\(";
+        var replaceText2 = "\\)";
+        var result = str.replace(fixRegex, replaceText);
+        //var result2 = str.match(fixRegex);
+        var result3 = result.replace(fixRegex2, replaceText2);
+    return result3;
 }
-//alert(slateRegex2(latestSlateNameG));
+var regexN = slateRegexNewest(latestSlateNameG);
+alert(slateRegexNewest(latestSlateNameG));
+
+/*function slateRegex2() {
+    var slateRegex = /^slate_\(v240300\)/;
+    //var slateRegex = /^slate_(v240300)/;  //zavorky musi byt oznaceny '\'
+    return slateRegex;
+var regexN = slateRegex2();
+}*/
+
+var regexObj = new RegExp(regexN);
+alert(regexObj);
 
 //  5. pole nejnovejsich
-var theNewestSlates = null;
-function theNewest(arr) {
-    var 
-    var slateArrSorted = sortAlphabetOrder(arr);
+/*
+function theNewest(arr, testNameStrL) {
+    //var testNameStrL = app.project.item(i).name;
+    //var slateSearch = regex.test(testNameStr);
+    var regex2 = slateRegexNewest(testNameStrL);
+    var slateArrSorted = sortReverseOrder(arr);
+    var newestOnly = slateArrSorted.myFilter(function(item) {
+        var itemName = item.name;
+        var nameTest = regex2.test(itemName);
+        return nameTest;
+    })
+    return newestOnly;
 }
+*/
+    
+function theNewest(arr, regex2) {
+    var newArray = [];
+    
+    for(var i = 0; i < arr.length; i++) {
+        var itemName = arr[i].name;
+        var nameTest = regex2.test(itemName);
+        if (nameTest) {
+        newArray.push(arr[i]);
+            }
+        }
+        return newArray;
+    
+    var arrSorted = sortAlphabetOrder(newArray);
+    
+    return arrSorted;
+}
+alert(theNewest(slateSearch2(regex), regexObj));
 //  6. cislo 01
 
 //  zvazit jestli nehledat primo (bez 4. a 5.)

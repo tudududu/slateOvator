@@ -1,8 +1,10 @@
 //  slateOvator
-//  240203_v08
-//  zacleneni part3 do part4
+//  240204_v09
+//  v08 zacleneni part3 do part4
+//  v09 insert compName via callback
+//  v10 uprava prepisovace poli pro slate i comp
 
-var title = "slate0vator_v08";
+var title = "slate0vator_v09";
 
 (function (thisObj) {
     
@@ -197,7 +199,7 @@ app.endUndoGroup();
                         findSlateComp(layerName);
                         break;
                     } else {    //  ne, hledame slate
-                        compNamesMultiSlate(selectedComps[j]);
+                        compNamesMultiSlate(selectedComps[j], compNameVkladOvator);
                         break;  //
                     }
                 }
@@ -212,26 +214,27 @@ app.endUndoGroup();
             
             if (app.project.item(i) instanceof CompItem && app.project.item(i).name == slateCompName) {
             
-            compNamesMultiSlate(app.project.item(i));
+            compNamesMultiSlate(app.project.item(i), compNameVkladOvator);
             break;  //  verze s regexem jinak cykli
                 }
             }
         }
 
     //  Spusti vkladac pokud je slate pouzit prave v jedne kompozici
-        function compNamesMultiSlate(selectedComps) {
+        function compNamesMultiSlate(selectedComp, callback) {
             //  hledame pole parentComp (kde je pouzit)
-            if (selectedComps instanceof CompItem) {
-                    var parentComp = selectedComps.usedIn; //arr
+            if (selectedComp instanceof CompItem) {
+                    var parentComp = selectedComp.usedIn; //arr
                 // pokud je parentComp jen jedna spusti vkladac
                 if (parentComp.length == 1) {
                     var parentCompName = parentComp[0].name;  //arr to string
                     var newExpression = "comp(\"" + parentCompName + "\"" + ").name;";
-                    compNameVkladOvator(selectedComps, newExpression);
+                    callback(selectedComp, newExpression);
+                    //compNameVkladOvator(selectedComp, newExpression);
                 } else if (parentComp.length > 1) {
-                    alert("Slate " + selectedComps.name + " can only be used once.");
+                    alert("Slate " + selectedComp.name + " can only be used once.");
                 } else if (parentComp.length < 1) {
-                    alert("Slate " + selectedComps.name + " not used.");
+                    alert("Slate " + selectedComp.name + " not used.");
                 }
             }
         }

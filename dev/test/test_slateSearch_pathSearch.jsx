@@ -1,0 +1,115 @@
+// test_slateSearch_pathSearch
+// 240428
+
+// search for the newest instance of the slate or the one from the very project
+// 1. the slate from the very project
+
+Array.prototype.myIncludes = function(callback) {
+      var result;
+      var i = 0;
+      do {
+        if (this[i] === callback) {
+        result = true;
+        } else {
+        result = false;
+        }
+        i = i + 1;
+      } while (i < this.length && result == false);
+      return result;
+  }
+
+Array.prototype.myFilter = function(callback) {
+  var newArray = [];
+  for(var i = 0; i < this.length; i++) {
+    if (callback(this[i], i, this)) {
+      newArray.push(this[i]);
+        }
+    }
+    return newArray;
+}
+//---------------------------------------------------
+//---------------------------------------------------
+
+app.beginUndoGroup('slateSearch');
+
+var selected = app.project.selection; // compositions
+var regex = slateRegexSimple();
+
+    if (selected.length == 0) {
+        alert("Select a composition");
+    } else {
+        //alert(cesta(selected[0]));
+        //alert(filter(cesta(selected[0])));
+        alert(slateSearch1(regex, selected[0]));
+        //alert(slateSelection(slateSearch2(regex, selected[0])));
+    }
+        
+app.endUndoGroup();
+
+// -------------------- regex
+function slateRegex() {
+    var slateRegex = /^slate_\(v\d{6}\)/;
+    return slateRegex;
+}
+function slateRegexSimple() {
+    var slateRegex = /^slate_/;
+    return slateRegex;
+}
+// --------------------
+
+//---------------------------------------------------
+// cesta ve strukture slozek
+function cesta(projectItem) {
+    
+    var objArr = [];
+        
+    do {
+        if(projectItem.parentFolder != app.project.rootFolder) {
+            projectItem = projectItem.parentFolder;           
+        }
+        objArr.push(projectItem.id);  //projectItem.name - pokud bychom potrebovali jmena
+    } while(projectItem.parentFolder != app.project.rootFolder);
+    
+    return objArr;
+}
+//---------------------------------------------------
+
+function diffArray(arr1, arr2) {
+
+  var oneArr = arr1.concat(arr2);
+  
+    var newArr = oneArr.myFilter(function(item) {
+    return arr1.myIncludes(item) && arr2.myIncludes(item);
+    })
+  return newArr;
+}
+
+//---------------------------------------------------
+//  search for the newest instance of the slate or the one from the very project
+//---------------------------------------------------
+//  1. the slate from the very project
+//---------------------------------------------------
+function slateSearch1(regex, selectedComp) {
+    var slateArr = [];
+    var selectedCompPath = cesta(selectedComp);
+    var comparePath = [];
+    
+    for (var i = 1; i <= app.project.numItems; i++) { // procura do slate(name)
+        var testNameStr = app.project.item(i).name;
+        var slateSearch = regex.test(testNameStr);
+        
+        if (slateSearch && app.project.item(i) instanceof CompItem) {
+        var slate = app.project.item(i);
+        var slateName = slate.name;
+        var slatePath = cesta(slate);
+        comparePath = diffArray(selectedCompPath, slatePath);
+        //alert(slateName);
+        //alert(comparePath);
+        
+            if (comparePath.length > 2) {
+        slateArr.push(slateName);
+            }
+        }
+    }
+    return slateArr;
+}

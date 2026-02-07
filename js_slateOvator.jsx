@@ -1,5 +1,5 @@
 //  slateOvator
-//  240402_15c3
+//  240403_15c4
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -17,6 +17,7 @@
 // v15 uprava copy() pro kopiruji masterComp vcetne parametru
 // v15c slateSarch(regex) -- implementation in progress
 // v15c3 wip 1 osetrit cislovani novych slatu, 2 osetrit layer name vs. layer source name
+// v15c4 slateSarch(regex) -- wip: vymeneno v placeTheSlate()
 
 //  vXX UI - level closable
 //  vXX focus target
@@ -480,33 +481,37 @@ function slateOvator3() {
     function placeSlateMultiComp(compSelection, regex) {
         for (var j = 0; j < compSelection.length; j++) {
             if (compSelection[j] instanceof CompItem) {
-            insertSlateEngine(compSelection[j], regex);
+                var compMaster = compSelection[j];
+                var compOut = compSelection[j];
+            insertSlateEngine(compMaster, compOut, regex);
             }
         }
     }
 }
 
-function insertSlateEngine(comp, regex) {
+function insertSlateEngine(compMaster, compOut, regex) {
     
-    aplikaceDoComp(comp, regex);
+    aplikaceDoComp(compMaster, compOut, regex);
 
         //  zjistuje jestli v kompozici uz neni slate
-        function aplikaceDoComp(comp, regex) { // theComp je objekt (polozka z pole)
+        function aplikaceDoComp(compMaster, compOut, regex) { // theComp je objekt (polozka z pole)
             
-            var layerArr = comp.layers;
+            var layerArr = compOut.layers;
             
             if (layerArr.length == 0) {
-                placeTheSlate(comp, regex);
+                placeTheSlate(compMaster, compOut, regex);
             } else if (layerArr.length > 0) {
         //make func
                 for (var i = 1; i <= layerArr.length; i++) {
-                    var layerName = layerArr[i].name;
+                    var layerName = layerArr[i].source.name;
                     var slateSearch = regex.test(layerName);
 
                     if (slateSearch) {  //pokud ano konci
+                        alert('Slate alredy present.');
+                        //  nedame ho tam take?
                         break;
                     } else {
-                        placeTheSlate(comp, regex);
+                        placeTheSlate(compMaster, compOut, regex);
                         break;
                     }
                 }
@@ -517,63 +522,26 @@ function insertSlateEngine(comp, regex) {
                 var slateSearch = regex.test(layerName);
                 if (slateSearch) {
                     var layerObj = layerArr[i];
-                    fitToCompSize(comp, layerObj);
+                    fitToCompSize(compOut, layerObj);
                 }
             }
-            comp.displayStartTime = -1; //musi to byt tady?
+            compOut.displayStartTime = -1; //musi to byt tady?
         }
-//---------------------------------------------------
-//---------------------------------------------------
-//---------------------------------------------------
-/*
-// search for the newest instance of the slate or the one from the very project
-        function slateSarch(regex) {
-            var slateArr = [];
-            for (var i = 1; i <= app.project.numItems; i++) { // procura do slate(name)
-                var testNameStr = app.project.item(i).name;
-                var slateSearch = regex.test(testNameStr);
-                
-                if (app.project.item(i) instanceof CompItem && slateSearch) {
 
-                //var slate = app.project.item(i);
-                slateArr.push(app.project.item(i));
-                }
-            }
-        }
-        */
-//---------------------------------------------------
-//---------------------------------------------------
 //---------------------------------------------------
 //---------------------------------------------------
         //  vkladame kopii slatu do kompozice
-        function placeTheSlate(theComp, regex) {    // theComp je objekt (polozka z pole)
+        //vymena 240402
+        //compMaster, compOut, regex
+        //theComp, regex    //theComp=compOut
+        function placeTheSlate(compMaster, compOut, regex) {    // theComp je objekt (polozka z pole)
 
-            var slate = slateSearch(theComp, regex);
+            var slate = slateSearch(compMaster, regex);
             alert(slate.name);
             var newSlate = slate.duplicate();
-                theComp.layers.add(newSlate);
+                compOut.layers.add(newSlate);
             }
-        /*
-        //---------------------------------------------------bak
-        function placeTheSlate(theComp, regex) {    // theComp je objekt (polozka z pole)
-            
-            for (var i = 1; i <= app.project.numItems; i++) { // procura do slate(name)
-                if (app.project.item(i) instanceof CompItem) {
-                    var testNameStr = app.project.item(i).name;
-                    var slateSearch = regex.test(testNameStr);
-                    
-                    if (slateSearch) {
-
-                    var slate = app.project.item(i);
-                    var newSlate = slate.duplicate();
-                        theComp.layers.add(newSlate);
-                    break;  //  verze s regexem jinak cykli
-                    }
-                }
-            }
-        }
-        //---------------------------------------------------
-        */
+  
         function fitToCompSize(myComp, myLayer) {
             
             var myCompSize = [myComp.width, myComp.height];
@@ -628,11 +596,16 @@ function insertSlateEngine(comp, regex) {
             centerCompPosition(myCompSize, myLayer);
         }
     }
-//---------------------------------------------------
+
+
+
+//---------------------------------------------------ukoly
 //  1 osetrit cislovani novych slatu
 //  2 osetrit layer name vs. layer source name
 /*
-This is why you won’t see the name property on the Layer page, but you can still use layer.name in your script; name is inherited from PropertyBase.name.
+This is why you won’t see the name property on the Layer page, 
+but you can still use layer.name in your script; 
+name is inherited from PropertyBase.name.
 
 PropertyBase.name¶
 app.project.item(index).layer(index).name
@@ -640,18 +613,29 @@ app.project.item(index).layer(index).propertySpec.name
 
 Layer.isNameSet¶
 app.project.item(index).layer(index).isNameSet
+
 AVLayer.source¶
 app.project.item(index).layer(index).source
-The source AVItem for this layer. The value is null in a Text layer. Use AVLayer.replaceSource() to change the value.
+The source AVItem for this layer. The value is null in a Text layer. 
+Use AVLayer.replaceSource() to change the value.
+
 AVLayer.isNameFromSource¶
 app.project.item(index).layer(index).isNameFromSource
 Description
-True if the layer has no expressly set name, but contains a named source. In this case, layer.name has the same value as layer.source.name. False if the layer has an expressly set name, or if the layer does not have a source.
+True if the layer has no expressly set name, 
+but contains a named source. In this case, 
+layer.name has the same value as layer.source.name. 
+False if the layer has an expressly set name, 
+or if the layer does not have a source.
 Type
 Boolean; read-only.
 */
 //  3 layer (search)/insert process
 //---------------------------------------------------
+
+
+
+
 
 //  slateOvator_part04a
 //  duplikat kompozice s apendixem do podslozky v parentFoldru + slate
@@ -702,7 +686,7 @@ function slateOvator_part04a(inputFolderLevelL) {
         naming(myCompMaster, myCompOut);
         //deleteLayers(myCompOut);
         prebalovator(myCompMaster, myCompOut, regex);
-
+//  lepe popsat pochopit
         var pathItemsArr = folderPath(myCompMaster);
         //  folderStructure vraci prvni slozku v rade za selectedComp
         var myCompOutFolderParent = folderStructure(pathItemsArr);
@@ -725,7 +709,7 @@ function slateOvator_part04a(inputFolderLevelL) {
         var compOutLayers = compOut.layers;
             compOutLayers.add(compMaster);
             compOut.layer(1).startTime = 1;
-            insertSlateEngine(compOut, regex);
+            insertSlateEngine(compMaster, compOut, regex);
     }
 
     function makeFolder(folderName, folderParent) {

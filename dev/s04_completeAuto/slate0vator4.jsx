@@ -1,5 +1,5 @@
 // slateOvator_part04
-// 240123
+// 240124
 // duplicator with path
 // duplikat kompozice s apendixem (_master) do podslozky v parentFoldru
 
@@ -43,26 +43,24 @@ function copy(myCompMaster) {
 
     naming(myCompMaster, myCompOut);
 
-    folderStructure(myCompMaster, myCompMaster);
-    
+    var cesta = (folderStructure(myCompMaster));
+    //cesta.toString();
+    makeFolder(cesta.toString());
 }
 
 copy(myComp);
 
 app.endUndoGroup();
 
-function folderStructure(item, compMaster) {
-    var objArr = [];
-    var itemPF = item.parentFolder;
-    var folder = makeFolder(itemPF.name);
-        compMaster.parentFolder = folder;
+function folderStructure(item) {
+    var objArr = [item.name];
     
     do {
         if(item.parentFolder != app.project.rootFolder) {
             item = item.parentFolder;
-            
-            var folderX = makeFolder(item.name, );
+            objArr.push(item.name);
         }
     } while(item.parentFolder != app.project.rootFolder);
     
+    return objArr;
 }

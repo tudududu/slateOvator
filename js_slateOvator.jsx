@@ -1,5 +1,5 @@
 //  slateOvator
-//  240130_v07
+//  240131_v07a
 
 var title = "slate0vator_v07";
 
@@ -251,8 +251,17 @@ app.endUndoGroup();
 //  v08h
 //  Insert slate into composition
 function slateOvator3() {
+
+    app.beginUndoGroup("Insert slate into composition");
+        
+        slateOvator3a();
+
+    app.endUndoGroup();
+
+}
     
-app.beginUndoGroup("Insert slate into composition");
+function slateOvator3a() {
+    
     var selected = app.project.selection;
     var regex = slateRegex();
 
@@ -261,7 +270,6 @@ app.beginUndoGroup("Insert slate into composition");
     } else {
         placeSlateMultiComp(selected, regex);
     }
-app.endUndoGroup();
 
     //  vyber komopzic
     function placeSlateMultiComp(compSelection, regex) {
@@ -415,7 +423,7 @@ function slateOvator_part04a(inputFolderLevelL) {
         naming(myCompMaster, myCompOut);
         deleteLayers(myCompOut);
         prebalovator(myCompMaster, myCompOut);
-        
+
         var pathItemsArr = folderPath(myCompMaster);
         //  folderStructure vraci prvni slozku v rade za selectedComp
         var myCompOutFolderParent = folderStructure(pathItemsArr);
@@ -438,7 +446,6 @@ function slateOvator_part04a(inputFolderLevelL) {
             compOutLayers.add(compMaster);
             compOut.layer(1).startTime = 1;
     }
-
 
     function makeFolder(folderName, folderParent) {
         //  scan proj if folder exist

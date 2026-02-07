@@ -1,5 +1,5 @@
 //  slateOvator
-//  240113_v02
+//  240107_v03
 
 
 (function (thisObj) {
@@ -8,7 +8,7 @@
 
     function newPanel(thisObj) {
         var win = (thisObj instanceof Panel) ? thisObj 
-        : new Window('palette', 'slateOvator', undefined);
+        : new Window('palette', 'slateOvator_v03', undefined);
         win.orientation = 'column';
         win.alignChildren = 'fill';
         win.preferredSize = [200, 300];
@@ -105,10 +105,10 @@
     }
 
 //  SlateOvator_part_01
-//  change operator field in multiple slates
+//  change field in multiple slates
 function slateOvator1(layerName, newTextInput) {
 
-app.beginUndoGroup("slateOvator1");
+app.beginUndoGroup("Change field in multiple slates");
     var selectedComp = app.project.selection; //array
 
     if (selectedComp.length == 0) {
@@ -121,10 +121,12 @@ app.endUndoGroup();
     
     function slateOvatorEngine(comp, layerName, newTextInput) {
         for (var j = 0; j < comp.length; j++) {
+            if (comp[j] instanceof CompItem) {
             var layerArr = comp[j].layers;
             for (var i = 1; i <= layerArr.length; i++) {
                 if (layerArr[i].name == layerName) {
                     layerArr[i].text.sourceText.setValue(newTextInput);
+                    }
                 }
             }
         }
@@ -152,6 +154,7 @@ app.endUndoGroup();
     function compNamesMultiFx(selectedArr) {
         //  ktery vrati pole parentComp
         for (var j = 0; j < selectedArr.length; j++) {
+        if (selectedArr[j] instanceof CompItem) {
                 var parentComp = selectedArr[j].usedIn;
             // a pokud je parentComp jen jedna spusti vkladac
             if (parentComp.length == 1) {
@@ -162,6 +165,7 @@ app.endUndoGroup();
                 alert("Slate can only be used once.");
             }
         }
+    }
     }
 
     // vkladame parent compName do slatu
@@ -188,14 +192,16 @@ app.beginUndoGroup("Insert slate into composition");
     if (selected.length == 0) {
         alert("Select a composition");
     } else {
-        placeMultipleSlate(selected, regex);
+        placeSlateMultiComp(selected, regex);
     }
 app.endUndoGroup();
 
     //  vyber komopzic
-    function placeMultipleSlate(compSelection, regex) {
+    function placeSlateMultiComp(compSelection, regex) {
         for (var j = 0; j < compSelection.length; j++) {
+            if (compSelection[j] instanceof CompItem) {
             aplikaceDoComp(compSelection[j], regex);
+            }
         }
     }
 

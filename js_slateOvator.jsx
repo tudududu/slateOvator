@@ -1,5 +1,5 @@
 //  slateOvator
-//  240107_v03
+//  240107_v04
 
 
 (function (thisObj) {
@@ -8,7 +8,7 @@
 
     function newPanel(thisObj) {
         var win = (thisObj instanceof Panel) ? thisObj 
-        : new Window('palette', 'slateOvator_v03', undefined);
+        : new Window('palette', 'slateOvator_v04', undefined);
         win.orientation = 'column';
         win.alignChildren = 'fill';
         win.preferredSize = [200, 300];
@@ -134,7 +134,7 @@ app.endUndoGroup();
 }
 
 //  SlateOvator_part_02
-//  v03
+//  v04
 //  Pass the compName to the slate
 function slateOvator2() {
 
@@ -145,31 +145,33 @@ var selected = app.project.selection; // compositions
     if (selected.length == 0) {
         alert("Select a composition");
     } else {
-        compNamesMultiFx(selected);
+        compNamesMultiSlate(selected);
     }
 
 app.endUndoGroup();
 
     //  Pro vybrane slaty spusti vkladac,
-    function compNamesMultiFx(selectedArr) {
+    function compNamesMultiSlate(selectedArr) {
         //  ktery vrati pole parentComp
         for (var j = 0; j < selectedArr.length; j++) {
         if (selectedArr[j] instanceof CompItem) {
-                var parentComp = selectedArr[j].usedIn;
+                var parentComp = selectedArr[j].usedIn; //arr
             // a pokud je parentComp jen jedna spusti vkladac
             if (parentComp.length == 1) {
                 var parentCompName = parentComp[0].name;  //arr to string
                 var newExpression = "comp(\"" + parentCompName + "\"" + ").name;";
-                slateOvatorEngine(selectedArr[j], newExpression);
-            } else {
-                alert("Slate can only be used once.");
+                compNameVkladOvator(selectedArr[j], newExpression);
+            } else if (parentComp.length > 1) {
+                alert("Slate " + selectedArr[j].name + " can only be used once.");
+            } else if (parentComp.length < 1) {
+                alert("Slate " + selectedArr[j].name + " not used.");
             }
         }
     }
     }
 
     // vkladame parent compName do slatu
-    function slateOvatorEngine(slateComp, newText) {
+    function compNameVkladOvator(slateComp, newText) {
         
         var layerArr = slateComp.layers;
         for (var i = 1; i <= layerArr.length; i++) {

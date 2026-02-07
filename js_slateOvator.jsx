@@ -1,5 +1,5 @@
 //  slateOvator
-//  240107_v04
+//  240111_v05
 
 
 (function (thisObj) {
@@ -8,7 +8,7 @@
 
     function newPanel(thisObj) {
         var win = (thisObj instanceof Panel) ? thisObj 
-        : new Window('palette', 'slateOvator_v04', undefined);
+        : new Window('palette', 'slateOvator_v05', undefined);
         win.orientation = 'column';
         win.alignChildren = 'fill';
         win.preferredSize = [200, 300];
@@ -133,8 +133,14 @@ app.endUndoGroup();
     }
 }
 
+// -------------------- regex
+function slateRegex() {
+    var slateRegex = /slate_\(v\d{6}\)/;
+    return slateRegex;
+}
+
 //  SlateOvator_part_02
-//  v04
+//  v03
 //  Pass the compName to the slate
 function slateOvator2() {
 
@@ -145,26 +151,71 @@ var selected = app.project.selection; // compositions
     if (selected.length == 0) {
         alert("Select a composition");
     } else {
-        compNamesMultiSlate(selected);
+        compNamesMultiFnc(selected);
     }
 
 app.endUndoGroup();
 
+//  slate or comp?
+//  varianta 1 asks if compName is slate...?
+//  varianta 2 asks if layers have slate...?
+    function compNamesMultiFnc(selectedComps) {  //  varianta 2
+    var regex = slateRegex();
+    var selectedCompsArr = [];
+    
+    for (var j = 0; j < selectedComps.length; j++) {
+            if (selectedComps[j] instanceof CompItem) {
+            var layerArr = selectedComps[j].layers; // prohlidka vrstev
+//make func (deduplicate)
+            for (var i = 1; i <= layerArr.length; i++) {
+                var layerName = layerArr[i].name;
+                var slateSearch = regex.test(layerName);    //  je vrstva slate?
+
+                if (slateSearch) {  // pokud je vrstva slate
+                                    //jde do slatu a vklada
+                    var slateCompName = layerName;
+                    findSlateComp(slateCompName);
+                    break;
+                } else {    //  ne, hledame slate
+                    selectedCompsArr.push(selectedComps[j]);
+                    compNamesMultiSlate(selectedCompsArr);
+                    break;  //
+                }
+            }
+        }
+    }
+    }
+
+        //  hledame slateComp (dle jmena)
+        function findSlateComp(slateCompName) {
+        
+        var selectedCompsArr = [];
+        for (var i = 1; i <= app.project.numItems; i++) {
+            
+            if (app.project.item(i) instanceof CompItem && app.project.item(i).name == slateCompName) {
+            
+            selectedCompsArr.push(app.project.item(i));
+            compNamesMultiSlate(selectedCompsArr);
+            break;  //  verze s regexem jinak cykli
+                }
+            }
+        }
+
     //  Pro vybrane slaty spusti vkladac,
-    function compNamesMultiSlate(selectedArr) {
+    function compNamesMultiSlate(selectedComps) {
         //  ktery vrati pole parentComp
-        for (var j = 0; j < selectedArr.length; j++) {
-        if (selectedArr[j] instanceof CompItem) {
-                var parentComp = selectedArr[j].usedIn; //arr
+        for (var j = 0; j < selectedComps.length; j++) {
+        if (selectedComps[j] instanceof CompItem) {
+                var parentComp = selectedComps[j].usedIn; //arr
             // a pokud je parentComp jen jedna spusti vkladac
             if (parentComp.length == 1) {
                 var parentCompName = parentComp[0].name;  //arr to string
                 var newExpression = "comp(\"" + parentCompName + "\"" + ").name;";
-                compNameVkladOvator(selectedArr[j], newExpression);
+                compNameVkladOvator(selectedComps[j], newExpression);
             } else if (parentComp.length > 1) {
-                alert("Slate " + selectedArr[j].name + " can only be used once.");
+                alert("Slate " + selectedComps[j].name + " can only be used once.");
             } else if (parentComp.length < 1) {
-                alert("Slate " + selectedArr[j].name + " not used.");
+                alert("Slate " + selectedComps[j].name + " not used.");
             }
         }
     }
@@ -189,7 +240,7 @@ app.endUndoGroup();
 function slateOvator3() {
 app.beginUndoGroup("Insert slate into composition");
     var selected = app.project.selection;
-    var regex = /slate_\(v\d{6}\)/;
+    var regex = slateRegex();
 
     if (selected.length == 0) {
         alert("Select a composition");
@@ -223,20 +274,20 @@ app.endUndoGroup();
             }
         }
     }
-
-    function aplikaceDoComp(comp, regex) {
+    //  zjistuje jestli v kompozici uz neni slate
+    function aplikaceDoComp(comp, regex) { 
         
         var layerArr = comp.layers;
         
         if (layerArr.length == 0) {
             placeTheSlate(comp, regex);
         } else if (layerArr.length > 0) {
-
+//make func
             for (var i = 1; i <= layerArr.length; i++) {
                 var layerName = layerArr[i].name;
                 var slateSearch = regex.test(layerName);
 
-                if (slateSearch) {
+                if (slateSearch) {  //pokus ano konci
                     break;
                 } else {
                     placeTheSlate(comp, regex);

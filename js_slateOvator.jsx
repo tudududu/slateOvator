@@ -1,14 +1,16 @@
 //  slateOvator
-//  240217_v12b
+//  240219_v12c
 //  v08 zacleneni part3 do part4
 //  v09 insert compName via callback
 //  v11 uprava prepisovace poli pro slate i comp
 //  v12 vypinace tagy
-//  vXX logo bg pouzite ve slatu
+//  v13 prepina se pouze logo bg pouzite ve slatu - id
+//  v14 totez pro slate: id misto jmena
 //  vXX UI - level closable
 //  vXX focus target
+//  vXX z callback fci oddelat instanceof pokud nejsou potreba
 
-var vers = '12b';
+var vers = '12c';
 var title = 'slate0vator (v' + vers + ')';
 
 
@@ -51,6 +53,7 @@ var title = 'slate0vator (v' + vers + ')';
         var panelTwoGroupOne = panelTwo.add('group', undefined, 'panelOneGroupOne');
             panelTwoGroupOne.orientation = 'row';
         //  label
+        //var treeX = panelTwo.add("treeview", bounds = undefined, items = [1, 2, 3], {node: 1});
         var inputLabel = panelTwoGroupOne.add('statictext', undefined, 'Set the Comps folder level:');
             //panelTwo.add("slider", bounds = undefined, value = 3, minvalue = 1, maxvalue = 3, {name: 'levelSlider'});
         var inputFolderLevel = panelTwoGroupOne.add('edittext', undefined, '3', {enterKeySignalsOnChange: false});
@@ -143,14 +146,18 @@ var title = 'slate0vator (v' + vers + ')';
             //panelZeroGroupOne.alignChildren = 'left';
 
         var checkbox_Media = panelZeroGroupOne.add("checkbox", [undefined,undefined,100,18], ' Media');
+        checkbox_Media.value = true;
         var checkbox_Sound = panelZeroGroupOne.add("checkbox", [undefined,undefined,100,18], ' Sound');
+        checkbox_Sound.value = true;
         var checkbox_Aspect = panelZeroGroupOne.add("checkbox", [undefined,undefined,100,18], ' Aspect');
         var checkbox_Resolution = panelZeroGroupOne.add("checkbox", [undefined,undefined,100,18], ' Resolution');
         var checkbox_Framerate = panelZeroGroupOne.add("checkbox", [undefined,undefined,100,18], ' Framerate');
         var checkbox_Subtitle = panelZeroGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Subtitle');
         var checkbox_Language = panelZeroGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Language');
         var checkbox_Brand = panelZeroGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Brand');
+        checkbox_Brand.value = true;
         var checkbox_Title = panelZeroGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Title');
+        checkbox_Title.value = true;
         var checkbox_Logo = panelZeroGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Logo');
         
         // --- Action ---
@@ -186,6 +193,9 @@ var title = 'slate0vator (v' + vers + ')';
         function checkLogo() {
             slateOvator0('slateBg_DuoLogo', switchesLayerName, checkbox_Logo.value, 'logo_Switch');
         }
+        function checkLogo2() {
+            slateOvator2(logoTlacitkovatOr2, switchesLayerName, checkbox_Logo.value, 'logo_Switch');
+        }
         checkbox_Media.onClick = checkTagMedia;
         checkbox_Sound.onClick = checkTagSound;
         checkbox_Aspect.onClick = checkTagAspect;
@@ -195,7 +205,7 @@ var title = 'slate0vator (v' + vers + ')';
         checkbox_Language.onClick = checkTagLang;
         checkbox_Brand.onClick = checkTagBrand;
         checkbox_Title.onClick = checkTagTitle;
-        checkbox_Logo.onClick = checkLogo;
+        checkbox_Logo.onClick = checkLogo2;
 
         // --- ACTIONS ---
         win.onResizing = win.onResize = function () {
@@ -206,35 +216,6 @@ var title = 'slate0vator (v' + vers + ')';
 
     }
 
-//  SlateOvator_part_01
-//  change field in multiple slates
-function slateOvator1(layerName, newTextInput) {
-
-    app.beginUndoGroup("Change field in multiple slates");
-        var selectedComp = app.project.selection; //array
-
-        if (selectedComp.length == 0) {
-            alert("Select a composition");
-        } else {
-            slateOvatorEngine(selectedComp, layerName, newTextInput);
-        }
-        
-    app.endUndoGroup();
-    
-    function slateOvatorEngine(comp, layerName, newTextInput) {
-        for (var j = 0; j < comp.length; j++) {
-            if (comp[j] instanceof CompItem) {
-            var layerArr = comp[j].layers;
-            for (var i = 1; i <= layerArr.length; i++) {
-                if (layerArr[i].name == layerName) {
-                    layerArr[i].text.sourceText.setValue(newTextInput);
-                    }
-                }
-            }
-        }
-    }
-}
-
 // -------------------- regex
 function slateRegex() {
     var slateRegex = /^slate_\(v\d{6}\)/;
@@ -243,25 +224,35 @@ function slateRegex() {
 // --------------------
 
 //logoSwitch
+//  zkusit usedIn - ziskam jen slaty ve kterych je pouzity - k nicemu
+//  zkusit compID
 function slateOvator0(compName, layerName, input, effectName) {
 
     app.beginUndoGroup("Switch the logo in slate");
+    var selected = app.project.selection; // compositions
 
-    findSlateBgComp(compName, layerName, input, effectName);
+    if (selected.length == 0) {
+        alert("Select a composition");
+    } else {
+        findSlateBgComp(compName, layerName, input, effectName);
+    }
 
     app.endUndoGroup();
     
+    //  looking for 'slateBg_DuoLogo'
     function findSlateBgComp(compName, layerName, input, effectName) {
         
             for (var i = 1; i <= app.project.numItems; i++) {
             
-            if (app.project.item(i) instanceof CompItem && app.project.item(i).name == compName) {
-            
-            logoTlacitkovatOr(app.project.item(i), layerName, input, effectName);
-            break;  //  verze s regexem jinak cykli
+            if (app.project.item(i) instanceof CompItem) { 
+                if (app.project.item(i).name == compName) {
+                    
+                logoTlacitkovatOr(app.project.item(i), layerName, input, effectName);
+                break;
                 }
             }
         }
+    }
 
     function logoTlacitkovatOr(comp, layerName, switchInput, effectName) {
             //for (var j = 0; j < compSelection.length; j++) {
@@ -277,7 +268,7 @@ function slateOvator0(compName, layerName, input, effectName) {
             }
 }
         
-//======================================callback funkce pro sl2
+//======================================callback funkce pro so2
 
     //  prepis pole 
     //  oproti slate0vatoru1 predelano z pole na objekt
@@ -318,11 +309,61 @@ function slateOvator0(compName, layerName, input, effectName) {
                 }
             }
 
+    function logoTlacitkovatOr2(compSelection, layerName, switchInput, effectName) {
+        //var bgCompName = 'slateBg_DuoLogo';
+        var bgCompNameRegex = /slateBg_DuoLogo/;
+        //  hledame bgComp ve slatu
+        var slateBgLayer = layerInspection(compSelection, bgCompNameRegex);
+        var sbgID = slateBgLayer[0].source.id;
+        
+        var slateBgComp = findSlateCompID(sbgID);
+        var layerArr = slateBgComp.layers;
+        
+        for (var i = 1; i <= layerArr.length; i++) {
+            if (layerArr[i].name == layerName) {
+                layerArr[i].effect(effectName)("Checkbox").setValue(switchInput);
+                }
+            }
+        }
+    //}
 
+    function findSlateCompID(sbgID) {
+        
+        for (var i = 1; i <= app.project.numItems; i++) {
+            
+            if (app.project.item(i) instanceof CompItem) {
+                if (app.project.item(i).id == sbgID) {
+            //  hledane bgComp
+                var result = app.project.item(i);
+                //break;
+                    }
+                }
+            }
+        return result;
+        }
+//======================================callback funkce pro sl2
+    function layerInspection(comp, wantedCompName) {
+        var regex = wantedCompName;
+        var layerArr = comp.layers; // prohlidka vrstev
+        var slateArrL = [];
+        for (var j = 1; j <= layerArr.length; j++) {
+            var layerName = layerArr[j].name;
+            //alert(layerName);
+            var slateSearch = regex.test(layerName);    //  je vrstva slate?
+            //alert(slateSearch);
+
+            if (slateSearch) {  // pokud je vrstva slate jdeme ho hledat
+                slateArrL.push(layerArr[j]);
+            }
+        }
+        //alert(slateArrL);
+        return slateArrL;                  
+    }
+//======================================callback funkce pro sl2
 //  SlateOvator_part_02
 //  v03
 var slateOvator2Undo = 'Change something in multiple slates';
-//  oznacit lze slate nebo kompozici - na reseni dale pracovat
+//  oznacit lze slate nebo kompozici
 
 function slateOvator2(callback, fieldLayerName, newTextInput, effectName) {
 
@@ -352,11 +393,11 @@ app.endUndoGroup();
                 if (slateSearch) {  // pokud je comp slate jdeme dovnitr
                     compNamesMultiSlate(selectedComps[i], callback, fieldLayerName, newTextInput, effectName);
                             //break;
-                } else {    //  neni, hledame jestli je uvnitr slate
-                var slateArr = layerInspection(selectedComps[i]);
+                } else {    //  pokud neni, hledame jestli je uvnitr slate
+                var slateArr = layerInspection(selectedComps[i], regex);
                 if (slateArr.length == 1) {
                     var layerName = slateArr[0];
-                    findSlateComp(layerName, fieldLayerName, newTextInput, effectName);
+                    findSlateComp(layerName, selectedComps[i], fieldLayerName, newTextInput, effectName);
                 } else {
                     alert('Too many or no slates.')
                     }
@@ -365,8 +406,8 @@ app.endUndoGroup();
         }
     }
 
-    function layerInspection(comp) {
-        var regex = slateRegex();
+    function layerInspection(comp, wantedCompName) {
+        var regex = wantedCompName;
         var layerArr = comp.layers; // prohlidka vrstev
         var slateArrL = [];
         for (var j = 1; j <= layerArr.length; j++) {
@@ -383,41 +424,18 @@ app.endUndoGroup();
         return slateArrL;                  
     }
     
-//  varianta 2 asks if layers have slate...?
-/*    function compNamesMultiFnc(selectedComps, callback, fieldLayerName, newTextInput, effectName) {
-        var regex = slateRegex();
-
-        for (var j = 0; j < selectedComps.length; j++) {
-            if (selectedComps[j] instanceof CompItem) {
-            var layerArr = selectedComps[j].layers; // prohlidka vrstev
-    //make func (deduplicate)
-            for (var i = 1; i <= layerArr.length; i++) {
-                var layerName = layerArr[i].name;
-                var slateSearch = regex.test(layerName);    //  je vrstva slate?
-
-                if (slateSearch) {  // pokud je vrstva slate jdeme ho hledat
-                    findSlateComp(layerName, fieldLayerName, newTextInput, effectName);
-                    break;
-                } else {    //  slate v kompozici neni
-                            //  musime overit jestli kompozice je slate
-                    compNamesMultiSlate(selectedComps[j], callback, fieldLayerName, newTextInput, effectName);
-                    break;  //
-                    
-                    }
-                }
-            }
-        }
-    }
-*/
         //  hledame slateComp (dle jmena)
-        function findSlateComp(slateCompName, fieldLayerName, newTextInput, effectName) {
+        function findSlateComp(slateCompName, parentComp, fieldLayerName, newTextInput, effectName) {
         
             for (var i = 1; i <= app.project.numItems; i++) {
             
-            if (app.project.item(i) instanceof CompItem && app.project.item(i).name == slateCompName) {
-            
+            if (app.project.item(i) instanceof CompItem) {
+                if (app.project.item(i).name == slateCompName) {
+            //  nasli jsme comp (slate) =>
             compNamesMultiSlate(app.project.item(i), callback, fieldLayerName, newTextInput, effectName);
             break;  //  verze s regexem jinak cykli
+                    //    }
+                    }
                 }
             }
         }
@@ -447,6 +465,7 @@ app.endUndoGroup();
         }
 
 }
+
 
 //  slateOvator_part3
 //  v09

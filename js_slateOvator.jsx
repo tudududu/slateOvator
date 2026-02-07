@@ -1,6 +1,7 @@
 //  slateOvator
-//  240111_v05
+//  240112_v06
 
+var title = "slate0tovator_v06";
 
 (function (thisObj) {
     
@@ -8,7 +9,7 @@
 
     function newPanel(thisObj) {
         var win = (thisObj instanceof Panel) ? thisObj 
-        : new Window('palette', 'slateOvator_v05', undefined);
+        : new Window('palette', title, undefined);
         win.orientation = 'column';
         win.alignChildren = 'fill';
         win.preferredSize = [200, 300];
@@ -161,66 +162,60 @@ app.endUndoGroup();
 //  varianta 2 asks if layers have slate...?
     function compNamesMultiFnc(selectedComps) {  //  varianta 2
     var regex = slateRegex();
-    var selectedCompsArr = [];
     
-    for (var j = 0; j < selectedComps.length; j++) {
-            if (selectedComps[j] instanceof CompItem) {
-            var layerArr = selectedComps[j].layers; // prohlidka vrstev
-//make func (deduplicate)
-            for (var i = 1; i <= layerArr.length; i++) {
-                var layerName = layerArr[i].name;
-                var slateSearch = regex.test(layerName);    //  je vrstva slate?
+        for (var j = 0; j < selectedComps.length; j++) {
+                if (selectedComps[j] instanceof CompItem) {
+                var layerArr = selectedComps[j].layers; // prohlidka vrstev
+    //make func (deduplicate)
+                for (var i = 1; i <= layerArr.length; i++) {
+                    var layerName = layerArr[i].name;
+                    var slateSearch = regex.test(layerName);    //  je vrstva slate?
 
-                if (slateSearch) {  // pokud je vrstva slate
-                                    //jde do slatu a vklada
-                    var slateCompName = layerName;
-                    findSlateComp(slateCompName);
-                    break;
-                } else {    //  ne, hledame slate
-                    selectedCompsArr.push(selectedComps[j]);
-                    compNamesMultiSlate(selectedCompsArr);
-                    break;  //
+                    if (slateSearch) {  // pokud je vrstva slate
+                                        // jde do slatu a vklada
+                        //var slateCompName = layerName;
+                        findSlateComp(layerName);
+                        break;
+                    } else {    //  ne, hledame slate
+                        compNamesMultiSlate(selectedComps[j]);
+                        break;  //
+                    }
                 }
             }
         }
-    }
     }
 
         //  hledame slateComp (dle jmena)
         function findSlateComp(slateCompName) {
         
-        var selectedCompsArr = [];
         for (var i = 1; i <= app.project.numItems; i++) {
             
             if (app.project.item(i) instanceof CompItem && app.project.item(i).name == slateCompName) {
             
-            selectedCompsArr.push(app.project.item(i));
-            compNamesMultiSlate(selectedCompsArr);
+            compNamesMultiSlate(app.project.item(i));
             break;  //  verze s regexem jinak cykli
                 }
             }
         }
 
     //  Pro vybrane slaty spusti vkladac,
-    function compNamesMultiSlate(selectedComps) {
-        //  ktery vrati pole parentComp
-        for (var j = 0; j < selectedComps.length; j++) {
-        if (selectedComps[j] instanceof CompItem) {
-                var parentComp = selectedComps[j].usedIn; //arr
-            // a pokud je parentComp jen jedna spusti vkladac
-            if (parentComp.length == 1) {
-                var parentCompName = parentComp[0].name;  //arr to string
-                var newExpression = "comp(\"" + parentCompName + "\"" + ").name;";
-                compNameVkladOvator(selectedComps[j], newExpression);
-            } else if (parentComp.length > 1) {
-                alert("Slate " + selectedComps[j].name + " can only be used once.");
-            } else if (parentComp.length < 1) {
-                alert("Slate " + selectedComps[j].name + " not used.");
+        function compNamesMultiSlate(selectedComps) {
+            //  ktery vrati pole parentComp
+            if (selectedComps instanceof CompItem) {
+                    var parentComp = selectedComps.usedIn; //arr
+                // a pokud je parentComp jen jedna spusti vkladac
+                if (parentComp.length == 1) {
+                    var parentCompName = parentComp[0].name;  //arr to string
+                    var newExpression = "comp(\"" + parentCompName + "\"" + ").name;";
+                    compNameVkladOvator(selectedComps, newExpression);
+                } else if (parentComp.length > 1) {
+                    alert("Slate " + selectedComps.name + " can only be used once.");
+                } else if (parentComp.length < 1) {
+                    alert("Slate " + selectedComps.name + " not used.");
+                }
             }
         }
-    }
-    }
-
+    
     // vkladame parent compName do slatu
     function compNameVkladOvator(slateComp, newText) {
         
@@ -259,10 +254,10 @@ app.endUndoGroup();
     }
 
     //  vkladame kopii slatu do kompozice
-    function placeTheSlate(theComp, regex) {
+    function placeTheSlate(theComp, regex) {    // theComp je objekt (polozka z pole)
         
-        for (var i = 1; i <= app.project.numItems; i++) {
-            var testNameStr = app.project.item(i).name; // procura do slate(name)
+        for (var i = 1; i <= app.project.numItems; i++) { // procura do slate(name)
+            var testNameStr = app.project.item(i).name;
             var slateSearch = regex.test(testNameStr);
             
             if (app.project.item(i) instanceof CompItem && slateSearch) {
@@ -275,7 +270,7 @@ app.endUndoGroup();
         }
     }
     //  zjistuje jestli v kompozici uz neni slate
-    function aplikaceDoComp(comp, regex) { 
+    function aplikaceDoComp(comp, regex) { // theComp je objekt (polozka z pole)
         
         var layerArr = comp.layers;
         
@@ -304,7 +299,7 @@ app.endUndoGroup();
                 fitToCompSize(comp, layerObj);
             }
         }
-        comp.displayStartTime = -1;
+        comp.displayStartTime = -1; //musi to byt tady?
     }
 
     function fitToCompSize(myComp, myLayer) {

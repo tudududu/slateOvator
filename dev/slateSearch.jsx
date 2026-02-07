@@ -1,6 +1,6 @@
 // dev slateSearch 
 // search for the slate from the very project or its newest instance
-// 240406_v06f
+// 240406_v06g
 
 Array.prototype.myIncludes = function(callback) {
       var result;
@@ -253,18 +253,9 @@ function theBlueprint(arr) {
     return arrSorted[0];
 }
 
-
 //---------------------------------------------------
-function nameNewSlate(slateComp, regexL) {
- 
-    //  parentFolder
-    var slateParentFldr = slateComp.parentFolder;
-    var folderItems = slateParentFldr.items;
-    
-    //  arr slates of this date/version in pF
-    const arr = [];
-    
     function searchInFldr(fldrItms, regexL) {
+    const arr = [];
     for (var i = 1 ; i <= fldrItms.length; i++){
         var testNameStr = fldrItms[i].name;
         var slateSearch = regexL.test(testNameStr);
@@ -275,8 +266,17 @@ function nameNewSlate(slateComp, regexL) {
         }
         return arr;
     }
-
-    const arrRevSorted = sortReverseOrder(arr);
+//---------------------------------------------------
+function nameNewSlate(slateComp, regexL) {
+ 
+    //  parentFolder
+    var slateParentFldr = slateComp.parentFolder;
+    var folderItems = slateParentFldr.items;
+    
+    //  arr slates of this date/version in pF
+    
+    const slatesInFolderArr = searchInFldr(folderItems, regexL);
+    const arrRevSorted = sortReverseOrder(slatesInFolderArr);
     //const testArr = theNewest(arr, regexL);   // lze pouzit, ale je to zbytecne slozite
 
     var theNewestItem = arrRevSorted[0].name;

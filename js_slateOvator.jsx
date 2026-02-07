@@ -1,5 +1,5 @@
 //  slateOvator
-//  240306_v15a
+//  240312_v15b
 //  v08 zacleneni part3 do part4
 //  v09 insert compName via callback
 //  v11 uprava prepisovace poli pro slate i comp
@@ -14,7 +14,7 @@
 //  vXX z callback fci oddelat instanceof pokud nejsou potreba
 
 var title = 'slate0vator (v' + vers + ')';
-var vers = '15a';
+var vers = '15b';
 
 
 (function (thisObj) {
@@ -40,14 +40,14 @@ var vers = '15a';
         //  label
         //var label = panelFour.add('statictext', undefined, 'Insert slate into composition');
         //  apply Button
-        var slateInsertBtn = panelFour.add('button', undefined, 'Apply');
+        var slateInsertBtn = panelFour.add('button', undefined, 'Insert slate');
 
         //  panelThree
         var panelThree = win.add('panel', undefined, 'Pass the compName to the slate');
             panelThree.orientation = 'column';
             panelThree.alignChildren = 'fill';
         //  apply Button
-        var compNameBtn = panelThree.add('button', undefined, 'Apply');
+        var compNameBtn = panelThree.add('button', undefined, 'Fill the slate');
         
         //  panelTwo
         var panelTwo = win.add('panel', undefined, 'Make output compositions');
@@ -62,7 +62,7 @@ var vers = '15a';
         var inputFolderLevel = panelTwoGroupOne.add('edittext', undefined, '3', {enterKeySignalsOnChange: false});
             inputFolderLevel.characters = 6;
         //  apply Button
-        var prebalovatorBtn = panelTwo.add('button', undefined, 'Apply');
+        var prebalovatorBtn = panelTwo.add('button', undefined, 'Output comps');
 
         //  panelOne Fields
         var panelOne = win.add('panel', undefined, 'Fields');
@@ -562,7 +562,7 @@ function slateOvator_part04a(inputFolderLevelL) {
     app.beginUndoGroup("Make output compositions");
 
         var selected = app.project.selection;
-        var outFolderName = "outComps";
+        var outFolderName = "out";
         var regex = slateRegex();
 
         if (selected.length == 0) {

@@ -1,10 +1,10 @@
 //  slateOvator
-//  240204_v09
+//  240205_v10
 //  v08 zacleneni part3 do part4
 //  v09 insert compName via callback
 //  v10 uprava prepisovace poli pro slate i comp
 
-var title = "slate0vator_v09";
+var title = "slate0vator_v10";
 
 (function (thisObj) {
     
@@ -88,16 +88,16 @@ var title = "slate0vator_v09";
         
         // --- Action ---
         function triggerMedia() {
-        slateOvator1('Media', inputMedia.text);
+        slateOvator2(renameField, inputMedia.text, 'Media');
         }
         function triggerSoundLevel() {
-        slateOvator1('SoundLevel', inputSoundLevel.text);
+        slateOvator2(renameField, inputSoundLevel.text, 'SoundLevel');
         }
         function triggerOperator() {
-        slateOvator1('Operator', inputOperator.text);
+        slateOvator2(renameField, inputOperator.text, 'Operator');
         }
         function triggerCompName() {
-        slateOvator2();
+        slateOvator2(compNameVkladOvator);
         }
         function triggerSlateInsert() {
             slateOvator3();
@@ -128,16 +128,16 @@ var title = "slate0vator_v09";
 //  change field in multiple slates
 function slateOvator1(layerName, newTextInput) {
 
-app.beginUndoGroup("Change field in multiple slates");
-    var selectedComp = app.project.selection; //array
+    app.beginUndoGroup("Change field in multiple slates");
+        var selectedComp = app.project.selection; //array
 
-    if (selectedComp.length == 0) {
-        alert("Select a composition");
-    } else {
-        slateOvatorEngine(selectedComp, layerName, newTextInput);
-    }
-    
-app.endUndoGroup();
+        if (selectedComp.length == 0) {
+            alert("Select a composition");
+        } else {
+            slateOvatorEngine(selectedComp, layerName, newTextInput);
+        }
+        
+    app.endUndoGroup();
     
     function slateOvatorEngine(comp, layerName, newTextInput) {
         for (var j = 0; j < comp.length; j++) {
@@ -160,13 +160,14 @@ function slateRegex() {
 }
 // --------------------
 
+    
 
 //  SlateOvator_part_02
 //  v03
 //  Pass the compName to the slate
 //  oznacit lze slate nebo kompozici - na reseni dale pracovat
 
-function slateOvator2() {
+function slateOvator2(callback, newTextInput, layerName) {
 
 app.beginUndoGroup("Pass the compName to the slate");
 
@@ -175,15 +176,16 @@ var selected = app.project.selection; // compositions
     if (selected.length == 0) {
         alert("Select a composition");
     } else {
-        compNamesMultiFnc(selected);
+        compNamesMultiFnc(selected, callback);
     }
 
 app.endUndoGroup();
 
+
 //  slate or comp?
 //  varianta 1 asks if compName is slate...?
 //  varianta 2 asks if layers have slate...?
-    function compNamesMultiFnc(selectedComps) {  //  varianta 2
+    function compNamesMultiFnc(selectedComps, callback) {  //  varianta 2
         var regex = slateRegex();
     
         for (var j = 0; j < selectedComps.length; j++) {
@@ -196,10 +198,10 @@ app.endUndoGroup();
 
                     if (slateSearch) {  // pokud je vrstva slate
                                         // jde do slatu a vklada
-                        findSlateComp(layerName);
+                        findSlateComp(layerName, callback);
                         break;
                     } else {    //  ne, hledame slate
-                        compNamesMultiSlate(selectedComps[j], compNameVkladOvator);
+                        compNamesMultiSlate(selectedComps[j], callback);
                         break;  //
                     }
                 }
@@ -208,13 +210,13 @@ app.endUndoGroup();
     }
 
         //  hledame slateComp (dle jmena)
-        function findSlateComp(slateCompName) {
+        function findSlateComp(slateCompName, callback) {
         
         for (var i = 1; i <= app.project.numItems; i++) {
             
             if (app.project.item(i) instanceof CompItem && app.project.item(i).name == slateCompName) {
             
-            compNamesMultiSlate(app.project.item(i), compNameVkladOvator);
+            compNamesMultiSlate(app.project.item(i), callback);
             break;  //  verze s regexem jinak cykli
                 }
             }
@@ -228,9 +230,10 @@ app.endUndoGroup();
                 // pokud je parentComp jen jedna spusti vkladac
                 if (parentComp.length == 1) {
                     var parentCompName = parentComp[0].name;  //arr to string
-                    var newExpression = "comp(\"" + parentCompName + "\"" + ").name;";
-                    callback(selectedComp, newExpression);
-                    //compNameVkladOvator(selectedComp, newExpression);
+                    var newExpression = "comp(\"" + parentCompName + "\"" + ").name;"; //newExpression
+                    callback(selectedComp, newExpression, layerName);
+                    //compNameVkladOvator(selectedComp, newTextInput);
+                    //renameField(comp, newTextInput, layerName);
                 } else if (parentComp.length > 1) {
                     alert("Slate " + selectedComp.name + " can only be used once.");
                 } else if (parentComp.length < 1) {
@@ -239,13 +242,25 @@ app.endUndoGroup();
             }
         }
     
+    function renameField(slateComp, newTextInput, layerName) {
+        for (var j = 0; j < slateComp.length; j++) {
+            if (slateComp[j] instanceof CompItem) {
+            var layerArr = slateComp[j].layers;
+            for (var i = 1; i <= layerArr.length; i++) {
+                if (layerArr[i].name == layerName) {
+                    layerArr[i].text.sourceText.setValue(newTextInput);
+                    }
+                }
+            }
+        }
+    }
     // vkladame parent compName do slatu
-    function compNameVkladOvator(slateComp, newText) {
+    function compNameVkladOvator(slateComp, newTextInput) {
         
         var layerArr = slateComp.layers;
         for (var i = 1; i <= layerArr.length; i++) {
             if (layerArr[i].name == "compName") {
-                layerArr[i].text.sourceText.expression = newText;
+                layerArr[i].text.sourceText.expression = newTextInput;
             }
         }
     }

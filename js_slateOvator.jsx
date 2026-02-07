@@ -1,5 +1,5 @@
 //  slateOvator
-//  240219_v12c
+//  240220_v13
 //  v08 zacleneni part3 do part4
 //  v09 insert compName via callback
 //  v11 uprava prepisovace poli pro slate i comp
@@ -10,7 +10,7 @@
 //  vXX focus target
 //  vXX z callback fci oddelat instanceof pokud nejsou potreba
 
-var vers = '12c';
+var vers = '13';
 var title = 'slate0vator (v' + vers + ')';
 
 
@@ -190,9 +190,6 @@ var title = 'slate0vator (v' + vers + ')';
         function checkTagTitle() {
             slateOvator2(tlacitkovatOr, switchesLayerName, checkbox_Title.value, "title_switch");
         }
-        function checkLogo() {
-            slateOvator0('slateBg_DuoLogo', switchesLayerName, checkbox_Logo.value, 'logo_Switch');
-        }
         function checkLogo2() {
             slateOvator2(logoTlacitkovatOr2, switchesLayerName, checkbox_Logo.value, 'logo_Switch');
         }
@@ -223,50 +220,7 @@ function slateRegex() {
 }
 // --------------------
 
-//logoSwitch
-//  zkusit usedIn - ziskam jen slaty ve kterych je pouzity - k nicemu
-//  zkusit compID
-function slateOvator0(compName, layerName, input, effectName) {
 
-    app.beginUndoGroup("Switch the logo in slate");
-    var selected = app.project.selection; // compositions
-
-    if (selected.length == 0) {
-        alert("Select a composition");
-    } else {
-        findSlateBgComp(compName, layerName, input, effectName);
-    }
-
-    app.endUndoGroup();
-    
-    //  looking for 'slateBg_DuoLogo'
-    function findSlateBgComp(compName, layerName, input, effectName) {
-        
-            for (var i = 1; i <= app.project.numItems; i++) {
-            
-            if (app.project.item(i) instanceof CompItem) { 
-                if (app.project.item(i).name == compName) {
-                    
-                logoTlacitkovatOr(app.project.item(i), layerName, input, effectName);
-                break;
-                }
-            }
-        }
-    }
-
-    function logoTlacitkovatOr(comp, layerName, switchInput, effectName) {
-            //for (var j = 0; j < compSelection.length; j++) {
-                //if (compSelection instanceof CompItem) {
-                var layerArr = comp.layers;
-                
-                for (var i = 1; i <= layerArr.length; i++) {
-                    if (layerArr[i].name == layerName) {
-                        layerArr[i].effect(effectName)("Checkbox").setValue(switchInput);
-            //          }
-                    }
-                }
-            }
-}
         
 //======================================callback funkce pro so2
 
@@ -312,13 +266,13 @@ function slateOvator0(compName, layerName, input, effectName) {
     function logoTlacitkovatOr2(compSelection, layerName, switchInput, effectName) {
         //var bgCompName = 'slateBg_DuoLogo';
         var bgCompNameRegex = /slateBg_DuoLogo/;
-        //  hledame bgComp ve slatu
-        var slateBgLayer = layerInspection(compSelection, bgCompNameRegex);
+        //  hledame bgLayer ve slatu dle jmena
+        var slateBgLayer = layerInspection2(compSelection, bgCompNameRegex);
         var sbgID = slateBgLayer[0].source.id;
-        
+        //  search bgComp in proj by id
         var slateBgComp = findSlateCompID(sbgID);
         var layerArr = slateBgComp.layers;
-        
+        //  search layer in bgComp
         for (var i = 1; i <= layerArr.length; i++) {
             if (layerArr[i].name == layerName) {
                 layerArr[i].effect(effectName)("Checkbox").setValue(switchInput);
@@ -342,7 +296,7 @@ function slateOvator0(compName, layerName, input, effectName) {
         return result;
         }
 //======================================callback funkce pro sl2
-    function layerInspection(comp, wantedCompName) {
+    function layerInspection2(comp, wantedCompName) {
         var regex = wantedCompName;
         var layerArr = comp.layers; // prohlidka vrstev
         var slateArrL = [];
@@ -361,7 +315,7 @@ function slateOvator0(compName, layerName, input, effectName) {
     }
 //======================================callback funkce pro sl2
 //  SlateOvator_part_02
-//  v03
+//  v13
 var slateOvator2Undo = 'Change something in multiple slates';
 //  oznacit lze slate nebo kompozici
 
@@ -405,11 +359,11 @@ app.endUndoGroup();
             }
         }
     }
-
+    //  hleda jmena slatu v comp - zrusit a vymenit za layerInspection2
     function layerInspection(comp, wantedCompName) {
         var regex = wantedCompName;
         var layerArr = comp.layers; // prohlidka vrstev
-        var slateArrL = [];
+        var slateNamesArr = [];
         for (var j = 1; j <= layerArr.length; j++) {
             var layerName = layerArr[j].name;
             //alert(layerName);
@@ -417,11 +371,11 @@ app.endUndoGroup();
             //alert(slateSearch);
 
             if (slateSearch) {  // pokud je vrstva slate jdeme ho hledat
-                slateArrL.push(layerName);
+                slateNamesArr.push(layerName);
             }
         }
-        //alert(slateArrL);
-        return slateArrL;                  
+        //alert(slateNamesArr);
+        return slateNamesArr;                  
     }
     
         //  hledame slateComp (dle jmena)

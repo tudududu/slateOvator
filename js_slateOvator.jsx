@@ -1,9 +1,7 @@
 //  slateOvator
-//  240130_v07_wip
-//  pokus zatim neuspesny o
-//  fixing broken expressions due to the change of the name;
+//  240130_v07
 
-var title = "slate0vator_v07_wip";
+var title = "slate0vator_v07";
 
 (function (thisObj) {
     
@@ -21,25 +19,37 @@ var title = "slate0vator_v07_wip";
             groupOne.orientation = 'column';
             groupOne.alignChildren = 'fill';*/
         
+        //  panelFour
+        var panelFour = win.add('panel', undefined, 'Insert slate into composition');
+            panelFour.orientation = 'column';
+            panelFour.alignChildren = 'fill';
+        //  label
+        //var label = panelFour.add('statictext', undefined, 'Insert slate into composition');
+        //  apply Button
+        var slateInsertBtn = panelFour.add('button', undefined, 'Apply');
+
         //  panelThree
-        var panelThree = win.add('panel', undefined, 'Insert slate into composition');
+        var panelThree = win.add('panel', undefined, 'Pass the compName to the slate');
             panelThree.orientation = 'column';
             panelThree.alignChildren = 'fill';
-        //  label
-        //var label = panelThree.add('statictext', undefined, 'Insert slate into composition');
         //  apply Button
-        var slateInsertBtn = panelThree.add('button', undefined, 'Apply');
-
+        var compNameBtn = panelThree.add('button', undefined, 'Apply');
+        
         //  panelTwo
-        var panelTwo = win.add('panel', undefined, 'Pass the compName to the slate');
+        var panelTwo = win.add('panel', undefined, 'Make output compositions');
             panelTwo.orientation = 'column';
             panelTwo.alignChildren = 'fill';
+        var panelTwoGroupOne = panelTwo.add('group', undefined, 'panelOneGroupOne');
+            panelTwoGroupOne.orientation = 'row';
         //  label
-        //var label = panelTwo.add('statictext', undefined, 'Pass the compName to the slate');
+        var inputLabel = panelTwoGroupOne.add('statictext', undefined, 'Set the Comps folder level:');
+            //panelTwo.add("slider", bounds = undefined, value = 3, minvalue = 1, maxvalue = 3, {name: 'levelSlider'});
+        var inputFolderLevel = panelTwoGroupOne.add('edittext', undefined, '3', {enterKeySignalsOnChange: false});
+            inputFolderLevel.characters = 6;
         //  apply Button
-        var compNameBtn = panelTwo.add('button', undefined, 'Apply');
-        
-        //  panelOne
+        var prebalovatorBtn = panelTwo.add('button', undefined, 'Apply');
+
+        //  panelOne Fields
         var panelOne = win.add('panel', undefined, 'Fields');
             panelOne.orientation = 'column';
             panelOne.alignChildren = 'right';
@@ -87,7 +97,10 @@ var title = "slate0vator_v07_wip";
         slateOvator2();
         }
         function triggerSlateInsert() {
-        slateOvator3();
+            slateOvator3();
+        }
+        function triggerPrebalovator() {
+            slateOvator_part04a(inputFolderLevel.text);
         }
         inputMedia.onChange = triggerMedia;
         inputOperator.onChange = triggerOperator;
@@ -97,6 +110,7 @@ var title = "slate0vator_v07_wip";
         buttonThree.onClick = triggerOperator;
         compNameBtn.onClick = triggerCompName;
         slateInsertBtn.onClick = triggerSlateInsert;
+        prebalovatorBtn.onClick = triggerPrebalovator;
 
         // --- ACTIONS ---
         win.onResizing = win.onResize = function () {
@@ -141,6 +155,8 @@ function slateRegex() {
     var slateRegex = /slate_\(v\d{6}\)/;
     return slateRegex;
 }
+// --------------------
+
 
 //  SlateOvator_part_02
 //  v03
@@ -186,15 +202,7 @@ app.endUndoGroup();
             }
         }
     }
-/*
-//==========================
-            var compName = selectedComps[j].name;
-            var compNameSearch = regex.test(compName);
-            if (compNameSearch) {
-                
-            }
-//==========================
-*/
+
         //  hledame slateComp (dle jmena)
         function findSlateComp(slateCompName) {
         
@@ -232,12 +240,7 @@ app.endUndoGroup();
         var layerArr = slateComp.layers;
         for (var i = 1; i <= layerArr.length; i++) {
             if (layerArr[i].name == "compName") {
-                //layerArr[i].text.sourceText.expression = newText;
-                 var oldExpression = layerArr[i].text.sourceText.expression;
-                    layerArr[i].text.sourceText.expression = newText;
-                                              
-            //  fixing broken expressions due to the change of the name;
-                //app.project.autoFixExpressions(oldExpression, newText);
+                layerArr[i].text.sourceText.expression = newText;
             }
         }
     }
@@ -248,6 +251,7 @@ app.endUndoGroup();
 //  v08h
 //  Insert slate into composition
 function slateOvator3() {
+    
 app.beginUndoGroup("Insert slate into composition");
     var selected = app.project.selection;
     var regex = slateRegex();
@@ -370,6 +374,150 @@ app.endUndoGroup();
         fitToCompScaleAction(myLayer, fitToCompScale);
         centerCompPosition(myCompSize, myLayer);
     }
+}
+
+//  slateOvator_part04a
+//  duplikat kompozice s apendixem do podslozky v parentFoldru
+//  240130_v16
+//  compOut jdou do out, mastery zustavaji
+//  zruseni zvlastni funkce makeFolder pro 'out' folder:
+//  zadanim parentFolder pro 'out' ve funkci folderStructure => promenna folderParentParent
+
+function slateOvator_part04a(inputFolderLevelL) {
+
+    app.beginUndoGroup("Make output compositions");
+
+        var selected = app.project.selection;
+        var outFolderName = "outComps";
+
+        if (selected.length == 0) {
+            alert("Select a composition");
+        } else {
+            copySelection(selected);
+        }
+    app.endUndoGroup();
+
+    function copySelection(compSelection) {
+            for (var j = 0; j < compSelection.length; j++) {
+                if (compSelection[j] instanceof CompItem) {
+                copy(compSelection[j]);
+                }
+            }
+        }
+
+    //  kopirujeme masterComp
+    function copy(myCompMaster) {
+        var myCompMasterDur = myCompMaster.duration;
+        var myCompOut = myCompMaster.duplicate();
+            myCompOut.duration = myCompMasterDur + 1;
+            myCompOut.displayStartTime = -1;
+
+        naming(myCompMaster, myCompOut);
+        deleteLayers(myCompOut);
+        prebalovator(myCompMaster, myCompOut);
+        
+        var pathItemsArr = folderPath(myCompMaster);
+        //  folderStructure vraci prvni slozku v rade za selectedComp
+        var myCompOutFolderParent = folderStructure(pathItemsArr);
+        //  setting FP for outComp
+        myCompOut.parentFolder = myCompOutFolderParent;
+    }
+
+    //  delete layers in myCompOut
+    function deleteLayers(comp) {         
+        var compLayers = comp.layers;
+        for (var i = compLayers.length; i >= 1; i--) {
+            var curLayer = compLayers[i];
+            curLayer.remove();
+        }
+    }
+
+    //  passar o master pro outComp
+    function prebalovator(compMaster, compOut) {
+        var compOutLayers = compOut.layers;
+            compOutLayers.add(compMaster);
+            compOut.layer(1).startTime = 1;
+    }
+
+
+    function makeFolder(folderName, folderParent) {
+        //  scan proj if folder exist
+        //  pushes 'true' into testArr in case the folder exists
+        var testArr = [];
+        for (var i = 1; i <= app.project.numItems; i++){
+            if (app.project.item(i).name == folderName 
+                && app.project.item(i).parentFolder == folderParent
+                && app.project.item(i) instanceof FolderItem) {
+                testArr.push(true);
+            }
+        }
+    
+        //  caso a pasta nao existir
+        //  create a new FolderItem in project and pass it in the 'folderObj'
+            var folderObj;
+            if (testArr.length == 0) {
+                folderObj = app.project.items.addFolder(folderName);
+        //  caso a pasta existir e estar no 'out' folder, so passar ela no 'folderObj'
+            } else if (testArr.length > 0) {
+                for (var i = 1; i <= app.project.numItems; i++) {
+                if (app.project.item(i).name == folderName 
+                && app.project.item(i).parentFolder == folderParent
+                && app.project.item(i) instanceof FolderItem) {
+                folderObj = app.project.item(i);
+                    }
+                }
+            }
+
+        if (folderParent !== null) {
+            folderObj.parentFolder = folderParent;
+            }
+        return folderObj;
+    }
+
+    function folderStructure(itemsArr) {
+        //  parent pro 'out' je konec cesty - tedy 'project'
+        var folderParentParent = itemsArr[itemsArr.length - 1];
+        
+        //  delame 'out' a nastavujeme jako parent pro 1. slozku
+        var folderParent = makeFolder(outFolderName, folderParentParent);
+
+        //  prochazime cestu delame slozky
+        //  zacatek za selectedComp (i > 1)
+        //  konec (path.length-3) obsah 'comp'
+        var compFolderLevel = parseInt(inputFolderLevelL);
+        
+        for (var i = itemsArr.length - compFolderLevel; i > 1; i--) {
+            var folderName = itemsArr[i-1].name;
+            var newFolder = makeFolder(folderName, folderParent);
+            folderParent = newFolder;
+        }
+        return folderParent;
+    }
+
+    //  path to selected item
+    function folderPath(item) {
+        var objArr = [item];
+        
+        do {
+            if(item.parentFolder != app.project.rootFolder) {
+                item = item.parentFolder;
+                objArr.push(item);
+            }
+        } while(item.parentFolder != app.project.rootFolder);
+        
+        return objArr;
+    }
+
+    //  k puvodnimu jmenu pridavame priponu a duplikat prebira puvodni nazev
+    function naming(myCompMaster, myCompOut) {
+        var compNameArr = [];
+        compNameArr.push(myCompMaster.name);
+
+        var masterAppendix = "_master";
+        myCompMaster.name = compNameArr[0] + masterAppendix;
+        myCompOut.name = compNameArr[0];
+        }
+
 }
 
 })(this);

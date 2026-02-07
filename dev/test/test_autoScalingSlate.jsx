@@ -46,7 +46,7 @@ if (myCompSize[1] >= hdEightyY && myCompSize[1] <= 1080) {
     scaleY = scaleY_02;
 }
 //alert([scaleX, scaleY]);
-
+//if (scaleX >)
     myScale.setValue([scaleX, scaleY]);
 
 

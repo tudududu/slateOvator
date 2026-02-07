@@ -43,16 +43,18 @@ function copy(myCompMaster) {
 
     naming(myCompMaster, myCompOut);
 
+    /*
     var cesta = (folderStructure(myCompMaster));
     //cesta.toString();
     makeFolder(cesta.toString());
+    */
 }
 
 copy(myComp);
 
 app.endUndoGroup();
 
-function folderStructure(item) {
+function folderPath(item) {
     var objArr = [item.name];
     
     do {
@@ -63,4 +65,11 @@ function folderStructure(item) {
     } while(item.parentFolder != app.project.rootFolder);
     
     return objArr;
+}
+
+function folderStructure(itemsArr) {
+    makeFolder('out');
+    for (var i = itemsArr.length; i > 0; i--) {
+        makeFolder(itemsArr[i]);
+    }
 }

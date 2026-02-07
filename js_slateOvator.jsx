@@ -1,5 +1,5 @@
 //  slateOvator
-//  240220_v14
+//  240220_v14a
 //  v08 zacleneni part3 do part4
 //  v09 insert compName via callback
 //  v11 uprava prepisovace poli pro slate i comp
@@ -10,7 +10,7 @@
 //  vXX focus target
 //  vXX z callback fci oddelat instanceof pokud nejsou potreba
 
-var vers = '14';
+var vers = '14a';
 var title = 'slate0vator (v' + vers + ')';
 
 
@@ -349,7 +349,7 @@ app.endUndoGroup();
                             //break;
                 } else {    //  pokud neni, hledame jestli je uvnitr slate
                 // pole jmen slatu v comp
-                var slateArr = layerInspection(selectedComps[i], regex);
+                var slateArr = layerInspection2(selectedComps[i], regex);
                 if (slateArr.length == 1) {
                     var slateLayer = slateArr[0];
                     findSlateComp(slateLayer, fieldLayerName, newTextInput, effectName);
@@ -383,18 +383,12 @@ app.endUndoGroup();
         function findSlateComp(layer, fieldLayerName, newTextInput, effectName) {
             var layerSourceCompID = layer.source.id;
             
-            for (var i = 1; i <= app.project.numItems; i++) {
-            
-            if (app.project.item(i) instanceof CompItem) {
-                if (app.project.item(i).id == layerSourceCompID) {
+            var slateCompL = findSlateCompID(layerSourceCompID);
             //  nasli jsme comp (slate) =>
-            compNamesMultiSlate(app.project.item(i), callback, fieldLayerName, newTextInput, effectName);
-            break;  //  verze s regexem jinak cykli
-                    //    }
-                    }
-                }
-            }
+            compNamesMultiSlate(slateCompL, callback, fieldLayerName, newTextInput, effectName);
+            
         }
+        
 
     //  Spusti vkladac pokud je slate pouzit prave v jedne kompozici
         function compNamesMultiSlate(selectedComp, callback, fieldLayerName, newTextInput, effectName) {

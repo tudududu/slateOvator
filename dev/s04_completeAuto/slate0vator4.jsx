@@ -1,10 +1,10 @@
 // slateOvator_part04
-// 240129_v12
+// 240129_v13
 // duplicator with path
 // duplikat kompozice s apendixem (_master) do podslozky v parentFoldru
 
-// dodana spousteci hlavicka a smycka pro opakovani u vyberu
-// tady resime, aby se netvorila pokazde nova cesta
+//  dodana spousteci hlavicka a smycka pro opakovani u vyberu
+//  tady resime, aby se netvorila pokazde nova cesta
 
 function slateOvator_part04a() {
 app.beginUndoGroup("duplikator");
@@ -38,7 +38,10 @@ function copy(myCompMaster) {
     naming(myCompMaster, myCompOut);
     var pathItemsArr = folderPath(myCompMaster);
     //alert(itemsArr);
-    folderStructure(pathItemsArr);
+    
+    var myCompOutFP = folderStructure(pathItemsArr);
+    //alert(myCompOutFP);
+    myCompOut.parentFolder = myCompOutFP;
 }
 
 function makeFolderOut(folderName, folderParent) {
@@ -131,8 +134,9 @@ function folderStructure(itemsArr) {
         var newFolder = makeFolder(folderName, folderParent);
         folderParent = newFolder;
         //  kompozici soupeme postupne az do konce cesty
-        itemsArr[0].parentFolder = folderParent;
+        //  itemsArr[0].parentFolder = folderParent;
     }
+    return folderParent;
 }
 
 function folderPath(item) {

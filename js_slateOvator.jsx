@@ -1,5 +1,5 @@
 //  slateOvator
-//  240220_v13
+//  240220_v14
 //  v08 zacleneni part3 do part4
 //  v09 insert compName via callback
 //  v11 uprava prepisovace poli pro slate i comp
@@ -10,7 +10,7 @@
 //  vXX focus target
 //  vXX z callback fci oddelat instanceof pokud nejsou potreba
 
-var vers = '13';
+var vers = '14';
 var title = 'slate0vator (v' + vers + ')';
 
 
@@ -348,10 +348,11 @@ app.endUndoGroup();
                     compNamesMultiSlate(selectedComps[i], callback, fieldLayerName, newTextInput, effectName);
                             //break;
                 } else {    //  pokud neni, hledame jestli je uvnitr slate
+                // pole jmen slatu v comp
                 var slateArr = layerInspection(selectedComps[i], regex);
                 if (slateArr.length == 1) {
-                    var layerName = slateArr[0];
-                    findSlateComp(layerName, selectedComps[i], fieldLayerName, newTextInput, effectName);
+                    var slateLayer = slateArr[0];
+                    findSlateComp(slateLayer, fieldLayerName, newTextInput, effectName);
                 } else {
                     alert('Too many or no slates.')
                     }
@@ -363,7 +364,7 @@ app.endUndoGroup();
     function layerInspection(comp, wantedCompName) {
         var regex = wantedCompName;
         var layerArr = comp.layers; // prohlidka vrstev
-        var slateNamesArr = [];
+        var slateLayersArr = [];
         for (var j = 1; j <= layerArr.length; j++) {
             var layerName = layerArr[j].name;
             //alert(layerName);
@@ -371,20 +372,21 @@ app.endUndoGroup();
             //alert(slateSearch);
 
             if (slateSearch) {  // pokud je vrstva slate jdeme ho hledat
-                slateNamesArr.push(layerName);
+                slateLayersArr.push(layerArr[j]);
             }
         }
         //alert(slateNamesArr);
-        return slateNamesArr;                  
+        return slateLayersArr;                  
     }
     
         //  hledame slateComp (dle jmena)
-        function findSlateComp(slateCompName, parentComp, fieldLayerName, newTextInput, effectName) {
-        
+        function findSlateComp(layer, fieldLayerName, newTextInput, effectName) {
+            var layerSourceCompID = layer.source.id;
+            
             for (var i = 1; i <= app.project.numItems; i++) {
             
             if (app.project.item(i) instanceof CompItem) {
-                if (app.project.item(i).name == slateCompName) {
+                if (app.project.item(i).id == layerSourceCompID) {
             //  nasli jsme comp (slate) =>
             compNamesMultiSlate(app.project.item(i), callback, fieldLayerName, newTextInput, effectName);
             break;  //  verze s regexem jinak cykli

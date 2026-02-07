@@ -1,5 +1,5 @@
 //  slateOvator
-//  240131_v07a
+//  240202_v07b
 
 var title = "slate0vator_v07";
 

@@ -1,5 +1,5 @@
 //  slateOvator
-//  240306_v15
+//  240306_v15a
 //  v08 zacleneni part3 do part4
 //  v09 insert compName via callback
 //  v11 uprava prepisovace poli pro slate i comp
@@ -14,7 +14,7 @@
 //  vXX z callback fci oddelat instanceof pokud nejsou potreba
 
 var title = 'slate0vator (v' + vers + ')';
-var vers = '15';
+var vers = '15a';
 
 
 (function (thisObj) {
@@ -348,7 +348,7 @@ app.endUndoGroup();
 //  slate or comp?
 //  varianta 1 asks if compName is slate...?
     function compOrSlate(selectedComps, callback, fieldLayerName, newTextInput, effectName) {
-        var regex = slateRegex();
+        var regex = slateRegexSimple();
         //  prochazime vyber
         for (var i = 0; i < selectedComps.length; i++) {
             if (selectedComps[i] instanceof CompItem) {
@@ -366,7 +366,8 @@ app.endUndoGroup();
                     var slateLayer = slateArr[0];
                     findSlateComp(slateLayer, fieldLayerName, newTextInput, effectName);
                 } else {
-                    alert('Too many or no slates. Or if the slate is there its name is not in format \"slate_(vYYMMDD)\".');
+                    alert('Too many or no slates.');
+                    //Or if the slate is there its name is not in format \"slate_(vYYMMDD)\".
                     }
                 }
             }

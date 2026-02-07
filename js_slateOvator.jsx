@@ -1,16 +1,18 @@
 //  slateOvator
-//  240220_14b
+//  240305_v14c
 //  v08 zacleneni part3 do part4
 //  v09 insert compName via callback
 //  v11 uprava prepisovace poli pro slate i comp
 //  v12 vypinace tagy
 //  v13 prepina se pouze logo bg pouzite ve slatu - id
 //  v14 totez pro slate: id misto jmena
+//  v14c deleteLayers() odemknuti zamcenych vrstev, aby se odstranily, pokud jsou zamčené
+
 //  vXX UI - level closable
 //  vXX focus target
 //  vXX z callback fci oddelat instanceof pokud nejsou potreba
 
-var vers = '14b';
+var vers = '14c';
 var title = 'slate0vator (v' + vers + ')';
 
 
@@ -595,6 +597,7 @@ function slateOvator_part04a(inputFolderLevelL) {
         var compLayers = comp.layers;
         for (var i = compLayers.length; i >= 1; i--) {
             var curLayer = compLayers[i];
+            curLayer.locked = false;
             curLayer.remove();
         }
     }

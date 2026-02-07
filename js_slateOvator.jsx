@@ -1,7 +1,9 @@
 //  slateOvator
-//  240112_v06
+//  240130_v07_wip
+//  pokus zatim neuspesny o
+//  fixing broken expressions due to the change of the name;
 
-var title = "slate0tovator_v06";
+var title = "slate0vator_v07_wip";
 
 (function (thisObj) {
     
@@ -184,7 +186,15 @@ app.endUndoGroup();
             }
         }
     }
-
+/*
+//==========================
+            var compName = selectedComps[j].name;
+            var compNameSearch = regex.test(compName);
+            if (compNameSearch) {
+                
+            }
+//==========================
+*/
         //  hledame slateComp (dle jmena)
         function findSlateComp(slateCompName) {
         
@@ -222,7 +232,12 @@ app.endUndoGroup();
         var layerArr = slateComp.layers;
         for (var i = 1; i <= layerArr.length; i++) {
             if (layerArr[i].name == "compName") {
-                layerArr[i].text.sourceText.expression = newText;
+                //layerArr[i].text.sourceText.expression = newText;
+                 var oldExpression = layerArr[i].text.sourceText.expression;
+                    layerArr[i].text.sourceText.expression = newText;
+                                              
+            //  fixing broken expressions due to the change of the name;
+                //app.project.autoFixExpressions(oldExpression, newText);
             }
         }
     }

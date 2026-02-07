@@ -1,39 +1,12 @@
 // slateOvator_part04
-// 240124
+// 240125_v09
 // duplicator with path
 // duplikat kompozice s apendixem (_master) do podslozky v parentFoldru
-
-var myComp = app.project.activeItem;
-var myCompName = myComp.name;
-var myCompFolder = myComp.parentFolder;
-var myCompFolderName = myCompFolder.name;
-//myCompMaster.name = "a";
-//alert(myCompFolder.name);
-//myCompFolder.addFolder('aaa');
-/*
-var newFolder = app.project.items.addFolder('folderName');
-newFolder.parentFolder = myCompFolder;
-*/
-
-function makeFolder(folderName, folderParent) {
-    var newFolder = app.project.items.addFolder(folderName + '_');
-    if (!(folderParent == null)) {
-            newFolder.parentFolder = folderParent;
-        }
-    return newFolder;
-}
-//  k puvodnimu jmenu pridavame priponu a duplikat prebira puvodni nezev
-function naming(myCompMaster, myCompOut) {
-    var compNameArr = [];
-    compNameArr.push(myCompMaster.name);
-    compNameArr.push(myCompOut.name);
-    var masterAppendix = "_master";
-    myCompMaster.name = compNameArr[0] + masterAppendix;
-    myCompOut.name = compNameArr[0];
-    }
+// testovaci, jen na jednu oznacenou kompozici
 
 app.beginUndoGroup("tst");
 
+var myComp = app.project.activeItem;
 //  kopirujeme masterComp
 function copy(myCompMaster) {
     var myCompMasterDur = myCompMaster.duration;
@@ -56,6 +29,24 @@ copy(myComp);
 
 app.endUndoGroup();
 
+function makeFolder(folderName, folderParent) {
+    var newFolder = app.project.items.addFolder(folderName);
+    if (!(folderParent == null)) {
+            newFolder.parentFolder = folderParent;
+        }
+    return newFolder;
+}
+//  k puvodnimu jmenu pridavame priponu a duplikat prebira puvodni nezev
+function naming(myCompMaster, myCompOut) {
+    var compNameArr = [];
+    compNameArr.push(myCompMaster.name);
+    compNameArr.push(myCompOut.name);
+    var masterAppendix = "_master";
+    myCompMaster.name = compNameArr[0] + masterAppendix;
+    myCompOut.name = compNameArr[0];
+    }
+
+
 function folderPath(item) {
     var objArr = [item];
     
@@ -71,7 +62,8 @@ function folderPath(item) {
 
 function folderStructure(itemsArr) {
     var folderParent = makeFolder('out');
-    for (var i = itemsArr.length; i > 1; i--) {
+    folderParent.parentFolder = itemsArr[itemsArr.length - 1];
+    for (var i = itemsArr.length - 1; i > 1; i--) {
         var folderName = itemsArr[i-1].name;
         var newFolder = makeFolder(folderName, folderParent);
         folderParent = newFolder;
@@ -79,10 +71,14 @@ function folderStructure(itemsArr) {
     }
 }
 
+
 /*
-function folderStructure(itemsArr) {
-    var folderParent = makeFolder('out');
-    for (var i = itemsArr.length; i > 0; i--) {
-        alert(itemsArr[i-1].name);
-    }
-}*/
+var myCompName = myComp.name;
+var myCompFolder = myComp.parentFolder;
+var myCompFolderName = myCompFolder.name;
+//myCompMaster.name = "a";
+//alert(myCompFolder.name);
+//myCompFolder.addFolder('aaa');
+var newFolder = app.project.items.addFolder('folderName');
+newFolder.parentFolder = myCompFolder;
+*/

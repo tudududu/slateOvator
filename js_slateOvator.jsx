@@ -1,5 +1,5 @@
 //  slateOvator
-//  240305_v14c
+//  240306_v15
 //  v08 zacleneni part3 do part4
 //  v09 insert compName via callback
 //  v11 uprava prepisovace poli pro slate i comp
@@ -7,13 +7,14 @@
 //  v13 prepina se pouze logo bg pouzite ve slatu - id
 //  v14 totez pro slate: id misto jmena
 //  v14c deleteLayers() odemknuti zamcenych vrstev, aby se odstranily, pokud jsou zamčené
+//  v15 uprava copy() pro kopiruji masterComp vcetne parametru
 
 //  vXX UI - level closable
 //  vXX focus target
 //  vXX z callback fci oddelat instanceof pokud nejsou potreba
 
-var vers = '14c';
 var title = 'slate0vator (v' + vers + ')';
+var vers = '15';
 
 
 (function (thisObj) {
@@ -220,6 +221,10 @@ function slateRegex() {
     var slateRegex = /^slate_\(v\d{6}\)/;
     return slateRegex;
 }
+function slateRegexSimple() {
+    var slateRegex = /^slate_/;
+    return slateRegex;
+}
 // --------------------
 
 
@@ -361,7 +366,7 @@ app.endUndoGroup();
                     var slateLayer = slateArr[0];
                     findSlateComp(slateLayer, fieldLayerName, newTextInput, effectName);
                 } else {
-                    alert('Too many or no slates.')
+                    alert('Too many or no slates. Or if the slate is there its name is not in format \"slate_(vYYMMDD)\".');
                     }
                 }
             }
@@ -576,13 +581,20 @@ function slateOvator_part04a(inputFolderLevelL) {
 
     //  kopirujeme masterComp
     function copy(myCompMaster, regex) {
-        var myCompMasterDur = myCompMaster.duration;
-        var myCompOut = myCompMaster.duplicate();
-            myCompOut.duration = myCompMasterDur + 1;
+        var mDuration = myCompMaster.duration;
+        var outDuration = mDuration + 1;
+        var mName = myCompMaster.name;
+        var mWidth = myCompMaster.width;
+        var mHeight = myCompMaster.height;
+        var mPixelAspect = myCompMaster.pixelAspect;
+        var mFrameRate = myCompMaster.frameRate;
+        
+        //var myCompOut = myCompMaster.duplicate();
+        var myCompOut = app.project.items.addComp(mDuration, mWidth, mHeight, mPixelAspect, outDuration, mFrameRate);
             myCompOut.displayStartTime = -1;
 
         naming(myCompMaster, myCompOut);
-        deleteLayers(myCompOut);
+        //deleteLayers(myCompOut);
         prebalovator(myCompMaster, myCompOut, regex);
 
         var pathItemsArr = folderPath(myCompMaster);

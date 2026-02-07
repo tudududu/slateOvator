@@ -1,9 +1,9 @@
 // slateOvator_part04
-// 240128_v11
+// 240129_v12
 // duplicator with path
 // duplikat kompozice s apendixem (_master) do podslozky v parentFoldru
 
-// prodana spousteci hlavicka a smycka pro opakovani u vyberu
+// dodana spousteci hlavicka a smycka pro opakovani u vyberu
 // tady resime, aby se netvorila pokazde nova cesta
 
 function slateOvator_part04a() {
@@ -90,33 +90,28 @@ function makeFolder(folderName, folderParent) {
             testArr.push(true);
         }
     }
-    //  if the folder not exist
-    //  create a new FolderItem in project
-    alert('slozek \'' + folderName + '\' ve slozce \'out\' je ' + testArr.length);
+    //alert('slozek \'' + folderName + '\' ve slozce \'out\' je ' + testArr.length);
     //alert('testArr: ' + testArr.toString());
 
+    //  caso a pasta nao existir
+    //  create a new FolderItem in project and pass it in the 'folderObj'
         var folderObj;
         if (testArr.length == 0) {
             folderObj = app.project.items.addFolder(folderName);
-           } else if (testArr.length > 0) {
-                for (var i = 1; i <= app.project.numItems; i++) {
-                if (app.project.item(i).name == folderName 
-                && app.project.item(i).parentFolder == folderParent
-                && app.project.item(i) instanceof FolderItem) {
-                folderObj = app.project.item(i);
+    //  caso a pasta existir e estar no 'out' folder, so passar ela no 'folderObj'
+        } else if (testArr.length > 0) {
+            for (var i = 1; i <= app.project.numItems; i++) {
+            if (app.project.item(i).name == folderName 
+            && app.project.item(i).parentFolder == folderParent
+            && app.project.item(i) instanceof FolderItem) {
+            folderObj = app.project.item(i);
                 }
             }
         }
-    //  find folderObj in the proj and put it to var
-    //  nutne, v pripade, ze uz existuje
-    //  jen vlozit do promenne nefunguje
-        /*
-        */
 
-    //alert('folder:' + folderObj.name);
-    alert('folder: \'' + folderObj.name + '\'\; folderParent: \'' + folderParent.name +'\'');
+    //alert('folder: \'' + folderObj.name + '\'\; folderParent: \'' + folderParent.name +'\'');
 
-    if (!(folderParent == null)) {
+    if (folderParent !== null) {
         folderObj.parentFolder = folderParent;
         }
     return folderObj;
@@ -126,14 +121,16 @@ function makeFolder(folderName, folderParent) {
 function folderStructure(itemsArr) {
     //  delame 'out' a nastavujeme jako parent pro 1. slozku
     var folderParent = makeFolderOut('out');
-    //  parent 'out' je zacatek cesty - tedy 'project'
+    //  parent pro 'out' je zacatek cesty - tedy 'project'
     folderParent.parentFolder = itemsArr[itemsArr.length - 1];
 
     //  prochazime cestu delame slozky
+    //  zaciname L2 (za projektem = work), koncime pred kompozici (L.length-1)
     for (var i = itemsArr.length - 1; i > 1; i--) {
         var folderName = itemsArr[i-1].name;
         var newFolder = makeFolder(folderName, folderParent);
         folderParent = newFolder;
+        //  kompozici soupeme postupne az do konce cesty
         itemsArr[0].parentFolder = folderParent;
     }
 }
@@ -155,7 +152,7 @@ function folderPath(item) {
 function naming(myCompMaster, myCompOut) {
     var compNameArr = [];
     compNameArr.push(myCompMaster.name);
-    compNameArr.push(myCompOut.name);
+    //compNameArr.push(myCompOut.name);
     var masterAppendix = "_master";
     myCompMaster.name = compNameArr[0] + masterAppendix;
     myCompOut.name = compNameArr[0];
@@ -164,14 +161,3 @@ function naming(myCompMaster, myCompOut) {
 }
 
 slateOvator_part04a();
-
-/*
-var myCompName = myComp.name;
-var myCompFolder = myComp.parentFolder;
-var myCompFolderName = myCompFolder.name;
-//myCompMaster.name = "a";
-//alert(myCompFolder.name);
-//myCompFolder.addFolder('aaa');
-var newFolder = app.project.items.addFolder('folderName');
-newFolder.parentFolder = myCompFolder;
-*/

@@ -1,16 +1,20 @@
 // slateOvator_part04
-// 240129_v13
+// 240129_v14
 // duplicator with path
 // duplikat kompozice s apendixem (_master) do podslozky v parentFoldru
 
-//  dodana spousteci hlavicka a smycka pro opakovani u vyberu
-//  tady resime, aby se netvorila pokazde nova cesta
+// spousteci hlavicka 
+// smycka pro opakovani u vyberu
+// compOut jdou do out, mastery zustavaji
+// zruseni zvlastni funkce makeFolder pro 'out' folder:
+// zadanim parentFolder pro 'out' ve funkci folderStructure => promenna folderParentParent
 
 function slateOvator_part04a() {
+
 app.beginUndoGroup("duplikator");
+
     var selected = app.project.selection;
-    
-    var outFolderName = "out";
+    var outFolderName = "outComps";
     //var masterFolderName = "masters";
 
     if (selected.length == 0) {
@@ -37,50 +41,12 @@ function copy(myCompMaster) {
 
     naming(myCompMaster, myCompOut);
     var pathItemsArr = folderPath(myCompMaster);
-    //alert(itemsArr);
     
-    var myCompOutFP = folderStructure(pathItemsArr);
-    //alert(myCompOutFP);
-    myCompOut.parentFolder = myCompOutFP;
+    var myCompOutFolderParent = folderStructure(pathItemsArr);
+    // setting FP for outComp
+    myCompOut.parentFolder = myCompOutFolderParent;
 }
 
-function makeFolderOut(folderName, folderParent) {
-    //  scan proj if folder exist
-    //  pushes 'true' into testArr in case the folder exists
-    var testArr = [];
-    for (var i = 1; i <= app.project.numItems; i++){
-        if (app.project.item(i).name == folderName 
-            && app.project.item(i) instanceof FolderItem) {
-            testArr.push(true);
-        }
-    }
-    //  if the folder not exist
-    //  create a new FolderItem in project
-    //alert('slozek \'' + folderName + '\' je ' + testArr.length);
-    //alert('testArr: ' + testArr.toString());
-
-        if (testArr.length == 0) {
-            app.project.items.addFolder(folderName);
-            }
-    //  find folderObj in the proj and put it to var
-    //  nutne, v pripade, ze uz existuje
-    //  jen vlozit do promenne nefunguje
-        var folderObj;
-        for (var i = 1; i <= app.project.numItems; i++){
-            if (app.project.item(i).name == folderName 
-            && app.project.item(i) instanceof FolderItem) {
-            folderObj = app.project.item(i);
-            }
-        }
-
-    //alert(folderObj);
-    //alert(folderParent);
-
-    if (!(folderParent == null)) {
-            folderObj.parentFolder = folderParent;
-        }
-    return folderObj;
-}
 
 function makeFolder(folderName, folderParent) {
     //  scan proj if folder exist
@@ -93,7 +59,8 @@ function makeFolder(folderName, folderParent) {
             testArr.push(true);
         }
     }
-    //alert('slozek \'' + folderName + '\' ve slozce \'out\' je ' + testArr.length);
+    //var folderParentName = folderParent.name;
+    //alert('slozek \'' + folderName + '\' ve slozce \'' + folderParentName + '\' je ' + testArr.length);
     //alert('testArr: ' + testArr.toString());
 
     //  caso a pasta nao existir
@@ -122,10 +89,11 @@ function makeFolder(folderName, folderParent) {
 
 
 function folderStructure(itemsArr) {
+    //  parent pro 'out' je konec cesty - tedy 'project'
+    var folderParentParent = itemsArr[itemsArr.length - 1];
+    
     //  delame 'out' a nastavujeme jako parent pro 1. slozku
-    var folderParent = makeFolderOut('out');
-    //  parent pro 'out' je zacatek cesty - tedy 'project'
-    folderParent.parentFolder = itemsArr[itemsArr.length - 1];
+    var folderParent = makeFolder(outFolderName, folderParentParent);
 
     //  prochazime cestu delame slozky
     //  zaciname L2 (za projektem = work), koncime pred kompozici (L.length-1)

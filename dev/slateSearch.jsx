@@ -1,6 +1,6 @@
 // dev slateSearch 
 // search for the slate from the very project or its newest instance
-// 240406_v06g
+// 240423_v06h_xsplittest
 
 Array.prototype.myIncludes = function(callback) {
       var result;
@@ -281,6 +281,7 @@ function nameNewSlate(slateComp, regexL) {
 
     var theNewestItem = arrRevSorted[0].name;
     const nwItmSplt = theNewestItem.split(/_/g);
+    alert(nwItmSplt);
     var itemNumberStr = nwItmSplt[2];
     var itemNumber = parseInt(itemNumberStr);
     var newNumber = (itemNumber + 1);
@@ -290,6 +291,9 @@ function nameNewSlate(slateComp, regexL) {
     return newName;
     }
 
+
+//---------------------------------------------------
+    //  slateSearch scenar
    //  vstup: slate
     //  parentFolder
     //  arr slates of this date/version in pF

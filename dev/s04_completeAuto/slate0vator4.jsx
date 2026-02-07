@@ -42,10 +42,12 @@ function copy(myCompMaster) {
         myCompOut.displayStartTime = -1;
 
     naming(myCompMaster, myCompOut);
-
+    var itemsArr = folderPath(myCompMaster);
+    //alert(itemsArr);
+    folderStructure(itemsArr);
     /*
-    var cesta = (folderStructure(myCompMaster));
-    //cesta.toString();
+    var cesta = (folderPath(myCompMaster));
+    cesta.toString();
     makeFolder(cesta.toString());
     */
 }
@@ -55,12 +57,12 @@ copy(myComp);
 app.endUndoGroup();
 
 function folderPath(item) {
-    var objArr = [item.name];
+    var objArr = [item];
     
     do {
         if(item.parentFolder != app.project.rootFolder) {
             item = item.parentFolder;
-            objArr.push(item.name);
+            objArr.push(item);
         }
     } while(item.parentFolder != app.project.rootFolder);
     
@@ -68,8 +70,19 @@ function folderPath(item) {
 }
 
 function folderStructure(itemsArr) {
-    makeFolder('out');
-    for (var i = itemsArr.length; i > 0; i--) {
-        makeFolder(itemsArr[i]);
+    var folderParent = makeFolder('out');
+    for (var i = itemsArr.length; i > 1; i--) {
+        var folderName = itemsArr[i-1].name;
+        var newFolder = makeFolder(folderName, folderParent);
+        folderParent = newFolder;
+        itemsArr[0].parentFolder = folderParent;
     }
 }
+
+/*
+function folderStructure(itemsArr) {
+    var folderParent = makeFolder('out');
+    for (var i = itemsArr.length; i > 0; i--) {
+        alert(itemsArr[i-1].name);
+    }
+}*/

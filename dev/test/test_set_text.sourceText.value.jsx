@@ -12,8 +12,8 @@ var layerName;
 
 for (var i = 1; i <= layers.length; i++) {
     if (layers[i].name == "Operator") {
-        layers[i].Text.sourceText = "Honza";
-        //alert(layers[i].name);
+        layers[i].text.sourceText.setValue("Honza");
+        alert(layers[i].text.sourceText.value);
     }
 }
 

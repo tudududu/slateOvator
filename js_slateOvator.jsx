@@ -1,5 +1,5 @@
 //  slateOvator
-//  240910_v15e9
+//  240910_v15e10
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -33,9 +33,14 @@
 // v15e7 UI: output comps pokus o 'justify fill'
 // 15e8  output comps 'justify fill' uspech (viz Variable fonts panel)
 // 15e9  nameNewSlate() - oprava nad 10. Od cisla slatu 10 pojmenovan 010, spatne
-//       se radi dle 0 tim padem je jako posledni vyhodnocen znovu c. 09
+//       se radi a tim padem je jako posledni vyhodnocen znovu c. 09
+//       opraveno provizorne tak ze nula se pridava jen k jednocifernym cislum
 //       oprava layerInspection() nenasel state pokud byl prejmenovany uvnitr comp
-
+// 15e10 layerInspectToComp() zjednoduseni v pripade slatu
+//       layerInspectToComp() misto layerInspection():
+//       misto AVLayer davame rovnou CompItem findSlateComp() tim padem vyrazena
+//       POZOR layerInspection() je stale pouzit v logoTlacitkovatOr(), compNameFromSlate()
+            
 //  v15ex barevne tlacitko 'slate name' - prace nezacala
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
 //  vXX focus target
@@ -47,7 +52,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15e9';
+        var vers = '15e10';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -96,7 +101,7 @@
         //var inputLabel = panel03_groupOne.add('statictext', undefined, 'Set the Comps folder level:');
         var inputFolderLevel = panel03_g01.add('edittext', undefined, '3', {enterKeySignalsOnChange: false});
             inputFolderLevel.characters = 4;
-            inputFolderLevel.expanded = false; // co to je?
+            
             //pokusy
             //var treeX = panel03.add("treeview", bounds = undefined, items = [1, 2, 3], {node: 1});
             //panel03.add("slider", bounds = undefined, value = 3, minvalue = 1, maxvalue = 3, {name: 'levelSlider'});
@@ -394,7 +399,7 @@ function slateRegexSimple() {
         app.project.autoFixExpressions(oldName, newName);
         }
     
-//======================================helper fnc for so2
+//======================================helper fnc
     function findCompByID(sbgID) {
         
         for (var i = 1; i <= app.project.numItems; i++) {
@@ -410,32 +415,50 @@ function slateRegexSimple() {
         return result;
         }
 
-//  hleda jmena slatu v comp
-//  pozor hledame take v function aplikaceDoComp, ale ne pomoci layerInspection
-//  predelat a pouzit vsude toto
+    //  hleda v comp vrstvu dle jmena a vraci pole nalezenych vrstev
+    //  pozor hledame take v aplikaceDoComp(), ale ne pomoci layerInspection
+    //  predelat a pouzit vsude toto
 
     function layerInspection(comp, wantedCompName) {
         var regex = wantedCompName;
         var compLayerArr = comp.layers; // prohlidka vrstev
         var foundLayersArr = [];
         for (var j = 1; j <= compLayerArr.length; j++) {
-            //var layerName = compLayerArr[j].name;
-            //alert(layerName);
+            //  hledame nazev zdroje vrstvy, ale pouze pokud je kompozice
+            //if (compLayerArr[j].source instanceof CompItem) {
+                var layerName = compLayerArr[j].name;
+                //  je vrstva slate?
+                var slateSearch = regex.test(layerName);
+                //  pokud je vrstva slate jdeme ho hledat
+                if (slateSearch) {
+                    foundLayersArr.push(compLayerArr[j]);
+                }
+            //}
+        }
+        return foundLayersArr;                  
+    }
+    
+    //  hleda v comp vrstvu dle jmena 
+    //  a vraci pole zdroju nalezenych vrstev
+    //  zjenousuje proces oproti layerInspectToComp(), ktera vracela objekt vrstvy
+    function layerInspectToComp(comp, wantedCompName) {
+        var regex = wantedCompName;
+        var compLayerArr = comp.layers; // prohlidka vrstev
+        var foundCompsArr = [];
+        for (var j = 1; j <= compLayerArr.length; j++) {
+            //  hledame nazev zdroje vrstvy, ale pouze pokud je kompozice
             if (compLayerArr[j].source instanceof CompItem) {
-            var layerName = compLayerArr[j].source.name;
-            //  je vrstva slate?
-            var slateSearch = regex.test(layerName);
-            //  pokud je vrstva slate jdeme ho hledat
-            if (slateSearch) {
-                foundLayersArr.push(compLayerArr[j]);
+                var layerName = compLayerArr[j].source.name;
+                //  je vrstva slate?
+                var slateSearch = regex.test(layerName);
+                //  pokud je vrstva slate jdeme ho hledat
+                if (slateSearch) {
+                    foundCompsArr.push(compLayerArr[j].source);
                 }
             }
         }
-        //alert(foundLayersArr);
-        return foundLayersArr;                  
+        return foundCompsArr;                  
     }
-
-
 
 //======================================
 //======================================
@@ -469,18 +492,19 @@ app.endUndoGroup();
                 //  je comp slate?
                 var compName = selectedComps[i].name;
                 var slateSearch = regex.test(compName);
-
-                if (slateSearch) {  // pokud je comp slate jdeme dovnitr
+                    // pokud je comp slate jdeme dovnitr
+                if (slateSearch) {
                     compNamesMultiSlate(selectedComps[i], callback, fieldLayerName, newTextInput, effectName);
-                            //break;
-                } else {    //  pokud neni, hledame jestli je uvnitr slate
+                    //  pokud neni, hledame jestli je uvnitr slate
+                } else {    
                     // pole jmen slatu v comp
-                    var slateArr = layerInspection(selectedComps[i], regex);
+                    var slateArr = layerInspectToComp(selectedComps[i], regex);
                     if (slateArr.length == 1) {
-                    // zkusit zjednodusit
-                    // misto AVLayer davat rovnou CompItem
+                    //  layerInspectToComp - misto AVLayer davame rovnou CompItem
+                    //  findSlateComp() tim padem vyrazena
                     var slateLayer = slateArr[0];
-                    findSlateComp(slateLayer, fieldLayerName, newTextInput, effectName);
+                    compNamesMultiSlate(slateLayer, callback, fieldLayerName, newTextInput, effectName);
+                    //findSlateComp(slateLayer, fieldLayerName, newTextInput, effectName);
                 } else {
                     alert('Too many or no slates.');
                     //Or if the slate is there its name is not in format \"slate_(vYYMMDD)\".
@@ -490,17 +514,17 @@ app.endUndoGroup();
         }
     }
         
-        //  hledame slateComp (dle jmena)
-        function findSlateComp(layer, fieldLayerName, newTextInput, effectName) {
+        //  hledame slateComp (dle id zdroje)
+        //  najdeme zdrojovou comp rovnou spustime akci
+        //  presunuto v ramci zjednoduseni primo do compOrSlate() (15e10 240910)
+        
+        /* function findSlateComp(layer, fieldLayerName, newTextInput, effectName) {
             var layerSourceCompID = layer.source.id;
-            
             var slateComp = findCompByID(layerSourceCompID);
             //  nasli jsme comp (slate) =>
-            compNamesMultiSlate(slateComp, callback, fieldLayerName, newTextInput, effectName);
-            
-        }
+            compNamesMultiSlate(slateComp, callback, fieldLayerName, newTextInput, effectName);  
+        } */
         
-
     //  Spusti vkladac pokud je slate pouzit prave v jedne kompozici
         function compNamesMultiSlate(slateCompL, callback, fieldLayerName, newTextInput, effectName) {
             //  hledame pole parentComp (kde je pouzit)
@@ -671,9 +695,13 @@ function insertSlateEngine(compMaster, compOut, regex) {
         }
     }
 
+//======================================
+//======================================
+
 //  slateOvator_part04a
-//  duplikat kompozice s apendixem do podslozky v parentFoldru + slate
 //  240202_v17
+
+//  duplikat kompozice s apendixem do podslozky v parentFoldru + slate
 //  compOut jdou do out, mastery zustavaji
 //  zruseni zvlastni funkce makeFolder pro 'out' folder:
 //  zadanim parentFolder pro 'out' ve funkci folderStructure => promenna folderParentParent
@@ -879,11 +907,15 @@ function slateOvator_part04a(/* inputFolderLevelL */) {
 //---------------------------------------------------
 //  slateSearch
 //---------------------------------------------------
-
-//  POPSAT !
+//  search for the newest instance of the slate
+//  or the one from the very project
+//  volime kde budeme hledat vychozi slate pro duplikaci
+//  jestli je slate v aktualnim projektu,
+//  nebo budeme muset prohledat cely projekt
+//---------------------------------------------------
 function slateSearchAdvanced(selectedComp, regexSlateGlobal) {
     var result;
-    const slateInPlaceTest = slateSearch1(selectedComp, regexSlateGlobal);
+    const slateInPlaceTest = searchLocal(selectedComp, regexSlateGlobal);
     const globalSlates = searchGlobal(regexSlateGlobal);
     
     if(slateInPlaceTest.length > 0) {
@@ -895,14 +927,12 @@ function slateSearchAdvanced(selectedComp, regexSlateGlobal) {
 }
 
 //---------------------------------------------------
-//  search for the newest instance of the slate or the one from the very project
-//---------------------------------------------------
 //  1. the slate from the very project - tam kde ma byt
 //  srovnava cestu k oznacene kompozoci s cestou ke slatu
 //  a vybira slaty, ktere maji cast cesty spolecnou: commonPathLength
 //  uklada to co je v obou stejne, vse je tedy 2x
 //---------------------------------------------------
-function slateSearch1(selectedComp, regex) {
+function searchLocal(selectedComp, regex) {
     const slateArr = [];
     var commonPathLength = 2;   // 2 = shoda alespon v jedne polozce (kazda shoda je 2x)
     var selectedCompPath = cesta(selectedComp); //  cesta k oznacene kompozici
@@ -929,7 +959,7 @@ function slateSearch1(selectedComp, regex) {
 //---------------------------------------------------
 //  2. search in the whole project for the newest instance of the slate
 //---------------------------------------------------
-//  1. vyhledame vsechny slaty v proj
+//  vyhledame vsechny slaty v proj
 //  predelat, tak aby se dalo hledat i ve slozce slate
 //  tj. zadavame kde bude hledat
 function searchGlobal(regexL) {
@@ -965,7 +995,9 @@ function cesta(projectItem) {
     return objArr;
 }
 //---------------------------------------------------
-//  v obou stejne
+//  overujeme zda slate patri ke stejnemu projektu jako oznacena kompozice
+//  sronavame cestu kompozice a cestu slatu
+//  hledame stejne slozky v ceste
 function commonArray(arr1, arr2) {
 
   const oneArr = arr1.concat(arr2);
@@ -977,7 +1009,7 @@ function commonArray(arr1, arr2) {
 }
 //---------------------------------------------------
 //  2. sort
-//pozor funguje i s polem stringu, ale spatne
+//  pozor funguje i s polem stringu, ale spatne
 function sortAlphabetOrder(arr) {
   const arrCopy = arr.slice();
   return arrCopy.sort(function(a, b) {
@@ -992,15 +1024,18 @@ function sortReverseOrder(arr) {
   })
 }
 //---------------------------------------------------
-//  3. vybereme nejnovejsi slateName z pole vsech slatu (jen dle data nikoli cisla kopie)
+//  3. vybereme nejnovejsi slateName z pole vsech slatu 
+//  (dle data)
+//  vraci string 
+//  nazev bez cisla ("slate_(vYYMMDD)")
 function theNewestSlateName(slateArr) {
-    //var slateArr = searchGlobal(regexSlateGlobal);
+    //---var slateArr = searchGlobal(regexSlateGlobal);
     //  abecedni serazeni sestupne
     const arrRevSorted = sortReverseOrder(slateArr);
     //  test sort fce - jen pro zobrazeni jestli funguje
-    /*var testArr = arrRevSorted.myMap(function(item) {
+    /* var testArr = arrRevSorted.myMap(function(item) {
         return item.name;
-    });*/
+    }); */
     //  jmeno nejnovejsiho slatu
     var latestSlateName = arrRevSorted[0].name;
     //  date substr 
@@ -1009,14 +1044,18 @@ function theNewestSlateName(slateArr) {
 }
 
 //---------------------------------------------------
-//  4. regex pro hledani nejnov
+//  4. regex pro hledani nejnovejsiho
 
-    //zavorky musi byt oznaceny '\', aby byly string, ex: /^slate_\(v240300\)/;
+//  vyrabime regex abychom mohli hledat slate, 
+//  ktery jsme prave nasli a vyhodnotili jako nejnovesi
+//  neni to zbytecne?
+
+//  zavorky musi byt oznaceny '\', aby byly string, ex: /^slate_\(v240300\)/;
 
 function slateRegexNewest(arr, regexG) {
     var str = theNewestSlateName(arr);
     //var str = "/^" + name + "/";  
-    //neni mozne takto vkladat promennou do regexu, je pak string a be objekt
+    //neni mozne takto vkladat promennou do regexu, je pak string a ne objekt
     //pridavame backslash do regexu pred zavorky
         var fixRegex1 = /\(/;
         var fixRegex2 = /\)/;
@@ -1031,24 +1070,33 @@ function slateRegexNewest(arr, regexG) {
 
 
 //---------------------------------------------------
-//  5. pole nejnovejsich
+//  5. filtrujeme jen posledni verzi
+//  vstup: pole kompozic (jiz nalezenych slatu?)
+//  vystup: pole vsech nejnovejsich
+//test
+    function testSort(arr) {
+            const itemNames = arr.myMap(function(item) {
+            return item.name;
+        })
+        return itemNames;
+    }
 
 function theNewest(slateArr, regexG) {
     //const slateArr = searchGlobal(regexG);
+
+    //  regex pro posledni verzi slatu
     var regexL = slateRegexNewest(slateArr, regexG);
-    const arrRevSorted = sortReverseOrder(slateArr);
-    var newestOnly = arrRevSorted.myFilter(function(item) {
-        
+    //  k cemu? - overeno - mazeme
+    //const arrRevSorted = sortReverseOrder(slateArr);
+    var newestOnly = slateArr.myFilter(function(item) {
         return regexL.test(item.name);
     })
-    //test
-    /*var newestOnlyNames = newestOnly.myMap(function(item) {
-        return item.name;
-    })*/
+    
     return newestOnly;
 }
 
 //  6. nejstarsi z nejnovejsich - cislo 01
+//  finalni vyber originalu pro novou kopii slatu
 function theBlueprint(arr) {
     //var newestSlatesArr = theNewest(regexSlateGlobal);
     const arrSorted = sortAlphabetOrder(arr);
@@ -1056,6 +1104,9 @@ function theBlueprint(arr) {
 }
 
 //---------------------------------------------------
+//  7. hleda dle polozky ve slozce dle regexu
+//  pouzit v nameNewSlate()
+//  potrebujem to?
     function searchInFldr(fldrItms, regexL) {
     const arr = [];
     for (var i = 1 ; i <= fldrItms.length; i++){
@@ -1069,6 +1120,10 @@ function theBlueprint(arr) {
         return arr;
     }
 //---------------------------------------------------
+//  8. vyrabime jmeno noveho slatu,
+//  nejspis kvuli tomu, ze se nove cislo tvorilo spatne tj. jednociferne
+//  240912 si jiz tvori dobre tj. dvociferne
+//  zvazit zruseni
 function nameNewSlate(slateComp, regexL) {
  
     //  parentFolder
@@ -1076,18 +1131,27 @@ function nameNewSlate(slateComp, regexL) {
     //  vypiseme obsah slozky
     var folderItems = slateParentFldr.items;
     
-    //  arr slates of this date/version in pF
-    const slatesInFolderArr = searchInFldr(folderItems, regexL);
-    const arrRevSorted = sortReverseOrder(slatesInFolderArr);
-    //const testArr = theNewest(slatesInFolderArr, regexL);   // lze pouzit, ale je to zbytecne slozite
-
+    //  slates of this version in parent folder
+    const slatesInFolder = searchInFldr(folderItems, regexL);
+    //  nebo searchInFldr() vyhodit a pouzit
+    //const slatesInFolder = theNewest(slatesInFolder, regexL);
+    const arrRevSorted = sortReverseOrder(slatesInFolder);
+    //  tady je problem - _99 > _100
     var theNewestItemName = arrRevSorted[0].name;
+    //test
+    const testSortNames = testSort(arrRevSorted);
+
+    //  jmeno rozebereme
     const nwItmSplt = theNewestItemName.split(/_| |-/g);
     // cislo = treti clen
     var itemNumberStr = nwItmSplt[2];
     var itemNumber = parseInt(itemNumberStr);
     var newNumber = (itemNumber + 1);
-    var newNumberStr = '0' + String(newNumber);
+    if (String(newNumber).length < 2) {
+        var newNumberStr = '0' + String(newNumber);
+    } else {
+        var newNumberStr = String(newNumber);
+    }
     var newName = nwItmSplt[0] + '_' + nwItmSplt[1] + '_' + newNumberStr;
 
     return newName;

@@ -1,5 +1,5 @@
 //  slateOvator
-//  240914_v15e11
+//  240914_v15e12
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -40,6 +40,10 @@
 //       layerInspectToComp() misto layerInspection():
 //       misto AVLayer davame rovnou CompItem findSlateComp() tim padem vyrazena
 //       POZOR layerInspection() je stale pouzit v logoTlacitkovatOr(), compNameFromSlate()
+// 15e11   240914  nameNewSlate() vyreseno hledani posledni kopie slatu (99, 100, 101) 3 reseni
+// 15e12   240914  nameNewSlate() reseni 3 (jistota)
+// 15e13   241107  simple output slate insertion
+// 15e14   uplne prekopani - zjednoduseni zaverecne vasti nove kopie slatu
             
 //  v15ex barevne tlacitko 'slate name' - prace nezacala
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
@@ -52,7 +56,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15e10';
+        var vers = '15e12';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -99,9 +103,9 @@
             prebalovatorBtn.alignChildren = 'fill';
             prebalovatorBtn.preferredSize = [200, 30];
         //var inputLabel = panel03_groupOne.add('statictext', undefined, 'Set the Comps folder level:');
-        var inputFolderLevel = panel03_g01.add('edittext', undefined, '3', {enterKeySignalsOnChange: false});
+        /* var inputFolderLevel = panel03_g01.add('edittext', undefined, '3', {enterKeySignalsOnChange: false});
             inputFolderLevel.characters = 4;
-            inputFolderLevel.expanded = false; // co to je?
+            inputFolderLevel.expanded = false; // co to je? */
             //pokusy
             //var treeX = panel03.add("treeview", bounds = undefined, items = [1, 2, 3], {node: 1});
             //panel03.add("slider", bounds = undefined, value = 3, minvalue = 1, maxvalue = 3, {name: 'levelSlider'});
@@ -1123,19 +1127,9 @@ function nameNewSlate(slateComp, regexL) {
      //  parentFolder
     var slateParentFldr = slateComp.parentFolder;
     var folderItems = slateParentFldr.items;
-    //reseni_1
-    //nejista spolehlivost - 
-    //vyuziva toho, ze pole je jiz spravne serazene
-    //var latestSlateName = folderItems[folderItems.length - 1].name;
-    
-    //reseni_2
-    //filtruje starsi verze, ale bez razeni stejne jako v reseni_1
-    //  slates of this version in parent folder
-    const slatesInFolder = searchInFldr(folderItems, regexL);
-    const latestSlatesIF = theNewest(slatesInFolder, regexL);
-    var latestSlateName = latestSlatesIF[latestSlatesIF.length - 1].name;
 
     //reseni_3
+    const slatesInFolder = searchInFldr(folderItems, regexL);
     const splitSlateNamesArr = slatesInFolder.myMap(function(item) {
         return item.name.split(/_| |-/g);
     })
@@ -1181,39 +1175,3 @@ function nameNewSlate(slateComp, regexL) {
 //---------------------------------------------------
 
 })(this);
-
-//bak 8 reseni 1 a 2
-/* function nameNewSlate(slateComp, regexL) {
-     //  parentFolder
-    var slateParentFldr = slateComp.parentFolder;
-    var folderItems = slateParentFldr.items;
-    //reseni_1
-    //nejista spolehlivost - 
-    //vyuziva toho, ze pole je jiz spravne serazene
-    //var latestSlateName = folderItems[folderItems.length - 1].name;
-    
-    //reseni_2
-    //filtruje starsi verze, ale bez razeni stejne jako v reseni_1
-    const slatesInFolder = searchInFldr(folderItems, regexL);
-    //  slates of this version in parent folder
-    const latestSlatesIF = theNewest(slatesInFolder, regexL);
-    var latestSlateName = latestSlatesIF[latestSlatesIF.length - 1].name;
-
-    //test
-    //const testSortNames = testSort(slatesInFolder);
-
-    //  jmeno rozebereme - reseni 1 a 2
-    const nwItmSplt = latestSlateName.split(/_| |-/g);
-    // cislo = treti clen
-    var itemNumberStr = nwItmSplt[2];
-    var itemNumber = parseInt(itemNumberStr);
-    var newNumber = (itemNumber + 1);
-    if (String(newNumber).length < 2) {
-        var newNumberStr = '0' + String(newNumber);
-    } else {
-        var newNumberStr = String(newNumber);
-    }
-    var newName = nwItmSplt[0] + '_' + nwItmSplt[1] + '_' + newNumberStr;
-
-    return newName;
-    } */

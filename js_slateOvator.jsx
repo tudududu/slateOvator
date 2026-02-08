@@ -1,80 +1,83 @@
-//  slateOvator
-//  241210_v16a01
+/* slateOvator
+241218_v16a02
 
-// v01 240103 joining parts 1, 2, 3
-// v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
-// v03 slateOvator_part3 v08h limited to CompItem
-// v05 SlateOvator_part_02: compNamesMultiFnc
-// v07_wip fixing broken expressions due to the change of the name (fail)
-// v07 slateOvator_part04a duplikat kompozice s apendixem do podslozky v parentFoldru
-// v08 zacleneni part3 do part4
-// v09 insert compName via callback
-// v11 uprava prepisovace poli pro slate i comp
-// v12 vypinace tagy
-// v13 prepina se pouze logo bg pouzite ve slatu - id
-// v14 totez pro slate: id misto jmena
-// v14c deleteLayers() odemknuti zamcenych vrstev, aby se odstranily, pokud jsou zamčené
-// v15 uprava copy() pro kopiruji masterComp vcetne parametru
-// v15c slateSarchAdvanced(regex)  (updated function placeTheSlate)
-// v15d layer name vs. layer source name - placeTheSlate(), slateSearchAdvanced()
-// v15d v kompozici hleda podle nazvu zdroje a ne vrstvy (layer.source.name instead of layer.name)
-// v15d2 hledani nejnovejsiho i v 'master' slozce
-// v15d3 osetreno cislovani novych slatu - token search - nameNewSlate()
-// v15d4 nwItmSplt rozsiren split(/_| |-/g);
-// v15e pridano compNameFromSlate()
-// v15e1 uprava compNameFromSlate()
-// v15e2 uprava folderStructure()
-// v15e3 UI: tab through edittext fields - Preskupeni: misto skupin pole s tlacitkem je skupina poli a skup. tlacitek.
-// v15e3 UI: compFolderLevel field: (ne)funkcnost (fce folderStructure) - opraveno
-// v15e4 UI: compFolderLevel field: bud odstranit nebo closable, (fce folderStructure)
-//       odstraneno, automatizovano - hleda "comps", pokud comps !== 1 out bude v root
-// v15e5 ucesani automatizace compFolderLevel
-// v15e6 UI: compFolderLevel field (inputFolderLevel): vraceno
-// v15e7 UI: output comps pokus o 'justify fill'
-// 15e8  output comps 'justify fill' uspech (viz Variable fonts panel)
-// 15e9  nameNewSlate() - oprava nad 10. Od cisla slatu 10 pojmenovan 010, spatne
-//       se radi a tim padem je jako posledni vyhodnocen znovu c. 09
-//       opraveno provizorne tak ze nula se pridava jen k jednocifernym cislum
-//       oprava layerInspection() nenasel state pokud byl prejmenovany uvnitr comp
-// 15e10 layerInspectToComp() zjednoduseni v pripade slatu
-//       layerInspectToComp() misto layerInspection():
-//       misto AVLayer davame rovnou CompItem findSlateComp() tim padem vyrazena
-//       POZOR layerInspection() je stale pouzit v logoTlacitkovatOr(), compNameFromSlate()
-// 15e11 240914  nameNewSlate() vyreseno hledani posledni kopie slatu (99, 100, 101) 3 reseni
-// 15e12 240914  nameNewSlate() reseni 3 (jistota)
-// 15e13 241107  simple output slate insertion
-// 15f01 uplne prekopani - zjednoduseni zaverecne casti nove kopie slatu
-// 15f02 aplikaceDoComp() misto insertSlateEngine()
-// 15f03 compLengthAdjust()
-// 15f04 compLengthAdjust() - posun vrstev a prodlouzeni kompozice pouze pokud neni slate, jinak se posune pouze zacatek kompozice
-// 15f05 insertSlateEngine() - hledani slatu v kompozici a podle toho se rozhodne, jestli se bude prodlužovat a posouvat, nebo jen posouvat zacatek
-// 15f06 UI: radiobutton pro complete vs simple insert - pouze vlozeni slatu bez prodlouzeni a posunu, pripadne s prodlouzenim a posunem
-// 15f07 insertSlateEngine()
-// 15f08 insertSlateEngine() - osetreno, aby se slate vkladalo pouze jednou, i kdyz je v kompozici více vrstev se slatem (prejmenovanych)
-// 15f01-08    slate lze vlozit primo do kompozice zaroven s posunutim vrstev (slateShift)
-// 15f09 vsechny 3 funkce svedeny do spolecneho "Slate insert" btn, zrusen prebalovator
-// 15f10 win.slateInsertBtn ->  var slateInsertBtn
-// 15f11 insert slate kontrolouje pouze 1. vrstvu jestli neni slate uz v kompozici
-//       opraveno v insertSlateEngine()
-//       jeste stale bez layerInspection()
-// 15f12 vlozen layerInspectToComp() do insertSlateEngine()
-// 15f14 UI: barevna kontrolka vlevo u 'Comp name from slate' pouze pri hoveru nad tlacitkem
-// 15f15 UI: barevna kontrolka vpravo u 'Comp name from slate', (comp|comps)
-// 15f16 UI: kompaktnejsi design - zrusen panel04, barevna kontrolka vpravo u 'Comp name from slate'
-// 15f17 UI: barevna kontrolka vpravo u 'Comp name from slate', tlacitko se neroztahuje na celou sirku panelu, pouze do velikosti textu, zrusen align fill, pridano spacing mezi radiobuttony, zrusen panel03, integrace do panel05, zrusen label u panel05, uprava textu radiobuttonu, zrusen panel04 a integrace do panel05, zrusen label u panel04
-// 15f18 UI: btns panel05.preferredSize
-// 15f19 UI: compNameFSBtn s barevnou kontrolkou, neroztahuje se na celou sirku panelu
-// 15f20 UI: compNameFSBtn fixed preferredSize
-// 15f21 UI: compNameFSBtn barevna kontrolka nad
-// 15f14-15f21 UI: pokusy s pridanim barevne kontrolky pro 'compNameFSBtn', idealni cil je mit kontrolku na strane tlacitka, coz koliduje s align fill - tlacitko se neroztahuje nasiru panelu
-// 15f22 Navrat k 15f16, UI: compNameFSBtn barevna kontrolka vypnuta
-// v15g01 slateSearchGlobal() misto slateSearchAdvanced()
-// v16a00 slateSearchAdvanced() misto slateSearchGlobal()
-// v16a01 slateSearchAdvanced()
+v01 240103 joining parts 1, 2, 3
+v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
+v03 slateOvator_part3 v08h limited to CompItem
+v05 SlateOvator_part_02: compNamesMultiFnc
+v07_wip fixing broken expressions due to the change of the name (fail)
+v07 slateOvator_part04a duplikat kompozice s apendixem do podslozky v parentFoldru
+v08 zacleneni part3 do part4
+v09 insert compName via callback
+v11 uprava prepisovace poli pro slate i comp
+v12 vypinace tagy
+v13 prepina se pouze logo bg pouzite ve slatu - id
+v14 totez pro slate: id misto jmena
+v14c deleteLayers() odemknuti zamcenych vrstev, aby se odstranily, pokud jsou zamčené
+v15 uprava copy() pro kopiruji masterComp vcetne parametru
+v15c slateSarchAdvanced(regex)  (updated function placeTheSlate)
+v15d layer name vs. layer source name - placeTheSlate(), slateSearchAdvanced()
+v15d v kompozici hleda podle nazvu zdroje a ne vrstvy (layer.source.name instead of layer.name)
+v15d2 hledani nejnovejsiho i v 'master' slozce
+v15d3 osetreno cislovani novych slatu - token search - nameNewSlate()
+v15d4 nwItmSplt rozsiren split(/_| |-/g);
+v15e pridano compNameFromSlate()
+v15e1 uprava compNameFromSlate()
+v15e2 uprava folderStructure()
+v15e3 UI: tab through edittext fields - Preskupeni: misto skupin pole s tlacitkem je skupina poli a skup. tlacitek.
+v15e3 UI: compFolderLevel field: (ne)funkcnost (fce folderStructure) - opraveno
+v15e4 UI: compFolderLevel field: bud odstranit nebo closable, (fce folderStructure)
+      odstraneno, automatizovano - hleda "comps", pokud comps !== 1 out bude v root
+v15e5 ucesani automatizace compFolderLevel
+v15e6 UI: compFolderLevel field (inputFolderLevel): vraceno
+v15e7 UI: output comps pokus o 'justify fill'
+15e8  output comps 'justify fill' uspech (viz Variable fonts panel)
+15e9  nameNewSlate() - oprava nad 10. Od cisla slatu 10 pojmenovan 010, spatne
+      se radi a tim padem je jako posledni vyhodnocen znovu c. 09
+      opraveno provizorne tak ze nula se pridava jen k jednocifernym cislum
+      oprava layerInspection() nenasel state pokud byl prejmenovany uvnitr comp
+15e10 layerInspectToComp() zjednoduseni v pripade slatu
+      layerInspectToComp() misto layerInspection():
+      misto AVLayer davame rovnou CompItem findSlateComp() tim padem vyrazena
+      POZOR layerInspection() je stale pouzit v logoTlacitkovatOr(), compNameFromSlate()
+15e11 240914  nameNewSlate() vyreseno hledani posledni kopie slatu (99, 100, 101) 3 reseni
+15e12 240914  nameNewSlate() reseni 3 (jistota)
+15e13 241107  simple output slate insertion
+15f01 uplne prekopani - zjednoduseni zaverecne casti nove kopie slatu
+15f02 aplikaceDoComp() misto insertSlateEngine()
+15f03 compLengthAdjust()
+15f04 compLengthAdjust() - posun vrstev a prodlouzeni kompozice pouze pokud neni slate, jinak se posune pouze zacatek kompozice
+15f05 insertSlateEngine() - hledani slatu v kompozici a podle toho se rozhodne, jestli se bude prodlužovat a posouvat, nebo jen posouvat zacatek
+15f06 UI: radiobutton pro complete vs simple insert - pouze vlozeni slatu bez prodlouzeni a posunu, pripadne s prodlouzenim a posunem
+15f07 insertSlateEngine()
+15f08 insertSlateEngine() - osetreno, aby se slate vkladalo pouze jednou, i kdyz je v kompozici více vrstev se slatem (prejmenovanych)
+15f01-08    slate lze vlozit primo do kompozice zaroven s posunutim vrstev (slateShift)
+15f09 vsechny 3 funkce svedeny do spolecneho "Slate insert" btn, zrusen prebalovator
+15f10 win.slateInsertBtn ->  var slateInsertBtn
+15f11 insert slate kontrolouje pouze 1. vrstvu jestli neni slate uz v kompozici
+      opraveno v insertSlateEngine()
+      jeste stale bez layerInspection()
+15f12 vlozen layerInspectToComp() do insertSlateEngine()
+15f14 UI: barevna kontrolka vlevo u 'Comp name from slate' pouze pri hoveru nad tlacitkem
+15f15 UI: barevna kontrolka vpravo u 'Comp name from slate', (comp|comps)
+15f16 UI: kompaktnejsi design - zrusen panel04, barevna kontrolka vpravo u 'Comp name from slate'
+15f17 UI: barevna kontrolka vpravo u 'Comp name from slate', tlacitko se neroztahuje na celou sirku panelu, pouze do velikosti textu, zrusen align fill, pridano spacing mezi radiobuttony, zrusen panel03, integrace do panel05, zrusen label u panel05, uprava textu radiobuttonu, zrusen panel04 a integrace do panel05, zrusen label u panel04
+15f18 UI: btns panel05.preferredSize
+15f19 UI: compNameFSBtn s barevnou kontrolkou, neroztahuje se na celou sirku panelu
+15f20 UI: compNameFSBtn fixed preferredSize
+15f21 UI: compNameFSBtn barevna kontrolka nad
+15f14-15f21 UI: pokusy s pridanim barevne kontrolky pro 'compNameFSBtn', idealni cil je mit kontrolku na strane tlacitka, coz koliduje s align fill - tlacitko se neroztahuje nasiru panelu
+15f22 Navrat k 15f16, UI: compNameFSBtn barevna kontrolka vypnuta
+15g01 slateSearchGlobal() misto slateSearchAdvanced()
+16a00 slateSearchAdvanced() misto slateSearchGlobal()
+16a01 slateSearchAdvanced()
+16a02 slateSearch_v02 - hleda nejnovejsi verzi slatu v celem AE projektu
+prednost ma slate z vlastniho projektu, v pripade ze je i tam
+NEFUNGUJE spravne - najde nejnovejsi, ale pojmenuje ho jmenem starsi verze
 
-//  vXX vicekrat pouzity slateSarch vyhodit do fce
-//  vXX focus target
-//  vXX z callback fci oddelat instanceof pokud nejsou potreba
+vXX vicekrat pouzity slateSarch vyhodit do fce
+vXX focus target
+vXX z callback fci oddelat instanceof pokud nejsou potreba */
 
 (function (thisObj) {
     
@@ -82,7 +85,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = 'v16a01';
+        var vers = '16a02';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -1042,9 +1045,16 @@ function slateOvator4(/*inputFolderLevelL */) {
 //---------------------------------------------------
 
 //---------------------------------------------------    
+//  slateSearch_v01
+//  search for the newest instance of the slate
+//  or the one from the very project
 //---------------------------------------------------
 //  slateSearch_v02
-//  hledame nejnovejsi z celeho projektu
+//  hledame nejnovejsi z celeho projektu,
+//  prednost ma projekt
+
+//---------------------------------------------------
+
 //---------------------------------------------------
 
 function slateSearchAdvanced(selectedComp, regexSlateGlobal) {
@@ -1061,40 +1071,12 @@ function slateSearchAdvanced(selectedComp, regexSlateGlobal) {
     if (test.length > 1) {
         result = resultProject;
     } else {
-        // result = theBlueprint(theNewest(resultArr, regexSlateGlobal));
         result = resultGlobal;
     }
-    // !! jeste osetrit !!
-    /* if(slatesProject.length > 0) {
-        result = theBlueprint(theNewest(slatesProject, regexSlateGlobal));
-    } else {
-        result = theBlueprint(theNewest(slatesGlobal, regexSlateGlobal));
-    } */
+    // !! jeste osetrit pokud je to potreba !!
     return result;
 }
-//---------------------------------------------------v01
-//  search for the newest instance of the slate
-//  or the one from the very project
-//---------------------------------------------------
-/*  function slateSearchAdvanced_bak(selectedComp, regexSlateGlobal) {
-    var result;
-    const slatesProject = searchLocal(selectedComp, regexSlateGlobal);
-    const slatesGlobal = searchGlobal(regexSlateGlobal);
-    
-    if(slatesProject.length > 0) {
-        result = theBlueprint(theNewest(slatesProject, regexSlateGlobal));
-    } else {
-        result = theBlueprint(theNewest(slatesGlobal, regexSlateGlobal));
-    }
-    return result;
-} */
-// jednoduse nejnovejsi
-/* function slateSearchGlobal(selectedComp, regexSlateGlobal) {
-    var result;
-    const slatesGlobal = searchGlobal(regexSlateGlobal);
-    result = theBlueprint(theNewest(slatesGlobal, regexSlateGlobal));
-    return result;
-} */
+
 //---------------------------------------------------
 //  1. the slate from the very project - tam kde ma byt
 //  srovnava cestu k oznacene kompozoci s cestou ke slatu

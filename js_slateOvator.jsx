@@ -1,5 +1,5 @@
 //  slateOvator
-//  241112_v15f06
+//  241112_v15f07
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -49,6 +49,7 @@
 // 15f04 compLengthAdjust() - posun vrstev a prodlouzeni kompozice pouze pokud neni slate, jinak se posune pouze zacatek kompozice
 // 15f05 insertSlateEngine() - hledani slatu v kompozici a podle toho se rozhodne, jestli se bude prodlužovat a posouvat, nebo jen posouvat zacatek
 // 15f06 UI: radiobutton pro complete vs simple insert - pouze vlozeni slatu bez prodlouzeni a posunu, pripadne s prodlouzenim a posunem
+// 15f07 insertSlateEngine()
 
 //  v15ex barevne tlacitko 'slate name' - prace nezacala
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
@@ -61,7 +62,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15f06';
+        var vers = '15f07';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -90,10 +91,10 @@
         win.slateInsertBtn = panel05.add('button', undefined, 'Complete insert');
     
             // win.repRad = win.panel05.add('radiobutton', [14,13,174,35], 'Search and Replace');
-        var completeRad = panel05_g01.add('radiobutton', undefined, 'Complete');
-            completeRad.alignChildren = 'fill';
-            completeRad.value = true;
-            completeRad.onClick = function () {
+        var comRad = panel05_g01.add('radiobutton', undefined, 'Complete');
+            comRad.alignChildren = 'fill';
+            comRad.value = true;
+            comRad.onClick = function () {
                 doTextChange(win.slateInsertBtn, 'Complete insert');
             };
         var insRad = panel05_g01.add('radiobutton', undefined, 'Simple');
@@ -101,7 +102,12 @@
             insRad.onClick = function () {
                 doTextChange(win.slateInsertBtn, 'Simple insert');
             };
-            // if (theDialog.insRad.value) {
+        var outRad = panel05_g01.add('radiobutton', undefined, 'Out');
+            outRad.alignChildren = 'fill';
+            outRad.onClick = function () {
+                doTextChange(win.slateInsertBtn, 'Out comps');
+            };
+
         //  --------panel04--------Fill the slate--------
         var panel04 = win.add('panel', undefined, "Pass comp name into the slate");
             panel04.orientation = 'column';
@@ -125,6 +131,7 @@
             panel03_groupOne.orientation = 'row';
             panel03_groupOne.preferredSize = [200, 30];
             panel03_groupOne.alignChildren = 'fill'; */
+        
         //  apply Button
         var prebalovatorBtn = panel03_g01.add('button', undefined, 'Output comps');
             prebalovatorBtn.alignChildren = 'fill';
@@ -133,10 +140,7 @@
         /* var inputFolderLevel = panel03_g01.add('edittext', undefined, '3', {enterKeySignalsOnChange: false});
             inputFolderLevel.characters = 4;
             inputFolderLevel.expanded = false; // co to je? */
-            //pokusy
-            //var treeX = panel03.add("treeview", bounds = undefined, items = [1, 2, 3], {node: 1});
-            //panel03.add("slider", bounds = undefined, value = 3, minvalue = 1, maxvalue = 3, {name: 'levelSlider'});
-
+        // tentei a fazer isto a poder esconder, mas ficou para depois...
 
         //  --------panel02--------fields--------
         var panel02 = win.add('panel', undefined, 'Fields');
@@ -210,7 +214,7 @@
         }
         function triggerSlateInsert() {
             var switchOn = true;
-            alert(insRad.value);
+            //alert(insRad.value);
             if (insRad.value) {switchOn = false;}
             slateOvator3(switchOn);
         }
@@ -674,22 +678,25 @@ function compLengthAdjust(theComp/* , slateDur */)
                 compLengthAdjust(compOut/* , slateDur */);
             }
             placeTheSlate(compMaster, compOut, regex);
-        } else if (layerArr.length > 0) {   // prohledame jestli
+        } else if (layerArr.length > 0) {   // prohledame jestli v comp...
     //make func // pozor - function layerInspection
             for (var i = 1; i <= layerArr.length; i++) {
-                var layerName = layerArr[i].source.name;   //   zdroj vrstvy
-                var slateSearch = regex.test(layerName);   //   neni slate
+                if (layerArr[i].source instanceof CompItem) {
+                    // hledame zdroj vrstvy (slate) pro pripad, ze by uvnitr byla prejmenovana
+                    var layerName = layerArr[i].source.name;
+                    var slateSearch = regex.test(layerName);   //   ...neni slate
 
-                if (slateSearch) {  //pokud ano konci
-                    alert('Slate alredy present.');
-                    //  nedame ho tam take?
-                    break;
-                } else {
-                    if (switchOn) {
-                        compLengthAdjust(compOut/* , slateDur */);
+                    if (slateSearch) {  //pokud ano konci
+                        alert('Slate alredy present.');
+                        //  nedame ho tam take?
+                        break;
+                    } else {
+                        if (switchOn) {
+                            compLengthAdjust(compOut/* , slateDur */);
+                        }
+                        placeTheSlate(compMaster, compOut, regex);  // nema slate - vkladame
+                        break;
                     }
-                    placeTheSlate(compMaster, compOut, regex);  // nema slate - vkladame
-                    break;
                 }
             }
         }

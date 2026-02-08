@@ -1,5 +1,5 @@
 //  slateOvator
-//  241112_v15f07
+//  241112_v15f08
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -50,6 +50,7 @@
 // 15f05 insertSlateEngine() - hledani slatu v kompozici a podle toho se rozhodne, jestli se bude prodlužovat a posouvat, nebo jen posouvat zacatek
 // 15f06 UI: radiobutton pro complete vs simple insert - pouze vlozeni slatu bez prodlouzeni a posunu, pripadne s prodlouzenim a posunem
 // 15f07 insertSlateEngine()
+// 15f08 insertSlateEngine() - osetreno, aby se slate vkladalo pouze jednou, i kdyz je v kompozici více vrstev se slatem (prejmenovanych)
 
 //  v15ex barevne tlacitko 'slate name' - prace nezacala
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
@@ -62,7 +63,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15f07';
+        var vers = '15f06';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -212,21 +213,24 @@
         function triggerCompNameBack() {
         slateOvator2(compNameFromSlate);
         }
-        function triggerSlateInsert() {
-            var switchOn = true;
-            //alert(insRad.value);
-            if (insRad.value) {switchOn = false;}
-            slateOvator3(switchOn);
-        }
         // function triggerSlateInsert() {
-        //     slateOvator3a(this.parent);
+        //     var switch_slateShift = true;
+        //     //alert(insRad.value);
+        //     if (insRad.value) {switch_slateShift = false;}
+        //     slateOvator3(switch_slateShift);
         // }
-        // slateOvator3a(theDialog) {
-        //     var switchOn = true;
-        //     alert(theDialog.panel05.insRad.value);
-        //     if (theDialog.panel05.insRad.value) {switchOn = false;}
-        //     slateOvator3(switchOn);
-        // }
+        function triggerSlateInsert() {
+            var switch_slateShift = true;
+            if (comRad.value) {
+                switch_slateShift = true;
+                slateOvator3(switch_slateShift);
+            } else if (insRad.value) {
+                switch_slateShift = false;
+                slateOvator3(switch_slateShift);
+            } else if (outRad) {
+                slateOvator4(/*inputFolderLevel.text */);
+                }
+        }
         function triggerPrebalovator() {
             slateOvator4(/*inputFolderLevel.text */);
         }
@@ -373,13 +377,6 @@ function slateRegexSimple() {
 }
 // --------------------
 
-function slateOvator3a(theDialog) {
-            var switchOn = true;
-            alert(theDialog.panel05.insRad.value);
-            if (theDialog.panel05.insRad.value) {switchOn = false;}
-            slateOvator3(switchOn);
-        }
-        
 //======================================callback funkce pro so2
 
     //  prepis hodnoty pole ve slatu
@@ -620,7 +617,7 @@ app.endUndoGroup();
 //  to do:
 //  Rozdelit na insert a insert s prodlouzenim a posunutim
 
-function slateOvator3(switchOn) {
+function slateOvator3(switch_slateShift) {
     app.beginUndoGroup("Insert slate into composition");
     var selected = app.project.selection;
     var regex = slateRegex();
@@ -628,24 +625,24 @@ function slateOvator3(switchOn) {
     if (selected.length == 0) {
         alert("Select a composition");
     } else {
-        placeSlateMultiComp(selected, regex, switchOn);
+        placeSlateMultiComp(selected, regex, switch_slateShift);
     }
     app.endUndoGroup();
 
     //  opakovani pro vyber komopzic
-    function placeSlateMultiComp(compSelection, regex, switchOn) {
+    function placeSlateMultiComp(compSelection, regex, switch_slateShift) {
         for (var j = 0; j < compSelection.length; j++) {
             if (compSelection[j] instanceof CompItem) {
                 var compMaster = compSelection[j];
                 var compOut = compSelection[j];
-                insertSlateEngine(compMaster, compOut, regex, switchOn);
+                insertSlateEngine(compMaster, compOut, regex, switch_slateShift);
             }
         }
     }
 }
 //  1. extend the comp by slateLength
 //  2. shift layers by slateLength
-function compLengthAdjust(theComp/* , slateDur */)
+function slateShift(theComp/* , slateDur */)
 {
         var compDur = theComp.duration;
         var slateDur = 1;
@@ -665,7 +662,7 @@ function compLengthAdjust(theComp/* , slateDur */)
 }
 
     //---------------------------------------------------
-    function insertSlateEngine(compMaster, compOut, regex, switchOn) { // compMaster je objekt (polozka z pole)
+    function insertSlateEngine(compMaster, compOut, regex, switch_slateShift) { // compMaster je objekt (polozka z pole)
         
         var layerArr = compOut.layers;
         //nahradit strucnejsim:
@@ -674,8 +671,8 @@ function compLengthAdjust(theComp/* , slateDur */)
         
         //  nejdrive zjistuje jestli v kompozici uz neni slate
         if (layerArr.length == 0) { // prazdna - vkladame
-            if (switchOn) {
-                compLengthAdjust(compOut/* , slateDur */);
+            if (switch_slateShift) {
+                slateShift(compOut/* , slateDur */);
             }
             placeTheSlate(compMaster, compOut, regex);
         } else if (layerArr.length > 0) {   // prohledame jestli v comp...
@@ -691,8 +688,8 @@ function compLengthAdjust(theComp/* , slateDur */)
                         //  nedame ho tam take?
                         break;
                     } else {
-                        if (switchOn) {
-                            compLengthAdjust(compOut/* , slateDur */);
+                        if (switch_slateShift) {
+                            slateShift(compOut/* , slateDur */);
                         }
                         placeTheSlate(compMaster, compOut, regex);  // nema slate - vkladame
                         break;
@@ -860,7 +857,7 @@ function slateOvator4(/*inputFolderLevelL */) {
         var compOutLayers = compOut.layers;
             compOutLayers.add(compMaster);
             compOut.layer(1).startTime = 1;
-            insertSlateEngine(compMaster, compOut, regex, switchOn = false);
+            insertSlateEngine(compMaster, compOut, regex, switch_slateShift = false);
     }
     //
     function makeFolder(folderName, folderParent) {

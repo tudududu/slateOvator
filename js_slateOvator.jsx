@@ -1,5 +1,5 @@
 //  slateOvator
-//  241118_v15f22
+//  241208_v15g01
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -68,6 +68,7 @@
 // 15f21 UI: compNameFSBtn barevna kontrolka nad
 // 15f14-15f21 UI: pokusy s pridanim barevne kontrolky pro 'compNameFSBtn', idealni cil je mit kontrolku na strane tlacitka, coz koliduje s align fill - tlacitko se neroztahuje nasiru panelu
 // 15f22 Navrat k 15f16, UI: compNameFSBtn barevna kontrolka vypnuta
+// v15g01 slateSearchGlobal() misto slateSearchAdvanced()
 
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
 //  vXX focus target
@@ -79,7 +80,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15f22';
+        var vers = '15g01';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -749,7 +750,8 @@ function slateShift(theComp/* , slateDur */)
     //  compMaster kvuli vyhledavani v zavislosti na umisteni masteru
     function placeTheSlate(compMaster, compOut, regex) {    // compMaster je objekt (polozka z pole)
 
-        var slateMaster = slateSearchAdvanced(compMaster, regex);
+        // var slateMaster = slateSearchAdvanced(compMaster, regex);
+        var slateMaster = slateSearchGlobal(compMaster, regex);
         //alert(slate.name);
         var newName = nameNewSlate(slateMaster, regex);
         var newSlate = slateMaster.duplicate();
@@ -1031,6 +1033,24 @@ function slateOvator4(/*inputFolderLevelL */) {
 //  jestli je slate v aktualnim projektu,
 //  nebo budeme muset prohledat cely projekt
 //---------------------------------------------------
+//---------------------------------------------------
+//  slateSearch_v01 scenar
+//---------------------------------------------------
+   //  vstup: slate
+    //  parentFolder
+    //  arr slates of this date/version in pF
+    //  sort
+    //  last in folder
+    //  token 3
+    //  t3 + 1
+    //  compose name
+    //  return
+    
+//---------------------------------------------------
+//  slateSearch_v02
+//  hledame nejnovejsi z celeho projektu
+//---------------------------------------------------
+
 function slateSearchAdvanced(selectedComp, regexSlateGlobal) {
     var result;
     const slateInPlaceTest = searchLocal(selectedComp, regexSlateGlobal);
@@ -1043,7 +1063,12 @@ function slateSearchAdvanced(selectedComp, regexSlateGlobal) {
     }
     return result;
 }
-
+function slateSearchGlobal(selectedComp, regexSlateGlobal) {
+    var result;
+    const globalSlates = searchGlobal(regexSlateGlobal);
+    result = theBlueprint(theNewest(globalSlates, regexSlateGlobal));
+    return result;
+}
 //---------------------------------------------------
 //  1. the slate from the very project - tam kde ma byt
 //  srovnava cestu k oznacene kompozoci s cestou ke slatu
@@ -1270,22 +1295,5 @@ function nameNewSlate(slateComp, regexL) {
 
     return newName;
     }
-
-
-
-//---------------------------------------------------
-//  slateSearch scenar
-//---------------------------------------------------
-   //  vstup: slate
-    //  parentFolder
-    //  arr slates of this date/version in pF
-    //  sort
-    //  last in folder
-    //  token 3
-    //  t3 + 1
-    //  compose name
-    //  return
-    
-//---------------------------------------------------
 
 })(this);

@@ -1,5 +1,5 @@
 //  slateOvator
-//  240415_v15e
+//  240415_v15e1
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -22,6 +22,7 @@
 // v15d3 osetreno cislovani novych slatu - token search - nameNewSlate()
 // v15d4 nwItmSplt rozsiren split(/_| |-/g);
 // v15e pridano compNameFromSlate()
+// v15e1 uprava compNameFromSlate()
 
 //  v15x UI - compFolderLevel (ne)funkcnost, closable, (fce folderStructure)
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
@@ -34,7 +35,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15e';
+        var vers = '15e1';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -358,10 +359,8 @@ function slateRegexSimple() {
         var targetLayerArr = layerInspection(slateCompL, layerNameRegex);
         
         var targetLayer = targetLayerArr[0];
-        var compNameFromSlateL = targetLayer.text.sourceText;
-        var compNameFromSlateLL = compNameFromSlateL.value;
-        var compNameFromSlateLLtxt = compNameFromSlateLL.text;
-        var newName = compNameFromSlateLLtxt.replace(/ /g, '_');
+        var newName0 = targetLayer.text.sourceText.value.text;
+        var newName = newName0.replace(/ /g, '_');
         var oldName = parentComp.name;
         parentComp.name = newName;
         app.project.autoFixExpressions(oldName, newName);

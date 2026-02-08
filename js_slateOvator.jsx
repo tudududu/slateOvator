@@ -1,5 +1,5 @@
 //  slateOvator
-//  240410_v15d4
+//  240415_v15e
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -21,6 +21,7 @@
 // v15d2 hledani nejnovejsiho i v 'master' slozce
 // v15d3 osetreno cislovani novych slatu - token search - nameNewSlate()
 // v15d4 nwItmSplt rozsiren split(/_| |-/g);
+// v15e pridano compNameFromSlate()
 
 //  v15x UI - compFolderLevel (ne)funkcnost, closable, (fce folderStructure)
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
@@ -33,7 +34,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15d4';
+        var vers = '15e';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -111,6 +112,13 @@
             buttonTwo.size = buttonSize;
         var buttonThree = panelOneGroupThree.add('button', undefined, 'OK');
             buttonThree.size = buttonSize;
+
+        //  panelOneB
+        var panelOneB = win.add('panel', undefined, 'CompName from slate to outComp');
+            panelOneB.orientation = 'column';
+            panelOneB.alignChildren = 'fill';
+        //  apply Button
+        var compNameBtn2 = panelOneB.add('button', undefined, 'Change outComp name');
         
         // --- Action ---
         function triggerMedia() {
@@ -131,6 +139,10 @@
         function triggerCompName() {
         slateOvator2(compNameVkladOvator);
         }
+        function triggerCompNameBack() {
+        slateOvator2(compNameFromSlate);
+        }
+
         function triggerSlateInsert() {
             slateOvator3();
         }
@@ -148,7 +160,7 @@
         compNameBtn.onClick = triggerCompName;
         slateInsertBtn.onClick = triggerSlateInsert;
         prebalovatorBtn.onClick = triggerPrebalovator;
-
+        compNameBtn2.onClick = triggerCompNameBack;
 
         //  switches
 
@@ -208,7 +220,7 @@
             slateOvator2(tlacitkovatOr, switchesLayerName, checkbox_Title.value, "title_switch");
         }
         function checkLogo2() {
-            slateOvator2(logoTlacitkovatOr2, switchesLayerName, checkbox_Logo.value, 'logo_Switch');
+            slateOvator2(logoTlacitkovatOr, switchesLayerName, checkbox_Logo.value, 'logo_Switch');
         }
         checkbox_Media.onClick = checkTagMedia;
         checkbox_Sound.onClick = checkTagSound;
@@ -298,7 +310,7 @@ function slateRegexSimple() {
     }
 
     // vkladame parent compName do slatu
-    function compNameVkladOvator(slateComp, fieldLayerName, newText) {
+    function compNameVkladOvator(slateComp, layerName, newText) {
         
         var layerArr = slateComp.layers;
         for (var i = 1; i <= layerArr.length; i++) {
@@ -321,11 +333,11 @@ function slateRegexSimple() {
                 }
             }
 
-    function logoTlacitkovatOr2(compSelection, layerName, switchInput, effectName) {
+    function logoTlacitkovatOr(compSelection, layerName, switchInput, effectName) {
         //var bgCompName = 'slateBg_DuoLogo';
         var bgCompNameRegex = /slateBg_DuoLogo/;
         //  hledame bgLayer ve slatu dle jmena
-        var slateBgLayer = layerInspection2(compSelection, bgCompNameRegex);
+        var slateBgLayer = layerInspection(compSelection, bgCompNameRegex);
         // mozna jeste upravit
         var sbgID = slateBgLayer[0].source.id;
         //  search bgComp in proj by id
@@ -338,9 +350,24 @@ function slateRegexSimple() {
                 }
             }
         }
-    //}
-
-//======================================helper fnc for sl2
+    
+    function compNameFromSlate(slateCompL, layerName, parentComp) {
+        //  layerName - neni pouzita
+        var layerNameRegex = /fileNameDuo/;
+        //  hledame layer ve slatu dle jmena
+        var targetLayerArr = layerInspection(slateCompL, layerNameRegex);
+        
+        var targetLayer = targetLayerArr[0];
+        var compNameFromSlateL = targetLayer.text.sourceText;
+        var compNameFromSlateLL = compNameFromSlateL.value;
+        var compNameFromSlateLLtxt = compNameFromSlateLL.text;
+        var newName = compNameFromSlateLLtxt.replace(/ /g, '_');
+        var oldName = parentComp.name;
+        parentComp.name = newName;
+        app.project.autoFixExpressions(oldName, newName);
+        }
+    
+//======================================helper fnc for so2
     function findCompByID(sbgID) {
         
         for (var i = 1; i <= app.project.numItems; i++) {
@@ -356,11 +383,11 @@ function slateRegexSimple() {
         return result;
         }
 
-//  hleda jmena slatu v comp - zrusit a vymenit za layerInspection2
-//  pozor hledame take v function aplikaceDoComp, ale ne pomoci layerInspection2
-//  pouzit vsude toto
+//  hleda jmena slatu v comp - zrusit a vymenit za layerInspection
+//  pozor hledame take v function aplikaceDoComp, ale ne pomoci layerInspection
+//  predelat a pouzit vsude toto
 
-    function layerInspection2(comp, wantedCompName) {
+    function layerInspection(comp, wantedCompName) {
         var regex = wantedCompName;
         var compLayerArr = comp.layers; // prohlidka vrstev
         var foundLayersArr = [];
@@ -378,8 +405,10 @@ function slateRegexSimple() {
         return foundLayersArr;                  
     }
 
-//======================================
 
+
+//======================================
+//======================================
 //  SlateOvator_part_02
 //  v14
 var slateOvator2Undo = 'Change something in multiple slates';
@@ -416,7 +445,7 @@ app.endUndoGroup();
                             //break;
                 } else {    //  pokud neni, hledame jestli je uvnitr slate
                 // pole jmen slatu v comp
-                var slateArr = layerInspection2(selectedComps[i], regex);
+                var slateArr = layerInspection(selectedComps[i], regex);
                 if (slateArr.length == 1) {
                     var slateLayer = slateArr[0];
                     findSlateComp(slateLayer, fieldLayerName, newTextInput, effectName);
@@ -433,18 +462,18 @@ app.endUndoGroup();
         function findSlateComp(layer, fieldLayerName, newTextInput, effectName) {
             var layerSourceCompID = layer.source.id;
             
-            var slateCompL = findCompByID(layerSourceCompID);
+            var slateComp = findCompByID(layerSourceCompID);
             //  nasli jsme comp (slate) =>
-            compNamesMultiSlate(slateCompL, callback, fieldLayerName, newTextInput, effectName);
+            compNamesMultiSlate(slateComp, callback, fieldLayerName, newTextInput, effectName);
             
         }
         
 
     //  Spusti vkladac pokud je slate pouzit prave v jedne kompozici
-        function compNamesMultiSlate(selectedComp, callback, fieldLayerName, newTextInput, effectName) {
+        function compNamesMultiSlate(slateCompL, callback, fieldLayerName, newTextInput, effectName) {
             //  hledame pole parentComp (kde je pouzit)
-            if (selectedComp instanceof CompItem) {
-                    var parentComp = selectedComp.usedIn; //arr
+            if (slateCompL instanceof CompItem) {
+                    var parentComp = slateCompL.usedIn; //arr
                 // pokud je parentComp jen jedna spusti vkladac
                 if (parentComp.length == 1) {
                     var parentCompName = parentComp[0].name;  //arr to string
@@ -452,21 +481,26 @@ app.endUndoGroup();
                     
                     if (callback == compNameVkladOvator) {
                         newTextInput = newExpression;
+                    } else if (callback == compNameFromSlate) {
+                        newTextInput = parentComp[0];
                     }
-                    
-                    callback(selectedComp, fieldLayerName, newTextInput, effectName);
-                    //compNameVkladOvator(selectedComp, newExpression);
+                    //  newTextInput predelat na newInput
+                    //  newTextInput predelat na newInput
+                    //  newTextInput predelat na newInput
+                    callback(slateCompL, fieldLayerName, newTextInput, effectName);
+                    //compNameVkladOvator(slateCompL, newExpression);
                 } else if (parentComp.length > 1) {
-                    alert("Slate " + selectedComp.name + " can only be used once.");
+                    alert("Slate " + slateCompL.name + " can only be used once.");
                 } else if (parentComp.length < 1) {
-                    alert("Slate " + selectedComp.name + " not used.");
+                    alert("Slate " + slateCompL.name + " not used.");
                 }
             }
         }
 
 }
 
-
+//======================================
+//======================================
 //  slateOvator_part3
 //  v09
 //  Insert slate into composition
@@ -508,7 +542,7 @@ function insertSlateEngine(compMaster, compOut, regex) {
             if (layerArr.length == 0) {
                 placeTheSlate(compMaster, compOut, regex);
             } else if (layerArr.length > 0) {
-        //make func // pozor - function layerInspection2
+        //make func // pozor - function layerInspection
                 for (var i = 1; i <= layerArr.length; i++) {
                     var layerName = layerArr[i].source.name;
                     var slateSearch = regex.test(layerName);

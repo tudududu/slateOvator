@@ -1,5 +1,5 @@
 //  slateOvator
-//  240910_v15e10
+//  240914_v15e11
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -101,7 +101,7 @@
         //var inputLabel = panel03_groupOne.add('statictext', undefined, 'Set the Comps folder level:');
         var inputFolderLevel = panel03_g01.add('edittext', undefined, '3', {enterKeySignalsOnChange: false});
             inputFolderLevel.characters = 4;
-            
+            inputFolderLevel.expanded = false; // co to je?
             //pokusy
             //var treeX = panel03.add("treeview", bounds = undefined, items = [1, 2, 3], {node: 1});
             //panel03.add("slider", bounds = undefined, value = 3, minvalue = 1, maxvalue = 3, {name: 'levelSlider'});
@@ -1023,24 +1023,28 @@ function sortReverseOrder(arr) {
     return a.name === b.name ? 0 : a.name < b.name ? 1 : -1;
   })
 }
+//test
+    function testSort(arr) {
+            const itemNames = arr.myMap(function(item) {
+            return item.name;
+        })
+        return itemNames;
+    }
 //---------------------------------------------------
-//  3. vybereme nejnovejsi slateName z pole vsech slatu 
-//  (dle data)
+//  3. vybereme nejnovejsi verzi z pole vsech slatu 
 //  vraci string 
 //  nazev bez cisla ("slate_(vYYMMDD)")
+
+//  tady opravit aby vracela opravdu latest i cislo
+
 function theNewestSlateName(slateArr) {
-    //---var slateArr = searchGlobal(regexSlateGlobal);
     //  abecedni serazeni sestupne
     const arrRevSorted = sortReverseOrder(slateArr);
-    //  test sort fce - jen pro zobrazeni jestli funguje
-    /* var testArr = arrRevSorted.myMap(function(item) {
-        return item.name;
-    }); */
     //  jmeno nejnovejsiho slatu
     var latestSlateName = arrRevSorted[0].name;
     //  date substr 
     var latestSlateNameCrop = latestSlateName.substr(0, 15);
-    return latestSlateNameCrop;
+    return latestSlateNameCrop; //string
 }
 
 //---------------------------------------------------
@@ -1073,25 +1077,16 @@ function slateRegexNewest(arr, regexG) {
 //  5. filtrujeme jen posledni verzi
 //  vstup: pole kompozic (jiz nalezenych slatu?)
 //  vystup: pole vsech nejnovejsich
-//test
-    function testSort(arr) {
-            const itemNames = arr.myMap(function(item) {
-            return item.name;
-        })
-        return itemNames;
-    }
 
+//  vstup: pole kompozic
+//  vystup: pole slatu nejvyssi verze
 function theNewest(slateArr, regexG) {
-    //const slateArr = searchGlobal(regexG);
-
     //  regex pro posledni verzi slatu
     var regexL = slateRegexNewest(slateArr, regexG);
-    //  k cemu? - overeno - mazeme
-    //const arrRevSorted = sortReverseOrder(slateArr);
+
     var newestOnly = slateArr.myFilter(function(item) {
         return regexL.test(item.name);
     })
-    
     return newestOnly;
 }
 
@@ -1125,24 +1120,35 @@ function theBlueprint(arr) {
 //  240912 si jiz tvori dobre tj. dvociferne
 //  zvazit zruseni
 function nameNewSlate(slateComp, regexL) {
- 
-    //  parentFolder
+     //  parentFolder
     var slateParentFldr = slateComp.parentFolder;
-    //  vypiseme obsah slozky
     var folderItems = slateParentFldr.items;
+    //reseni_1
+    //nejista spolehlivost - 
+    //vyuziva toho, ze pole je jiz spravne serazene
+    //var latestSlateName = folderItems[folderItems.length - 1].name;
     
+    //reseni_2
+    //filtruje starsi verze, ale bez razeni stejne jako v reseni_1
     //  slates of this version in parent folder
     const slatesInFolder = searchInFldr(folderItems, regexL);
-    //  nebo searchInFldr() vyhodit a pouzit
-    //const slatesInFolder = theNewest(slatesInFolder, regexL);
-    const arrRevSorted = sortReverseOrder(slatesInFolder);
-    //  tady je problem - _99 > _100
-    var theNewestItemName = arrRevSorted[0].name;
-    //test
-    const testSortNames = testSort(arrRevSorted);
+    const latestSlatesIF = theNewest(slatesInFolder, regexL);
+    var latestSlateName = latestSlatesIF[latestSlatesIF.length - 1].name;
 
-    //  jmeno rozebereme
-    const nwItmSplt = theNewestItemName.split(/_| |-/g);
+    //reseni_3
+    const splitSlateNamesArr = slatesInFolder.myMap(function(item) {
+        return item.name.split(/_| |-/g);
+    })
+    function sortReverseSpec(arr) {
+        const arrCopy = arr.slice();
+        return arrCopy.sort(function(a, b) {
+            return parseInt(a[2]) === parseInt(b[2]) ? 0 : parseInt(a[2]) < parseInt(b[2]) ? 1 : -1;
+        })
+    }
+    const nwItmSplt = sortReverseSpec(splitSlateNamesArr)[0];
+    //test
+    //const testSortNames = testSort(slatesInFolder);
+
     // cislo = treti clen
     var itemNumberStr = nwItmSplt[2];
     var itemNumber = parseInt(itemNumberStr);
@@ -1174,5 +1180,40 @@ function nameNewSlate(slateComp, regexL) {
     
 //---------------------------------------------------
 
-
 })(this);
+
+//bak 8 reseni 1 a 2
+/* function nameNewSlate(slateComp, regexL) {
+     //  parentFolder
+    var slateParentFldr = slateComp.parentFolder;
+    var folderItems = slateParentFldr.items;
+    //reseni_1
+    //nejista spolehlivost - 
+    //vyuziva toho, ze pole je jiz spravne serazene
+    //var latestSlateName = folderItems[folderItems.length - 1].name;
+    
+    //reseni_2
+    //filtruje starsi verze, ale bez razeni stejne jako v reseni_1
+    const slatesInFolder = searchInFldr(folderItems, regexL);
+    //  slates of this version in parent folder
+    const latestSlatesIF = theNewest(slatesInFolder, regexL);
+    var latestSlateName = latestSlatesIF[latestSlatesIF.length - 1].name;
+
+    //test
+    //const testSortNames = testSort(slatesInFolder);
+
+    //  jmeno rozebereme - reseni 1 a 2
+    const nwItmSplt = latestSlateName.split(/_| |-/g);
+    // cislo = treti clen
+    var itemNumberStr = nwItmSplt[2];
+    var itemNumber = parseInt(itemNumberStr);
+    var newNumber = (itemNumber + 1);
+    if (String(newNumber).length < 2) {
+        var newNumberStr = '0' + String(newNumber);
+    } else {
+        var newNumberStr = String(newNumber);
+    }
+    var newName = nwItmSplt[0] + '_' + nwItmSplt[1] + '_' + newNumberStr;
+
+    return newName;
+    } */

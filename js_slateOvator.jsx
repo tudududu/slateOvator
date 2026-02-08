@@ -1,5 +1,5 @@
 //  slateOvator
-//  241116_v15f14
+//  241116_v15f15
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -59,6 +59,7 @@
 //       jeste stale bez layerInspection()
 // 15f12 vlozen layerInspectToComp() do insertSlateEngine()
 // 15f14 barevna kontrolka 'Comp name from slate' pouze pri hoveru nad tlacitkem
+// 15f15 (comp|comps), cervena konntrolka vpravo u 'Comp name from slate'
 
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
 //  vXX focus target
@@ -70,7 +71,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15f14';
+        var vers = '15f15';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -117,12 +118,12 @@
             };
 
         //  --------panel04--------Fill the slate--------
-        var panel04 = win.add('panel', undefined, "Pass comp name into the slate");
+        var panel04 = win.add('panel', undefined, undefined);
             panel04.orientation = 'column';
             panel04.alignChildren = 'fill';
         //var label = panel05.add('statictext', undefined, "Pass comp name into the slate");
         //  apply Button
-        var compNameBtn = panel04.add('button', undefined, 'Fill the slate');
+        var fillSlateBtn = panel04.add('button', undefined, 'Fill the slate');
         
         //  --------panel03--------Output comps--------
         //  integrovano do panel05 Insert
@@ -196,9 +197,20 @@
         var panel01 = win.add('panel', undefined, undefined);
             panel01.orientation = 'row';
             panel01.alignChildren = 'fill';
-        
+        var panel01_g01 = panel01.add("group", undefined, { name: "panel01_g01" });
+            panel01_g01.orientation = "row";
+            panel01_g01.alignment = "fill";
+            panel01_g01.alignChildren = ["fill", "center"];
+            panel01_g01.spacing = 10;
+            panel01_g01.margins = 0;
+
+        // Apply Button
+        var compNameFSBtn = panel01_g01.add('button', undefined, 'Comp name from slate');
+        compNameFSBtn.alignChildren = 'fill';
+        compNameFSBtn.preferredSize = [200, 30];
+
         // Draw colored circle element
-        var colorElement = panel01.add('panel', undefined);
+        var colorElement = panel01_g01.add('panel', undefined);
         colorElement.preferredSize = [6, 30]; // Size of the colored element
         colorElement.visible = false; // Initially hidden
 
@@ -209,31 +221,24 @@
             g.rectPath(0, 0, 4, 29);
             g.fillPath(brush);
         };
-
-        // Apply Button
-        var btnSize = [200, 30];
-        var compNameBtn2 = panel01.add('button', undefined, 'Comp name from slate');
-        compNameBtn2.preferredSize = btnSize;
-        compNameBtn2.alignChildren = 'fill';
-
         // --- Variables to track mouse state ---
         var isMouseOver = false;
 
         // Mouse event handlers
-        compNameBtn2.addEventListener('mouseover', function () {
+        compNameFSBtn.addEventListener('mouseover', function () {
             isMouseOver = true;
             colorElement.visible = true; // Show colored element on hover
-            compNameBtn2.notify('onDraw');
+            compNameFSBtn.notify('onDraw');
         });
 
-        compNameBtn2.addEventListener('mouseout', function () {
+        compNameFSBtn.addEventListener('mouseout', function () {
             isMouseOver = false;
             colorElement.visible = false; // Hide colored element when not hovering
-            compNameBtn2.notify('onDraw');
+            compNameFSBtn.notify('onDraw');
         });
 
         // Action on button click
-        compNameBtn2.onClick = function () {
+        compNameFSBtn.onClick = function () {
             slateOvator2();
         };
         // --- Customize Button Highlight Color --- end
@@ -282,9 +287,9 @@
         btn02_sndLvl.onClick = triggerSoundLevel;
         btn03_Operator.onClick = triggerOperator;
     
-        compNameBtn.onClick = triggerCompName;
+        fillSlateBtn.onClick = triggerCompName;
         slateInsertBtn.onClick = triggerSlateInsert;
-        compNameBtn2.onClick = triggerCompNameBack;
+        compNameFSBtn.onClick = triggerCompNameBack;
 
         //  --------panel00--------switches--------
         var panelZero = win.add('panel', undefined, 'Tags');
@@ -937,7 +942,8 @@ function slateOvator4(/*inputFolderLevelL */) {
         function compsLevelIndex(arrRev) { //dosadit itemsArrRev
         var itemCompsLevel = [];
         for (var j = 0; j < arrRev.length; j++) {
-            if (arrRev[j].name == "comps") {
+            // if (arrRev[j].name == "comps") {
+            if (/comp|comps/.test(arrRev[j].name)) {
                 itemCompsLevel.push(j);
                 }
             }

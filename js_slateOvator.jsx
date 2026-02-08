@@ -1,5 +1,5 @@
 //  slateOvator
-//  241118_v15f20
+//  241118_v15f21
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -65,6 +65,7 @@
 // 15f18 UI: btns panel05.preferredSize
 // 15f19 UI: compNameFSBtn s barevnou kontrolkou, neroztahuje se na celou sirku panelu
 // 15f20 UI: compNameFSBtn fixed preferredSize
+// 15f21 UI: compNameFSBtn barevna kontrolka nad
 
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
 //  vXX focus target
@@ -76,7 +77,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15f20';
+        var vers = '15f21';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -207,20 +208,21 @@
             panel01_g01.margins = 0;
 
         // Apply Button
-        var compNameFSBtn = panel01_g01.add('button', undefined, 'Comp name from slate');
+        var compNameFSBtn = panel01.add('button', undefined, 'Comp name from slate');
         // compNameFSBtn.alignChildren = 'fill';
-        compNameFSBtn.preferredSize = [200, 30];
+        // compNameFSBtn.preferredSize = [200, 30];
 
         // Draw colored circle element
         var colorElement = panel01_g01.add('panel', undefined);
-        colorElement.preferredSize = [6, 30]; // Size of the colored element
+        colorElement.preferredSize = [400, 4]; // Size of the colored element
         colorElement.visible = false; // Initially hidden
 
         // --- Customize Button Highlight Color ---
         colorElement.onDraw = function () {
             var g = colorElement.graphics;
             var brush = g.newBrush(g.BrushType.SOLID_COLOR, [0.7, 0, 0.0, 1]); // color
-            g.rectPath(0, 0, 4, 29);
+            // g.rectPath(0, 0, 200, 4);
+            g.rectPath(0, 0, compNameFSBtn.size[0], compNameFSBtn.size[1]);
             g.fillPath(brush);
         };
         // --- Variables to track mouse state ---

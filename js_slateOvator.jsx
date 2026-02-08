@@ -1,5 +1,5 @@
 //  slateOvator
-//  241112_v15f05
+//  241112_v15f06
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -48,7 +48,8 @@
 // 15f03 compLengthAdjust()
 // 15f04 compLengthAdjust() - posun vrstev a prodlouzeni kompozice pouze pokud neni slate, jinak se posune pouze zacatek kompozice
 // 15f05 insertSlateEngine() - hledani slatu v kompozici a podle toho se rozhodne, jestli se bude prodlužovat a posouvat, nebo jen posouvat zacatek
-                        
+// 15f06 UI: radiobutton pro complete vs simple insert - pouze vlozeni slatu bez prodlouzeni a posunu, pripadne s prodlouzenim a posunem
+
 //  v15ex barevne tlacitko 'slate name' - prace nezacala
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
 //  vXX focus target
@@ -60,7 +61,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15f05';
+        var vers = '15f06';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -74,24 +75,31 @@
             target.text = newText;
         }
         //  --------panel05--------Insert slate into composition--------
-        var panel05 = win.add('panel', undefined, "Insert slate into composition");
+        var panel05 = win.add('panel', undefined, "Insert slate");
             panel05.orientation = 'column';
             panel05.alignChildren = 'fill';
+        var panel05_g01 = panel05.add("group", undefined, { name: "panel05_g01" });
+            panel05_g01.orientation = "row";
+            panel05_g01.alignment = "fill";
+            panel05_g01.alignChildren = ["fill", "center"];
+            panel05_g01.spacing = 10;
+            panel05_g01.margins = 0;
         //  label
         //var label = panel05.add('statictext', undefined, 'Insert slate into composition');
         //  apply Button
-        var slateInsertBtn = panel05.add('button', undefined, 'Insert slate');
+        win.slateInsertBtn = panel05.add('button', undefined, 'Complete insert');
     
             // win.repRad = win.panel05.add('radiobutton', [14,13,174,35], 'Search and Replace');
-        var completeRad = panel05.add('radiobutton', undefined, 'Complete insert');
+        var completeRad = panel05_g01.add('radiobutton', undefined, 'Complete');
+            completeRad.alignChildren = 'fill';
             completeRad.value = true;
             completeRad.onClick = function () {
-                doTextChange(panel05.slateInsertBtn, 'Complete insert');
+                doTextChange(win.slateInsertBtn, 'Complete insert');
             };
-        var insRad = panel05.add('radiobutton', undefined, 'Simple insert');
-            // win.insRad.value = true;
+        var insRad = panel05_g01.add('radiobutton', undefined, 'Simple');
+            insRad.alignChildren = 'fill';
             insRad.onClick = function () {
-                doTextChange(panel05.slateInsertBtn, 'Simple insert');
+                doTextChange(win.slateInsertBtn, 'Simple insert');
             };
             // if (theDialog.insRad.value) {
         //  --------panel04--------Fill the slate--------
@@ -227,7 +235,7 @@
         btn03_Operator.onClick = triggerOperator;
     
         compNameBtn.onClick = triggerCompName;
-        slateInsertBtn.onClick = triggerSlateInsert;
+        win.slateInsertBtn.onClick = triggerSlateInsert;
         // panel05.slateInsertBtn.onClick = function() {
         //     slateOvator3a(this.parent);
         // }

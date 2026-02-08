@@ -1,5 +1,5 @@
 //  slateOvator
-//  240405_v15d2
+//  240410_v15d3
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -17,9 +17,10 @@
 // v15 uprava copy() pro kopiruji masterComp vcetne parametru
 // v15c slateSarchAdvanced(regex)  (updated function placeTheSlate)
 // v15d layer name vs. layer source name - placeTheSlate(), slateSearchAdvanced()
-// v15d pridano hledani nejnovejsiho i v master slozce
+// v15d v kompozici hleda podle nazvu zdroje a ne vrstvy (layer.source.name instead of layer.name)
+// v15d hledani nejnovejsiho i v 'master' slozce
+// v15d osetreno cislovani novych slatu - token search - nameNewSlate()
 
-//  v15d osetrit cislovani novych slatu - token search - nameNewSlate()
 //  v15x UI - compFolderLevel (ne)funkcnost, closable, (fce folderStructure)
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
 //  vXX focus target
@@ -31,7 +32,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15d';
+        var vers = '15d3';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -539,10 +540,11 @@ function insertSlateEngine(compMaster, compOut, regex) {
         //  compMaster kvuli vyhledavani v zavoslosti na umisteni masteru
         function placeTheSlate(compMaster, compOut, regex) {    // theComp je objekt (polozka z pole)
 
-            var slate = slateSearchAdvanced(compMaster, regex);
+            var slateMaster = slateSearchAdvanced(compMaster, regex);
             //alert(slate.name);
-            var newSlate = slate.duplicate();
-            //  nameNewSlate();
+            var newName = nameNewSlate(slateMaster, regex);
+            var newSlate = slateMaster.duplicate();
+                newSlate.name = newName;
                 compOut.layers.add(newSlate);
             }
   
@@ -757,13 +759,13 @@ function slateOvator_part04a(inputFolderLevelL) {
 }
 
 //---------------------------------------------------
-//  pridat hledani nejnovejsiho i v master slozce
+//  slateSearch
 //---------------------------------------------------
 
 function slateSearchAdvanced(selectedComp, regexSlateGlobal) {
     var result;
     const slateInPlaceTest = slateSearch1(selectedComp, regexSlateGlobal);
-    const globalSlates = slateSearch2(regexSlateGlobal);
+    const globalSlates = searchGlobal(regexSlateGlobal);
     
     if(slateInPlaceTest.length > 0) {
         result = theBlueprint(theNewest(slateInPlaceTest, regexSlateGlobal));
@@ -771,9 +773,9 @@ function slateSearchAdvanced(selectedComp, regexSlateGlobal) {
         result = theBlueprint(theNewest(globalSlates, regexSlateGlobal));
     }
     return result;
-
+}
 //theNewest(slateArr, regexG) {
-    //const slateArr = slateSearch2(regexG);
+    //const slateArr = searchGlobal(regexG);
 //---------------------------------------------------
 //  search for the newest instance of the slate or the one from the very project
 //---------------------------------------------------
@@ -812,7 +814,7 @@ function slateSearch1(selectedComp, regex) {
 //  1. vyhledame vsechny slaty v proj
 //  predelat, tak aby se dalo hledat i ve slozce slate
 //  tj. zadavame kde bude hledat
-function slateSearch2(regexL) {
+function searchGlobal(regexL) {
     const slateArr = [];
     for (var i = 1; i <= app.project.numItems; i++) { // procura do slate(name)
     if (app.project.item(i) instanceof CompItem) {
@@ -823,7 +825,6 @@ function slateSearch2(regexL) {
         var slate = app.project.item(i);
         //var slateName = slate.name;
         slateArr.push(slate);
-        
             }
         }
     }
@@ -875,15 +876,15 @@ function sortReverseOrder(arr) {
 //---------------------------------------------------
 //  3. vybereme nejnovejsi slateName z pole vsech slatu
 function theNewestSlateName(slateArr) {
-    //var slateArr = slateSearch2(regexSlateGlobal);
+    //var slateArr = searchGlobal(regexSlateGlobal);
     //  abecedni serazeni sestupne
-    const slateArrSorted = sortReverseOrder(slateArr);
+    const arrRevSorted = sortReverseOrder(slateArr);
     //  test sort fce - jen pro zobrazeni jestli funguje
-    /*var testArr = slateArrSorted.myMap(function(item) {
+    /*var testArr = arrRevSorted.myMap(function(item) {
         return item.name;
     });*/
     //  jmeno nejnovejsiho slatu
-    var latestSlateName = slateArrSorted[0].name;
+    var latestSlateName = arrRevSorted[0].name;
     //  date substr 
     var latestSlateNameCrop = latestSlateName.substr(0, 15);
     return latestSlateNameCrop;
@@ -915,10 +916,10 @@ function slateRegexNewest(arr, regexG) {
 //  5. pole nejnovejsich
 
 function theNewest(slateArr, regexG) {
-    //const slateArr = slateSearch2(regexG);
+    //const slateArr = searchGlobal(regexG);
     var regexL = slateRegexNewest(slateArr, regexG);
-    const slateArrSorted = sortReverseOrder(slateArr);
-    var newestOnly = slateArrSorted.myFilter(function(item) {
+    const arrRevSorted = sortReverseOrder(slateArr);
+    var newestOnly = arrRevSorted.myFilter(function(item) {
         
         return regexL.test(item.name);
     })
@@ -929,13 +930,66 @@ function theNewest(slateArr, regexG) {
     return newestOnly;
 }
 
-//  6. cislo 01
+//  6. nejstarsi z nejnovejsich - cislo 01
 function theBlueprint(arr) {
     //var newestSlatesArr = theNewest(regexSlateGlobal);
     const arrSorted = sortAlphabetOrder(arr);
     return arrSorted[0];
 }
-}
+
+//---------------------------------------------------
+    function searchInFldr(fldrItms, regexL) {
+    const arr = [];
+    for (var i = 1 ; i <= fldrItms.length; i++){
+        var testNameStr = fldrItms[i].name;
+        var slateSearch = regexL.test(testNameStr);
+        
+        if (slateSearch) {
+        arr.push(fldrItms[i]);
+            }
+        }
+        return arr;
+    }
+//---------------------------------------------------
+function nameNewSlate(slateComp, regexL) {
+ 
+    //  parentFolder
+    var slateParentFldr = slateComp.parentFolder;
+    var folderItems = slateParentFldr.items;
+    
+    //  arr slates of this date/version in pF
+    
+    const slatesInFolderArr = searchInFldr(folderItems, regexL);
+    const arrRevSorted = sortReverseOrder(slatesInFolderArr);
+    //const testArr = theNewest(arr, regexL);   // lze pouzit, ale je to zbytecne slozite
+
+    var theNewestItem = arrRevSorted[0].name;
+    const nwItmSplt = theNewestItem.split(/_/g);
+    var itemNumberStr = nwItmSplt[2];
+    var itemNumber = parseInt(itemNumberStr);
+    var newNumber = (itemNumber + 1);
+    var newNumberStr = '0' + String(newNumber);
+    var newName = nwItmSplt[0] + '_' + nwItmSplt[1] + '_' + newNumberStr;
+
+    return newName;
+    }
+
+
+
+//---------------------------------------------------
+
+//---------------------------------------------------
+   //  vstup: slate
+    //  parentFolder
+    //  arr slates of this date/version in pF
+    //  sort
+    //  last in folder
+    //  token 3
+    //  t3 + 1
+    //  compose name
+    //  return
+    
+//---------------------------------------------------
 
 
 })(this);
@@ -945,7 +999,7 @@ function theBlueprint(arr) {
 
 
 //---------------------------------------------------ukoly
-//  2 osetrit layer name vs. layer source name  -- vyreseno
+//  podklady k: layer name vs. layer source name  -- vyreseno
 /*
 This is why you won’t see the name property on the Layer page, 
 but you can still use layer.name in your script; 

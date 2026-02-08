@@ -1,5 +1,5 @@
 //  slateOvator
-//  241117_v15f18
+//  241118_v15f19
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -63,6 +63,7 @@
 // 15f16 UI: kompaktnejsi design - zrusen panel04, barevna kontrolka vpravo u 'Comp name from slate'
 // 15f17 UI: barevna kontrolka vpravo u 'Comp name from slate', tlacitko se neroztahuje na celou sirku panelu, pouze do velikosti textu, zrusen align fill, pridano spacing mezi radiobuttony, zrusen panel03, integrace do panel05, zrusen label u panel05, uprava textu radiobuttonu, zrusen panel04 a integrace do panel05, zrusen label u panel04
 // 15f18 UI: btns panel05.preferredSize
+// 15f19 UI: compNameFSBtn s barevnou kontrolkou, neroztahuje se na celou sirku panelu
 
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
 //  vXX focus target
@@ -74,7 +75,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15f18';
+        var vers = '15f19';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -199,14 +200,15 @@
         var panel01_g01 = panel01.add("group", undefined, { name: "panel01_g01" });
             panel01_g01.orientation = "row";
             panel01_g01.alignment = "fill";
-            panel01_g01.alignChildren = ["fill", "center"];
+            // panel01_g01.alignChildren = ["fill", "center"];
+            panel01_g01.alignChildren = "fill";
             panel01_g01.spacing = 10;
             panel01_g01.margins = 0;
 
         // Apply Button
         var compNameFSBtn = panel01_g01.add('button', undefined, 'Comp name from slate');
-        compNameFSBtn.alignChildren = 'fill';
-        compNameFSBtn.preferredSize = [200, 30];
+        // compNameFSBtn.alignChildren = 'fill';
+        // compNameFSBtn.preferredSize = [200, 30];
 
         // Draw colored circle element
         var colorElement = panel01_g01.add('panel', undefined);

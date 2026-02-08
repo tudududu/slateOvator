@@ -1,5 +1,5 @@
 //  slateOvator
-//  240415_v15e1
+//  240423_v15e2
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -23,6 +23,7 @@
 // v15d4 nwItmSplt rozsiren split(/_| |-/g);
 // v15e pridano compNameFromSlate()
 // v15e1 uprava compNameFromSlate()
+// v15e2 uprava folderStructure()
 
 //  v15x UI - compFolderLevel (ne)funkcnost, closable, (fce folderStructure)
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
@@ -35,7 +36,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15e1';
+        var vers = '15e2';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -688,7 +689,8 @@ function slateOvator_part04a(inputFolderLevelL) {
         prebalovator(myCompMaster, myCompOut, regex);
 //  lepe popsat pochopit, doresit 'out' uroven aby fungovala
         var pathItemsArr = folderPath(myCompMaster);
-        //  folderStructure vraci prvni slozku v rade za selectedComp
+        //  parent folder pro outComp s celou cestou az k 'out'
+        //  ?? folderStructure vraci prvni slozku v rade za selectedComp
         var myCompOutFolderParent = folderStructure(pathItemsArr);
         //  setting FP for outComp
         myCompOut.parentFolder = myCompOutFolderParent;
@@ -747,16 +749,22 @@ function slateOvator_part04a(inputFolderLevelL) {
     }
 
     function folderStructure(itemsArr) {
-        //  parent pro 'out' je konec cesty - tedy 'project'
-        var folderParentParent = itemsArr[itemsArr.length - 1];
+        var compFolderLevel = parseInt(inputFolderLevelL);
+        var outFolderIndex = (compFolderLevel - 2);
+        //  parent pro 'out'
+        
+        if (outFolderIndex > 0 && outFolderIndex <= compFolderLevel) {
+            var outFolderParent = itemsArr[itemsArr.length - outFolderIndex];
+            } else {
+                outFolderParent = app.project.rootFolder;
+            }
         
         //  delame 'out' a nastavujeme jako parent pro 1. slozku
-        var folderParent = makeFolder(outFolderName, folderParentParent);
+        var folderParent = makeFolder(outFolderName, outFolderParent);
 
         //  prochazime cestu delame slozky
         //  zacatek za selectedComp (i > 1)
-        //  konec (path.length-3) obsah 'comp'
-        var compFolderLevel = parseInt(inputFolderLevelL);
+        //  konec (path.length - x) obsah 'comp', x = compFolderLevel
         
         for (var i = itemsArr.length - compFolderLevel; i > 1; i--) {
             var folderName = itemsArr[i-1].name;
@@ -1011,7 +1019,7 @@ function nameNewSlate(slateComp, regexL) {
 
 
 //---------------------------------------------------
-
+//  slateSearch scenar
 //---------------------------------------------------
    //  vstup: slate
     //  parentFolder
@@ -1027,39 +1035,3 @@ function nameNewSlate(slateComp, regexL) {
 
 
 })(this);
-
-
-
-
-
-//---------------------------------------------------ukoly
-//  podklady k: layer name vs. layer source name  -- vyreseno
-/*
-This is why you won’t see the name property on the Layer page, 
-but you can still use layer.name in your script; 
-name is inherited from PropertyBase.name.
-
-PropertyBase.name¶
-app.project.item(index).layer(index).name
-app.project.item(index).layer(index).propertySpec.name
-
-Layer.isNameSet¶
-app.project.item(index).layer(index).isNameSet
-
-AVLayer.source¶
-app.project.item(index).layer(index).source
-The source AVItem for this layer. The value is null in a Text layer. 
-Use AVLayer.replaceSource() to change the value.
-
-AVLayer.isNameFromSource¶
-app.project.item(index).layer(index).isNameFromSource
-Description
-True if the layer has no expressly set name, 
-but contains a named source. In this case, 
-layer.name has the same value as layer.source.name. 
-False if the layer has an expressly set name, 
-or if the layer does not have a source.
-Type
-Boolean; read-only.
-*/
-//---------------------------------------------------

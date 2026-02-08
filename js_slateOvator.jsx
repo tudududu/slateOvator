@@ -1,5 +1,5 @@
 //  slateOvator
-//  241116_v15f12
+//  241116_v15f14
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -58,8 +58,8 @@
 //       opraveno v insertSlateEngine()
 //       jeste stale bez layerInspection()
 // 15f12 vlozen layerInspectToComp() do insertSlateEngine()
+// 15f14 barevna kontrolka 'Comp name from slate' pouze pri hoveru nad tlacitkem
 
-//  v15ex barevne tlacitko 'slate name' - prace nezacala
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
 //  vXX focus target
 //  vXX z callback fci oddelat instanceof pokud nejsou potreba
@@ -70,7 +70,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15f12';
+        var vers = '15f14';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -194,11 +194,50 @@
         
         //  --------panel01--------Comp name from slate--------
         var panel01 = win.add('panel', undefined, undefined);
-            panel01.orientation = 'column';
+            panel01.orientation = 'row';
             panel01.alignChildren = 'fill';
-        //  apply Button
-        var compNameBtn2 = panel01.add('button', undefined, 'Comp name from slate');
         
+        // Draw colored circle element
+        var colorElement = panel01.add('panel', undefined);
+        colorElement.preferredSize = [6, 30]; // Size of the colored element
+        colorElement.visible = false; // Initially hidden
+
+        // --- Customize Button Highlight Color ---
+        colorElement.onDraw = function () {
+            var g = colorElement.graphics;
+            var brush = g.newBrush(g.BrushType.SOLID_COLOR, [0.7, 0, 0.0, 1]); // color
+            g.rectPath(0, 0, 4, 29);
+            g.fillPath(brush);
+        };
+
+        // Apply Button
+        var btnSize = [200, 30];
+        var compNameBtn2 = panel01.add('button', undefined, 'Comp name from slate');
+        compNameBtn2.preferredSize = btnSize;
+        compNameBtn2.alignChildren = 'fill';
+
+        // --- Variables to track mouse state ---
+        var isMouseOver = false;
+
+        // Mouse event handlers
+        compNameBtn2.addEventListener('mouseover', function () {
+            isMouseOver = true;
+            colorElement.visible = true; // Show colored element on hover
+            compNameBtn2.notify('onDraw');
+        });
+
+        compNameBtn2.addEventListener('mouseout', function () {
+            isMouseOver = false;
+            colorElement.visible = false; // Hide colored element when not hovering
+            compNameBtn2.notify('onDraw');
+        });
+
+        // Action on button click
+        compNameBtn2.onClick = function () {
+            slateOvator2();
+        };
+        // --- Customize Button Highlight Color --- end
+
         // --- Action ---
         function triggerMedia() {
         var newTextInput = inputMedia.text;
@@ -230,12 +269,11 @@
                 switch_slateShift = false;
                 slateOvator3(switch_slateShift);
             } else if (outRad) {
+                // function triggerPrebalovator()
                 slateOvator4(/*inputFolderLevel.text */);
                 }
         }
-        // function triggerPrebalovator() {
-        //     slateOvator4(/*inputFolderLevel.text */);
-        // }
+
         inputMedia.onChange = triggerMedia;
         inputOperator.onChange = triggerOperator;
         inputSoundLevel.onChange = triggerSoundLevel;

@@ -1,5 +1,5 @@
 //  slateOvator
-//  240403_15c4
+//  240403_v15d
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -17,11 +17,14 @@
 // v15 uprava copy() pro kopiruji masterComp vcetne parametru
 // v15c slateSarch(regex) -- implementation in progress
 // v15c3 wip 1 osetrit cislovani novych slatu, 2 osetrit layer name vs. layer source name
-// v15c4 slateSarch(regex) -- wip: vymeneno v placeTheSlate()
+// v15c4 slateSarch(regex) -- implementation in progress
+// v15d layer name vs. layer source name - placeTheSlate(), slateSearchAdvanced()
 
-//  vXX UI - level closable
-//  vXX focus target
-//  vXX z callback fci oddelat instanceof pokud nejsou potreba
+// vXX vicekrat pouzity slateSarch vyhodit do fce
+// vXX UI - compFolderLevel (ne)funkcnost, closable, (fce folderStructure)
+// vXX focus target
+// vXX z callback fci oddelat instanceof pokud nejsou potreba
+// vXX osetrit cislovani novych slatu
 
 (function (thisObj) {
     
@@ -29,7 +32,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15c';
+        var vers = '15d';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -531,13 +534,11 @@ function insertSlateEngine(compMaster, compOut, regex) {
 //---------------------------------------------------
 //---------------------------------------------------
         //  vkladame kopii slatu do kompozice
-        //vymena 240402
-        //compMaster, compOut, regex
-        //theComp, regex    //theComp=compOut
+        //  compMaster kvuli vyhledavani v zavoslosti na umisteni masteru
         function placeTheSlate(compMaster, compOut, regex) {    // theComp je objekt (polozka z pole)
 
-            var slate = slateSearch(compMaster, regex);
-            alert(slate.name);
+            var slate = slateSearchAdvanced(compMaster, regex);
+            //alert(slate.name);
             var newSlate = slate.duplicate();
                 compOut.layers.add(newSlate);
             }
@@ -597,46 +598,6 @@ function insertSlateEngine(compMaster, compOut, regex) {
         }
     }
 
-
-
-//---------------------------------------------------ukoly
-//  1 osetrit cislovani novych slatu
-//  2 osetrit layer name vs. layer source name
-/*
-This is why you won’t see the name property on the Layer page, 
-but you can still use layer.name in your script; 
-name is inherited from PropertyBase.name.
-
-PropertyBase.name¶
-app.project.item(index).layer(index).name
-app.project.item(index).layer(index).propertySpec.name
-
-Layer.isNameSet¶
-app.project.item(index).layer(index).isNameSet
-
-AVLayer.source¶
-app.project.item(index).layer(index).source
-The source AVItem for this layer. The value is null in a Text layer. 
-Use AVLayer.replaceSource() to change the value.
-
-AVLayer.isNameFromSource¶
-app.project.item(index).layer(index).isNameFromSource
-Description
-True if the layer has no expressly set name, 
-but contains a named source. In this case, 
-layer.name has the same value as layer.source.name. 
-False if the layer has an expressly set name, 
-or if the layer does not have a source.
-Type
-Boolean; read-only.
-*/
-//  3 layer (search)/insert process
-//---------------------------------------------------
-
-
-
-
-
 //  slateOvator_part04a
 //  duplikat kompozice s apendixem do podslozky v parentFoldru + slate
 //  240202_v17
@@ -686,7 +647,7 @@ function slateOvator_part04a(inputFolderLevelL) {
         naming(myCompMaster, myCompOut);
         //deleteLayers(myCompOut);
         prebalovator(myCompMaster, myCompOut, regex);
-//  lepe popsat pochopit
+//  lepe popsat pochopit, doresit 'out' uroven aby fungovala
         var pathItemsArr = folderPath(myCompMaster);
         //  folderStructure vraci prvni slozku v rade za selectedComp
         var myCompOutFolderParent = folderStructure(pathItemsArr);
@@ -795,7 +756,7 @@ function slateOvator_part04a(inputFolderLevelL) {
 //---------------------------------------------------
 //---------------------------------------------------
 
-function slateSearch(selectedComp, regexSlateGlobal) {
+function slateSearchAdvanced(selectedComp, regexSlateGlobal) {
     var result;
     const slateInPlaceTest = slateSearch1(selectedComp, regexSlateGlobal);
     if(slateInPlaceTest.length > 0) {
@@ -804,21 +765,12 @@ function slateSearch(selectedComp, regexSlateGlobal) {
         result = theBlueprint(theNewest(regexSlateGlobal));
     }
     return result;
-}
+
 
 //---------------------------------------------------
 // -------------------- regex
     //zavorky musi byt oznaceny '\', aby byly string, ex: /^slate_\(v240300\)/;
-/*
-function slateRegex() {
-    var slateRegex = /^slate_\(v\d{6}\)/;
-    return slateRegex;
-}
-function slateRegexSimple() {
-    var slateRegex = /^slate_/;
-    return slateRegex;
-}
-*/
+
 function slateRegexNewest(regexG) {
     var str = theNewestSlateName(slateSearch2(regexG));
     //var str = "/^" + name + "/";  
@@ -973,8 +925,45 @@ function theBlueprint(arr) {
     const arrSorted = sortAlphabetOrder(arr);
     return arrSorted[0];
 }
+}
 //---------------------------------------------------
 //---------------------------------------------------
 
 
 })(this);
+
+
+
+
+
+//---------------------------------------------------ukoly
+//  2 osetrit layer name vs. layer source name  -- vyreseno
+/*
+This is why you won’t see the name property on the Layer page, 
+but you can still use layer.name in your script; 
+name is inherited from PropertyBase.name.
+
+PropertyBase.name¶
+app.project.item(index).layer(index).name
+app.project.item(index).layer(index).propertySpec.name
+
+Layer.isNameSet¶
+app.project.item(index).layer(index).isNameSet
+
+AVLayer.source¶
+app.project.item(index).layer(index).source
+The source AVItem for this layer. The value is null in a Text layer. 
+Use AVLayer.replaceSource() to change the value.
+
+AVLayer.isNameFromSource¶
+app.project.item(index).layer(index).isNameFromSource
+Description
+True if the layer has no expressly set name, 
+but contains a named source. In this case, 
+layer.name has the same value as layer.source.name. 
+False if the layer has an expressly set name, 
+or if the layer does not have a source.
+Type
+Boolean; read-only.
+*/
+//---------------------------------------------------

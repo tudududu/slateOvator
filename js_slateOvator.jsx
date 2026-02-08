@@ -1,5 +1,5 @@
 //  slateOvator
-//  240403_v15d
+//  240405_v15d2
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -15,16 +15,15 @@
 // v14 totez pro slate: id misto jmena
 // v14c deleteLayers() odemknuti zamcenych vrstev, aby se odstranily, pokud jsou zamčené
 // v15 uprava copy() pro kopiruji masterComp vcetne parametru
-// v15c slateSarch(regex) -- implementation in progress
-// v15c3 wip 1 osetrit cislovani novych slatu, 2 osetrit layer name vs. layer source name
-// v15c4 slateSarch(regex) -- implementation in progress
+// v15c slateSarchAdvanced(regex)  (updated function placeTheSlate)
 // v15d layer name vs. layer source name - placeTheSlate(), slateSearchAdvanced()
+// v15d pridano hledani nejnovejsiho i v master slozce
 
-// vXX vicekrat pouzity slateSarch vyhodit do fce
-// vXX UI - compFolderLevel (ne)funkcnost, closable, (fce folderStructure)
-// vXX focus target
-// vXX z callback fci oddelat instanceof pokud nejsou potreba
-// vXX osetrit cislovani novych slatu
+//  v15d osetrit cislovani novych slatu - token search - nameNewSlate()
+//  v15x UI - compFolderLevel (ne)funkcnost, closable, (fce folderStructure)
+//  vXX vicekrat pouzity slateSarch vyhodit do fce
+//  vXX focus target
+//  vXX z callback fci oddelat instanceof pokud nejsou potreba
 
 (function (thisObj) {
     
@@ -356,6 +355,9 @@ function slateRegexSimple() {
         }
 
 //  hleda jmena slatu v comp - zrusit a vymenit za layerInspection2
+//  pozor hledame take v function aplikaceDoComp, ale ne pomoci layerInspection2
+//  pouzit vsude toto
+
     function layerInspection2(comp, wantedCompName) {
         var regex = wantedCompName;
         var compLayerArr = comp.layers; // prohlidka vrstev
@@ -504,7 +506,7 @@ function insertSlateEngine(compMaster, compOut, regex) {
             if (layerArr.length == 0) {
                 placeTheSlate(compMaster, compOut, regex);
             } else if (layerArr.length > 0) {
-        //make func
+        //make func // pozor - function layerInspection2
                 for (var i = 1; i <= layerArr.length; i++) {
                     var layerName = layerArr[i].source.name;
                     var slateSearch = regex.test(layerName);
@@ -540,6 +542,7 @@ function insertSlateEngine(compMaster, compOut, regex) {
             var slate = slateSearchAdvanced(compMaster, regex);
             //alert(slate.name);
             var newSlate = slate.duplicate();
+            //  nameNewSlate();
                 compOut.layers.add(newSlate);
             }
   
@@ -754,38 +757,78 @@ function slateOvator_part04a(inputFolderLevelL) {
 }
 
 //---------------------------------------------------
+//  pridat hledani nejnovejsiho i v master slozce
 //---------------------------------------------------
 
 function slateSearchAdvanced(selectedComp, regexSlateGlobal) {
     var result;
     const slateInPlaceTest = slateSearch1(selectedComp, regexSlateGlobal);
+    const globalSlates = slateSearch2(regexSlateGlobal);
+    
     if(slateInPlaceTest.length > 0) {
-        result = theBlueprint(slateInPlaceTest);
+        result = theBlueprint(theNewest(slateInPlaceTest, regexSlateGlobal));
     } else {
-        result = theBlueprint(theNewest(regexSlateGlobal));
+        result = theBlueprint(theNewest(globalSlates, regexSlateGlobal));
     }
     return result;
 
-
+//theNewest(slateArr, regexG) {
+    //const slateArr = slateSearch2(regexG);
 //---------------------------------------------------
-// -------------------- regex
-    //zavorky musi byt oznaceny '\', aby byly string, ex: /^slate_\(v240300\)/;
-
-function slateRegexNewest(regexG) {
-    var str = theNewestSlateName(slateSearch2(regexG));
-    //var str = "/^" + name + "/";  
-    //neni mozne takto vkladat promennou do regexu, je pak string a be objekt
-    //pridavame backslash do regexu pred zavorky
-        var fixRegex1 = /\(/;
-        var fixRegex2 = /\)/;
-        var replaceText1 = "\\(";   //  jeden backSlash do regexu a jeden k zavorce v tomto stringu
-        var replaceText2 = "\\)";
-        var resultHalf = str.replace(fixRegex1, replaceText1);
-        var result = resultHalf.replace(fixRegex2, replaceText2);
-        //promenna do regexu
-    return new RegExp("^" + result);
+//  search for the newest instance of the slate or the one from the very project
+//---------------------------------------------------
+//  1. the slate from the very project - tam kde ma byt
+//  srovnava cestu k oznacene kompozoci s cestou ke slatu
+//  a vybira slaty, ktere maji cast cesty spolecnou: commonPathLength
+//  uklada to co je v obou stejne, vse je tedy 2x
+//---------------------------------------------------
+function slateSearch1(selectedComp, regex) {
+    const slateArr = [];
+    var commonPathLength = 2;   // 2 = shoda alespon v jedne polozce (kazda shoda je 2x)
+    var selectedCompPath = cesta(selectedComp); //  cesta k oznacene kompozici
+    var comparePath = [];   //vysledek srovnani obou cest
+    
+    for (var i = 1; i <= app.project.numItems; i++) { // procura do slate(name)
+        if (app.project.item(i) instanceof CompItem) {
+        var testNameStr = app.project.item(i).name;
+        var slateSearch = regex.test(testNameStr);
+        
+        if (slateSearch) {
+        var slate = app.project.item(i);
+        var slatePath = cesta(slate);
+        comparePath = commonArray(selectedCompPath, slatePath);
+        
+        if (comparePath.length > commonPathLength) {
+            slateArr.push(slate);
+                }
+            }
+        }
+    }
+    return slateArr;
 }
-// --------------------
+//---------------------------------------------------
+//  2. search in the whole project for the newest instance of the slate
+//---------------------------------------------------
+//  1. vyhledame vsechny slaty v proj
+//  predelat, tak aby se dalo hledat i ve slozce slate
+//  tj. zadavame kde bude hledat
+function slateSearch2(regexL) {
+    const slateArr = [];
+    for (var i = 1; i <= app.project.numItems; i++) { // procura do slate(name)
+    if (app.project.item(i) instanceof CompItem) {
+        var testNameStr = app.project.item(i).name;
+        var slateSearch = regexL.test(testNameStr);
+        
+        if (slateSearch) {
+        var slate = app.project.item(i);
+        //var slateName = slate.name;
+        slateArr.push(slate);
+        
+            }
+        }
+    }
+    return slateArr;
+}
 
 //---------------------------------------------------
 // cesta ve strukture slozek
@@ -812,56 +855,6 @@ function commonArray(arr1, arr2) {
     return arr1.myIncludes(item) && arr2.myIncludes(item);
     })
   return newArr;
-}
-
-//---------------------------------------------------
-//  search for the newest instance of the slate or the one from the very project
-//---------------------------------------------------
-//  1. the slate from the very project - tam kde ma byt
-//---------------------------------------------------
-function slateSearch1(selectedComp, regex) {
-    const slateArr = [];
-    var selectedCompPath = cesta(selectedComp);
-    var comparePath = [];   //vysledek srovnani obou cest
-    //uklada to co je v obou stejne, vse je tedy 2x
-    for (var i = 1; i <= app.project.numItems; i++) { // procura do slate(name)
-        if (app.project.item(i) instanceof CompItem) {
-        var testNameStr = app.project.item(i).name;
-        var slateSearch = regex.test(testNameStr);
-        
-        if (slateSearch) {
-        var slate = app.project.item(i);
-        var slatePath = cesta(slate);
-        comparePath = commonArray(selectedCompPath, slatePath);
-        // pokud je v poli shoda alespon v jedne polozce (kazda shoda je 2x)
-        if (comparePath.length > 2) {
-            slateArr.push(slate);
-                }
-            }
-        }
-    }
-    return slateArr;
-}
-//---------------------------------------------------
-//  2. search in the whole project for the newest instance of the slate
-//---------------------------------------------------
-//  1. vyhledame vsechny slaty v proj
-function slateSearch2(regexL) {
-    const slateArr = [];
-    for (var i = 1; i <= app.project.numItems; i++) { // procura do slate(name)
-    if (app.project.item(i) instanceof CompItem) {
-        var testNameStr = app.project.item(i).name;
-        var slateSearch = regexL.test(testNameStr);
-        
-        if (slateSearch) {
-        var slate = app.project.item(i);
-        //var slateName = slate.name;
-        slateArr.push(slate);
-        
-            }
-        }
-    }
-    return slateArr;
 }
 //---------------------------------------------------
 //  2. sort
@@ -898,15 +891,32 @@ function theNewestSlateName(slateArr) {
 
 //---------------------------------------------------
 //  4. regex pro hledani nejnov
-// -------------------- viz regex
+
+    //zavorky musi byt oznaceny '\', aby byly string, ex: /^slate_\(v240300\)/;
+
+function slateRegexNewest(arr, regexG) {
+    var str = theNewestSlateName(arr);
+    //var str = "/^" + name + "/";  
+    //neni mozne takto vkladat promennou do regexu, je pak string a be objekt
+    //pridavame backslash do regexu pred zavorky
+        var fixRegex1 = /\(/;
+        var fixRegex2 = /\)/;
+        var replaceText1 = "\\(";   //  jeden backSlash do regexu a jeden k zavorce v tomto stringu
+        var replaceText2 = "\\)";
+        var resultHalf = str.replace(fixRegex1, replaceText1);
+        var result = resultHalf.replace(fixRegex2, replaceText2);
+        //promenna do regexu
+    return new RegExp("^" + result);
+}
+// --------------------
 
 
 //---------------------------------------------------
 //  5. pole nejnovejsich
 
-function theNewest(regexG) {
-    const slateArr = slateSearch2(regexG);
-    var regexL = slateRegexNewest(regexG);
+function theNewest(slateArr, regexG) {
+    //const slateArr = slateSearch2(regexG);
+    var regexL = slateRegexNewest(slateArr, regexG);
     const slateArrSorted = sortReverseOrder(slateArr);
     var newestOnly = slateArrSorted.myFilter(function(item) {
         
@@ -926,8 +936,6 @@ function theBlueprint(arr) {
     return arrSorted[0];
 }
 }
-//---------------------------------------------------
-//---------------------------------------------------
 
 
 })(this);

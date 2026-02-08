@@ -1,5 +1,5 @@
 /* slateOvator
-250321_v16a04
+250321_v16a05
 
 v01 240103 joining parts 1, 2, 3
 v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -81,7 +81,7 @@ v15e7 UI: output comps pokus o 'justify fill'
 16a04 nastaveny podminky v slateSearchAdvanced() - pokud neni nalezen slate v projektu nebo mimo nebo vubec, proces se nezastavi
       v pripade, ze slate je jen jeden projevi se chyba - opakuje se theNewest() a do vstupniho pole se prida undefined a zastavi se sortReverseOrder()
       ted opravim primo v slateSearchAdvanced(), ale pozdeji se k tomu vratim
-
+16a05 slateSearchAdvanced() - oprava chyby, kdyz je slate jen jeden. Podminka pro vstup do porovnani byla zalozena na spatne promenne (musi byt zalozena na vysledku vyhledavani nejnovejsiho slatu)
 vXX vicekrat pouzity slateSarch vyhodit do fce
 vXX focus target
 vXX z callback fci oddelat instanceof pokud nejsou potreba
@@ -93,7 +93,7 @@ vXX z callback fci oddelat instanceof pokud nejsou potreba
 
     function newPanel(thisObj) {
 
-        var vers = '16a04';
+        var vers = '16a05';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -1092,7 +1092,8 @@ function slateSearchAdvanced(selectedComp, regexSlateGlobal) {
         result = resultGlobal;
     }
     // porovname kde je nejnovejsi, pokud najde 2 znamena to ze je v obou
-    if (slatesProject.length != 0 && slatesGlobal.length != 0) {
+    // if (resultProject.length != 0 && resultGlobal.length != 0) {
+    if (resultProject != undefined && resultGlobal != undefined) {
         const resultArr = [resultProject, resultGlobal];
         var test = theNewest(resultArr, regexSlateGlobal);
         //  pokud v obou bereme z projektu

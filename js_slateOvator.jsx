@@ -1,5 +1,5 @@
 //  slateOvator
-//  240410_v15d3
+//  240410_v15d4
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -18,8 +18,9 @@
 // v15c slateSarchAdvanced(regex)  (updated function placeTheSlate)
 // v15d layer name vs. layer source name - placeTheSlate(), slateSearchAdvanced()
 // v15d v kompozici hleda podle nazvu zdroje a ne vrstvy (layer.source.name instead of layer.name)
-// v15d hledani nejnovejsiho i v 'master' slozce
-// v15d osetreno cislovani novych slatu - token search - nameNewSlate()
+// v15d2 hledani nejnovejsiho i v 'master' slozce
+// v15d3 osetreno cislovani novych slatu - token search - nameNewSlate()
+// v15d4 nwItmSplt rozsiren split(/_| |-/g);
 
 //  v15x UI - compFolderLevel (ne)funkcnost, closable, (fce folderStructure)
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
@@ -32,7 +33,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15d3';
+        var vers = '15d4';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -964,7 +965,7 @@ function nameNewSlate(slateComp, regexL) {
     //const testArr = theNewest(arr, regexL);   // lze pouzit, ale je to zbytecne slozite
 
     var theNewestItem = arrRevSorted[0].name;
-    const nwItmSplt = theNewestItem.split(/_/g);
+    const nwItmSplt = theNewestItem.split(/_| |-/g);
     var itemNumberStr = nwItmSplt[2];
     var itemNumber = parseInt(itemNumberStr);
     var newNumber = (itemNumber + 1);

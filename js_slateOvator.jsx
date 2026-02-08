@@ -1,5 +1,5 @@
 //  slateOvator
-//  241109_v15f03
+//  241110_v15f04
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -45,8 +45,9 @@
 // 15e13 241107  simple output slate insertion
 // 15f01 uplne prekopani - zjednoduseni zaverecne casti nove kopie slatu
 // 15f02 aplikaceDoComp() misto insertSlateEngine()
-// 15f03 compLengthAdjust() - posun vrstev a prodlouzeni kompozice pouze pokud neni slate, jinak se posune pouze zacatek kompozice
-
+// 15f03 compLengthAdjust()
+// 15f04 compLengthAdjust() - posun vrstev a prodlouzeni kompozice pouze pokud neni slate, jinak se posune pouze zacatek kompozice
+            
 //  v15ex barevne tlacitko 'slate name' - prace nezacala
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
 //  vXX focus target
@@ -58,7 +59,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15f03';
+        var vers = '15f04';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -589,8 +590,8 @@ function slateOvator3() {
             if (compSelection[j] instanceof CompItem) {
                 var compMaster = compSelection[j];
                 var compOut = compSelection[j];
-            insertSlateEngine(compMaster, compOut, regex);
-            // aplikaceDoComp(compMaster, compOut, regex);
+            // insertSlateEngine(compMaster, compOut, regex);
+            aplikaceDoComp(compMaster, compOut, regex, switchOn = true);
             }
         }
     }
@@ -617,21 +618,24 @@ function compLengthAdjust(theComp/* , slateDur */)
     }
 }
 
-//
-function insertSlateEngine(compMaster, compOut, regex) 
-{
-    // zbyva osetrit compLengthAdjust(), aby se provedla pouze pokud neni slate
-    compLengthAdjust(compOut/* , slateDur */) 
-    aplikaceDoComp(compMaster, compOut, regex);
-}
+// zredukovano na aplikaceDoComp()
+// function insertSlateEngine(compMaster, compOut, regex) 
+// {
+//     // zbyva osetrit compLengthAdjust(), aby se provedla pouze pokud neni slate
+//     compLengthAdjust(compOut/* , slateDur */);
+//     aplikaceDoComp(compMaster, compOut, regex);
+// }
 
     //---------------------------------------------------
-    function aplikaceDoComp(compMaster, compOut, regex) { // compMaster je objekt (polozka z pole)
+    function aplikaceDoComp(compMaster, compOut, regex, switchOn) { // compMaster je objekt (polozka z pole)
         
         var layerArr = compOut.layers;
         
         //  nejdrive zjistuje jestli v kompozici uz neni slate
         if (layerArr.length == 0) { // prazdna - vkladame
+            if (switchOn) {
+                compLengthAdjust(compOut/* , slateDur */);
+            }
             placeTheSlate(compMaster, compOut, regex);
         } else if (layerArr.length > 0) {   // prohledame jestli
     //make func // pozor - function layerInspection
@@ -644,6 +648,9 @@ function insertSlateEngine(compMaster, compOut, regex)
                     //  nedame ho tam take?
                     break;
                 } else {
+                    if (switchOn) {
+                        compLengthAdjust(compOut/* , slateDur */);
+                    }
                     placeTheSlate(compMaster, compOut, regex);  // nema slate - vkladame
                     break;
                 }

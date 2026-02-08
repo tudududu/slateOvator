@@ -1,5 +1,5 @@
 //  slateOvator
-//  240607_v15e6
+//  240821_v15e7
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -29,7 +29,8 @@
 // v15e4 UI: compFolderLevel field: bud odstranit nebo closable, (fce folderStructure)
 //       odstraneno, automatizovano - hleda "comps", pokud comps !== 1 out bude v root
 // v15e5 ucesani automatizace compFolderLevel
-// v15e6 UI: inputFolderLevel field: vraceno
+// v15e6 UI: compFolderLevel field (inputFolderLevel): vraceno
+// v15e7 UI: output comps pokus o 'justify fill'
 
 //  v15ex barevne tlacitko 'slate name' - prace nezacala
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
@@ -42,7 +43,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15e6';
+        var vers = '15e7';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -73,20 +74,25 @@
         var panel03 = win.add('panel', undefined, 'Make output compositions');
             panel03.orientation = 'column';
             panel03.alignChildren = 'fill';
-        
+        var group6 = panel03.add("group", undefined, { name: "group6" });
+            group6.orientation = "row";
+            group6.alignment = "fill";
+            group6.alignChildren = ["fill", "center"];
+            group6.spacing = 10;
+            group6.margins = 0;
         //  folder level field + popisek
         var panel03_groupOne = panel03.add('group', undefined, 'panel03_groupOne');
             panel03_groupOne.orientation = 'row';
             panel03_groupOne.preferredSize = [200, 30];
             panel03_groupOne.alignChildren = 'fill';
         //  apply Button
-        var prebalovatorBtn = panel03_groupOne.add('button', undefined, 'Output comps');
+        var prebalovatorBtn = group6.add('button', undefined, 'Output comps');
             prebalovatorBtn.alignChildren = 'fill';
             prebalovatorBtn.preferredSize = [200, 30];
         //var inputLabel = panel03_groupOne.add('statictext', undefined, 'Set the Comps folder level:');
-        var inputFolderLevel = panel03_groupOne.add('edittext', undefined, '3', {enterKeySignalsOnChange: false});
+        var inputFolderLevel = group6.add('edittext', undefined, '3', {enterKeySignalsOnChange: false});
             inputFolderLevel.characters = 4;
-            inputFolderLevel.expanded = false;
+            inputFolderLevel.expanded = false; // co to je?
             //pokusy
             //var treeX = panel03.add("treeview", bounds = undefined, items = [1, 2, 3], {node: 1});
             //panel03.add("slider", bounds = undefined, value = 3, minvalue = 1, maxvalue = 3, {name: 'levelSlider'});

@@ -1,5 +1,5 @@
 //  slateOvator
-//  240909_v15e8
+//  240910_v15e9
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -32,7 +32,9 @@
 // v15e6 UI: compFolderLevel field (inputFolderLevel): vraceno
 // v15e7 UI: output comps pokus o 'justify fill'
 // 15e8  output comps 'justify fill' uspech (viz Variable fonts panel)
-//       nameNewSlate() - oprava nad 10
+// 15e9  nameNewSlate() - oprava nad 10. Od cisla slatu 10 pojmenovan 010, spatne
+//       se radi dle 0 tim padem je jako posledni vyhodnocen znovu c. 09
+//       oprava layerInspection() nenasel state pokud byl prejmenovany uvnitr comp
 
 //  v15ex barevne tlacitko 'slate name' - prace nezacala
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
@@ -45,7 +47,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15e8';
+        var vers = '15e9';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -408,7 +410,7 @@ function slateRegexSimple() {
         return result;
         }
 
-//  hleda jmena slatu v comp - zrusit a vymenit za layerInspection
+//  hleda jmena slatu v comp
 //  pozor hledame take v function aplikaceDoComp, ale ne pomoci layerInspection
 //  predelat a pouzit vsude toto
 
@@ -417,13 +419,16 @@ function slateRegexSimple() {
         var compLayerArr = comp.layers; // prohlidka vrstev
         var foundLayersArr = [];
         for (var j = 1; j <= compLayerArr.length; j++) {
-            var layerName = compLayerArr[j].name;
+            //var layerName = compLayerArr[j].name;
             //alert(layerName);
-            var slateSearch = regex.test(layerName);    //  je vrstva slate?
-            //alert(slateSearch);
-
-            if (slateSearch) {  // pokud je vrstva slate jdeme ho hledat
+            if (compLayerArr[j].source instanceof CompItem) {
+            var layerName = compLayerArr[j].source.name;
+            //  je vrstva slate?
+            var slateSearch = regex.test(layerName);
+            //  pokud je vrstva slate jdeme ho hledat
+            if (slateSearch) {
                 foundLayersArr.push(compLayerArr[j]);
+                }
             }
         }
         //alert(foundLayersArr);
@@ -461,17 +466,19 @@ app.endUndoGroup();
         //  prochazime vyber
         for (var i = 0; i < selectedComps.length; i++) {
             if (selectedComps[i] instanceof CompItem) {
-            
+                //  je comp slate?
                 var compName = selectedComps[i].name;
-                var slateSearch = regex.test(compName);    //  je comp slate?
+                var slateSearch = regex.test(compName);
 
                 if (slateSearch) {  // pokud je comp slate jdeme dovnitr
                     compNamesMultiSlate(selectedComps[i], callback, fieldLayerName, newTextInput, effectName);
                             //break;
                 } else {    //  pokud neni, hledame jestli je uvnitr slate
-                // pole jmen slatu v comp
-                var slateArr = layerInspection(selectedComps[i], regex);
-                if (slateArr.length == 1) {
+                    // pole jmen slatu v comp
+                    var slateArr = layerInspection(selectedComps[i], regex);
+                    if (slateArr.length == 1) {
+                    // zkusit zjednodusit
+                    // misto AVLayer davat rovnou CompItem
                     var slateLayer = slateArr[0];
                     findSlateComp(slateLayer, fieldLayerName, newTextInput, effectName);
                 } else {
@@ -886,8 +893,7 @@ function slateSearchAdvanced(selectedComp, regexSlateGlobal) {
     }
     return result;
 }
-//theNewest(slateArr, regexG) {
-    //const slateArr = searchGlobal(regexG);
+
 //---------------------------------------------------
 //  search for the newest instance of the slate or the one from the very project
 //---------------------------------------------------
@@ -986,7 +992,7 @@ function sortReverseOrder(arr) {
   })
 }
 //---------------------------------------------------
-//  3. vybereme nejnovejsi slateName z pole vsech slatu
+//  3. vybereme nejnovejsi slateName z pole vsech slatu (jen dle data nikoli cisla kopie)
 function theNewestSlateName(slateArr) {
     //var slateArr = searchGlobal(regexSlateGlobal);
     //  abecedni serazeni sestupne
@@ -1073,7 +1079,7 @@ function nameNewSlate(slateComp, regexL) {
     //  arr slates of this date/version in pF
     const slatesInFolderArr = searchInFldr(folderItems, regexL);
     const arrRevSorted = sortReverseOrder(slatesInFolderArr);
-    const testArr = theNewest(slatesInFolderArr, regexL);   // lze pouzit, ale je to zbytecne slozite
+    //const testArr = theNewest(slatesInFolderArr, regexL);   // lze pouzit, ale je to zbytecne slozite
 
     var theNewestItemName = arrRevSorted[0].name;
     const nwItmSplt = theNewestItemName.split(/_| |-/g);

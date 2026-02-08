@@ -1,5 +1,5 @@
 //  slateOvator
-//  241208_v15g01
+//  241209_v16a00
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -69,6 +69,7 @@
 // 15f14-15f21 UI: pokusy s pridanim barevne kontrolky pro 'compNameFSBtn', idealni cil je mit kontrolku na strane tlacitka, coz koliduje s align fill - tlacitko se neroztahuje nasiru panelu
 // 15f22 Navrat k 15f16, UI: compNameFSBtn barevna kontrolka vypnuta
 // v15g01 slateSearchGlobal() misto slateSearchAdvanced()
+// v16a00 slateSearchAdvanced() misto slateSearchGlobal()
 
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
 //  vXX focus target
@@ -80,7 +81,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15g01';
+        var vers = 'v16a00';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -750,8 +751,8 @@ function slateShift(theComp/* , slateDur */)
     //  compMaster kvuli vyhledavani v zavislosti na umisteni masteru
     function placeTheSlate(compMaster, compOut, regex) {    // compMaster je objekt (polozka z pole)
 
-        // var slateMaster = slateSearchAdvanced(compMaster, regex);
-        var slateMaster = slateSearchGlobal(compMaster, regex);
+        var slateMaster = slateSearchAdvanced(compMaster, regex);
+        // var slateMaster = slateSearchGlobal(compMaster, regex);
         //alert(slate.name);
         var newName = nameNewSlate(slateMaster, regex);
         var newSlate = slateMaster.duplicate();
@@ -1053,22 +1054,40 @@ function slateOvator4(/*inputFolderLevelL */) {
 
 function slateSearchAdvanced(selectedComp, regexSlateGlobal) {
     var result;
-    const slateInPlaceTest = searchLocal(selectedComp, regexSlateGlobal);
+    const projectSlates = searchLocal(selectedComp, regexSlateGlobal);
     const globalSlates = searchGlobal(regexSlateGlobal);
     
-    if(slateInPlaceTest.length > 0) {
-        result = theBlueprint(theNewest(slateInPlaceTest, regexSlateGlobal));
+    var resultGlobal = theBlueprint(theNewest(projectSlates, regexSlateGlobal));
+    var resultProject = theBlueprint(theNewest(globalSlates, regexSlateGlobal));
+    const resultArr = [resultProject, resultGlobal];
+    result = theBlueprint(theNewest(resultArr, regexSlateGlobal));
+
+    /* if(projectSlates.length > 0) {
+        result = theBlueprint(theNewest(projectSlates, regexSlateGlobal));
+    } else {
+        result = theBlueprint(theNewest(globalSlates, regexSlateGlobal));
+    } */
+    return result;
+}
+
+/* function slateSearchAdvanced_bak(selectedComp, regexSlateGlobal) {
+    var result;
+    const projectSlates = searchLocal(selectedComp, regexSlateGlobal);
+    const globalSlates = searchGlobal(regexSlateGlobal);
+    
+    if(projectSlates.length > 0) {
+        result = theBlueprint(theNewest(projectSlates, regexSlateGlobal));
     } else {
         result = theBlueprint(theNewest(globalSlates, regexSlateGlobal));
     }
     return result;
-}
-function slateSearchGlobal(selectedComp, regexSlateGlobal) {
+} */
+/* function slateSearchGlobal(selectedComp, regexSlateGlobal) {
     var result;
     const globalSlates = searchGlobal(regexSlateGlobal);
     result = theBlueprint(theNewest(globalSlates, regexSlateGlobal));
     return result;
-}
+} */
 //---------------------------------------------------
 //  1. the slate from the very project - tam kde ma byt
 //  srovnava cestu k oznacene kompozoci s cestou ke slatu
@@ -1218,11 +1237,9 @@ function slateRegexNewest(arr, regexG) {
 
 //---------------------------------------------------
 //  5. filtrujeme jen posledni verzi
-//  vstup: pole kompozic (jiz nalezenych slatu?)
-//  vystup: pole vsech nejnovejsich
-
-//  vstup: pole kompozic
+//  vstup: pole kompozic (jiz nalezenych slatu)
 //  vystup: pole slatu nejvyssi verze
+
 function theNewest(slateArr, regexG) {
     //  regex pro posledni verzi slatu
     var regexL = slateRegexNewest(slateArr, regexG);
@@ -1236,7 +1253,6 @@ function theNewest(slateArr, regexG) {
 //  6. nejstarsi z nejnovejsich - cislo 01
 //  finalni vyber originalu pro novou kopii slatu
 function theBlueprint(arr) {
-    //var newestSlatesArr = theNewest(regexSlateGlobal);
     const arrSorted = sortAlphabetOrder(arr);
     return arrSorted[0];
 }

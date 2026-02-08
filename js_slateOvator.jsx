@@ -1,5 +1,5 @@
 //  slateOvator
-//  240821_v15e7
+//  240909_v15e8
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -31,6 +31,8 @@
 // v15e5 ucesani automatizace compFolderLevel
 // v15e6 UI: compFolderLevel field (inputFolderLevel): vraceno
 // v15e7 UI: output comps pokus o 'justify fill'
+// 15e8  output comps 'justify fill' uspech (viz Variable fonts panel)
+//       nameNewSlate() - oprava nad 10
 
 //  v15ex barevne tlacitko 'slate name' - prace nezacala
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
@@ -43,7 +45,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15e7';
+        var vers = '15e8';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -74,23 +76,23 @@
         var panel03 = win.add('panel', undefined, 'Make output compositions');
             panel03.orientation = 'column';
             panel03.alignChildren = 'fill';
-        var group6 = panel03.add("group", undefined, { name: "group6" });
-            group6.orientation = "row";
-            group6.alignment = "fill";
-            group6.alignChildren = ["fill", "center"];
-            group6.spacing = 10;
-            group6.margins = 0;
+        var panel03_g01 = panel03.add("group", undefined, { name: "panel03_g01" });
+            panel03_g01.orientation = "row";
+            panel03_g01.alignment = "fill";
+            panel03_g01.alignChildren = ["fill", "center"];
+            panel03_g01.spacing = 10;
+            panel03_g01.margins = 0;
         //  folder level field + popisek
-        var panel03_groupOne = panel03.add('group', undefined, 'panel03_groupOne');
+        /* var panel03_groupOne = panel03.add('group', undefined, 'panel03_groupOne');
             panel03_groupOne.orientation = 'row';
             panel03_groupOne.preferredSize = [200, 30];
-            panel03_groupOne.alignChildren = 'fill';
+            panel03_groupOne.alignChildren = 'fill'; */
         //  apply Button
-        var prebalovatorBtn = group6.add('button', undefined, 'Output comps');
+        var prebalovatorBtn = panel03_g01.add('button', undefined, 'Output comps');
             prebalovatorBtn.alignChildren = 'fill';
             prebalovatorBtn.preferredSize = [200, 30];
         //var inputLabel = panel03_groupOne.add('statictext', undefined, 'Set the Comps folder level:');
-        var inputFolderLevel = group6.add('edittext', undefined, '3', {enterKeySignalsOnChange: false});
+        var inputFolderLevel = panel03_g01.add('edittext', undefined, '3', {enterKeySignalsOnChange: false});
             inputFolderLevel.characters = 4;
             inputFolderLevel.expanded = false; // co to je?
             //pokusy
@@ -509,6 +511,7 @@ app.endUndoGroup();
                     }
                     //  newTextInput predelat na newInput
                     //  newTextInput predelat na newInput
+                    //  zjistit proc
                     //  newTextInput predelat na newInput
                     callback(slateCompL, fieldLayerName, newTextInput, effectName);
                     //compNameVkladOvator(slateCompL, newExpression);
@@ -595,7 +598,7 @@ function insertSlateEngine(compMaster, compOut, regex) {
 //---------------------------------------------------
 //---------------------------------------------------
         //  vkladame kopii slatu do kompozice
-        //  compMaster kvuli vyhledavani v zavoslosti na umisteni masteru
+        //  compMaster kvuli vyhledavani v zavislosti na umisteni masteru
         function placeTheSlate(compMaster, compOut, regex) {    // theComp je objekt (polozka z pole)
 
             var slateMaster = slateSearchAdvanced(compMaster, regex);
@@ -669,7 +672,7 @@ function insertSlateEngine(compMaster, compOut, regex) {
 //  zadanim parentFolder pro 'out' ve funkci folderStructure => promenna folderParentParent
 //  pridano vkladani slatu
 
-function slateOvator_part04a(/* inputFolderLevel */L) {
+function slateOvator_part04a(/* inputFolderLevelL */) {
 
     app.beginUndoGroup("Make output compositions");
 
@@ -720,14 +723,16 @@ function slateOvator_part04a(/* inputFolderLevel */L) {
     }
 
     //  delete layers in myCompOut
-    function deleteLayers(comp) {         
+    //  opusteno
+    //  nejspis kvuli paramatrum jsme kopirovali celou compMaster
+    /* function deleteLayers(comp) {         
         var compLayers = comp.layers;
         for (var i = compLayers.length; i >= 1; i--) {
             var curLayer = compLayers[i];
             curLayer.locked = false;
             curLayer.remove();
         }
-    }
+    } */
 
     //  passar o master pro outComp
     function prebalovator(compMaster, compOut, regex) {
@@ -736,7 +741,7 @@ function slateOvator_part04a(/* inputFolderLevel */L) {
             compOut.layer(1).startTime = 1;
             insertSlateEngine(compMaster, compOut, regex);
     }
-
+    //
     function makeFolder(folderName, folderParent) {
         //  scan proj if folder exist
         //  pushes 'true' into testArr in case the folder exists
@@ -770,7 +775,8 @@ function slateOvator_part04a(/* inputFolderLevel */L) {
             }
         return folderObj;
     }
-
+    //  kopirovani struktury slozek
+    //  dosazujeme cestu ke kopirovane kompozici (vyrabi fce folderPath())
     function folderStructure(itemsArr) {
                
         //  parent pro 'out'
@@ -785,6 +791,10 @@ function slateOvator_part04a(/* inputFolderLevel */L) {
             }
             return itemsArrRev;
         }
+        
+        //  uroven slozky 'comps' podle nazvu
+        //  v15e4 UI - compFolderLevel, bud odstranit nebo closable, (fce folderStructure)
+        //  ostraneno, automatizovano - hleda "comps", pokud comps !== 1 out bude v root
         function compsLevelIndex(arrRev) { //dosadit itemsArrRev
         var itemCompsLevel = [];
         for (var j = 0; j < arrRev.length; j++) {
@@ -794,16 +804,18 @@ function slateOvator_part04a(/* inputFolderLevel */L) {
             }
             return itemCompsLevel;
         }
+        
         var itemsArrRev = reverseArr(itemsArr);
         var itemCompsLevel = compsLevelIndex(itemsArrRev);
         //alert(itemCompsLevel);
         
+        //  pokud comps !== 1 out bude v root
         if (itemCompsLevel.length === 1) {
             compFolderLevel = itemCompsLevel[0] + 1;
         }   else {
-            compFolderLevel = 2;
-            //zruseno - vstup z UI
+            compFolderLevel = 2;    //  vysledek bude root, protoze se jeste odectou 2
             //parseInt(inputFolderLevelL);
+            //zruseno - vstup z UI
         }
         //alert(compFolderLevel);
 
@@ -861,6 +873,7 @@ function slateOvator_part04a(/* inputFolderLevel */L) {
 //  slateSearch
 //---------------------------------------------------
 
+//  POPSAT !
 function slateSearchAdvanced(selectedComp, regexSlateGlobal) {
     var result;
     const slateInPlaceTest = slateSearch1(selectedComp, regexSlateGlobal);
@@ -1054,16 +1067,17 @@ function nameNewSlate(slateComp, regexL) {
  
     //  parentFolder
     var slateParentFldr = slateComp.parentFolder;
+    //  vypiseme obsah slozky
     var folderItems = slateParentFldr.items;
     
     //  arr slates of this date/version in pF
-    
     const slatesInFolderArr = searchInFldr(folderItems, regexL);
     const arrRevSorted = sortReverseOrder(slatesInFolderArr);
-    //const testArr = theNewest(arr, regexL);   // lze pouzit, ale je to zbytecne slozite
+    const testArr = theNewest(slatesInFolderArr, regexL);   // lze pouzit, ale je to zbytecne slozite
 
-    var theNewestItem = arrRevSorted[0].name;
-    const nwItmSplt = theNewestItem.split(/_| |-/g);
+    var theNewestItemName = arrRevSorted[0].name;
+    const nwItmSplt = theNewestItemName.split(/_| |-/g);
+    // cislo = treti clen
     var itemNumberStr = nwItmSplt[2];
     var itemNumber = parseInt(itemNumberStr);
     var newNumber = (itemNumber + 1);

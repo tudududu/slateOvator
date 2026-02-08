@@ -1,5 +1,5 @@
 //  slateOvator
-//  241116_v15f10
+//  241116_v15f11
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -62,7 +62,7 @@
 //            pokusim se pouzit v insertSlateEngine() - tam je instanceof CompItem potreba
 //     241115 var regex = wantedCompName; - jak to funguje???
 
-// 15s12   layerInspection() do insertSlateEngine()
+// 15f12   layerInspection() do insertSlateEngine()
 // + zkontrolovat jestli compNameFromSlate() funguje po uprave - instanceof CompItem zapnuto
 // redukce - jedno nebo druhe: layerInspectToComp() vs. layerInspection()
 
@@ -442,10 +442,11 @@ function slateRegexSimple() {
         }
     
     function compNameFromSlate(slateCompL, layerName, parentComp) {
-        //  layerName - neni pouzita
-        var layerNameRegex = /fileNameDuo/;
-        //  hledame layer ve slatu dle jmena
-        var targetLayerArr = layerInspection(slateCompL, layerNameRegex);
+        //  layerName - neni pouzita, protoze regex je zadan natvrdo zde uvnitr
+        //  zvazit upravu
+        var regex = /fileNameDuo/;
+        //  hledame layer ve slatu dle jmena (vyhledavac nemuze byt omezen na CompItem)
+        var targetLayerArr = layerInspection(slateCompL, regex);
         
         var targetLayer = targetLayerArr[0];
         var newName0 = targetLayer.text.sourceText.value.text;
@@ -471,47 +472,43 @@ function slateRegexSimple() {
         return result;
         }
 
-    //  hleda v comp vrstvu dle jmena a vraci pole nalezenych vrstev
+    //  hleda v comp vrstvu dle jmena a vraci pole >> nalezenych vrstev <<
     //  pozor hledame take v insertSlateEngine(), ale ne pomoci layerInspection
     //  predelat a pouzit vsude toto
 
     //  241115 bylo vypnuto instanceof CompItem - nefunguje s tim compNameFromSlate - proc?
     //          pokusim se pouzit v insertSlateEngine() - tam je instanceof CompItem potreba
-    //  241115 var regex = wantedCompName; - jak to funguje??? 
 
-    function layerInspection(comp, wantedCompName) {
-        var regex = wantedCompName;
+    //  hledame objekt AV layer
+    //  nehleda tedy zdroje, ale pouze nazvy vrstev v comp
+    //  regex = wantedCompName - jak to funguje??? - musi byt zadan regex !?!?
+    function layerInspection(comp, regex) {
+        
         var compLayerArr = comp.layers; // prohlidka vrstev
         var foundLayersArr = [];
         for (var j = 1; j <= compLayerArr.length; j++) {
-            //  hledame nazev zdroje vrstvy, ale pouze pokud je kompozice
-            // if (compLayerArr[j].source instanceof CompItem) {
-                var layerName = compLayerArr[j].name;
-                //  je vrstva slate?
-                var slateSearch = regex.test(layerName);
-                //  pokud je vrstva slate jdeme ho hledat
-                if (slateSearch) {
-                    foundLayersArr.push(compLayerArr[j]);
-                }
-            // }
+            var layerName = compLayerArr[j].name;
+            var slateSearch = regex.test(layerName);
+            if (slateSearch) {
+                foundLayersArr.push(compLayerArr[j]);
+            }
         }
         return foundLayersArr;                  
     }
     
     //  hleda v comp vrstvu dle jmena 
-    //  a vraci pole zdroju nalezenych vrstev
+    //  a vraci pole >> zdroju nalezenych vrstev <<
     //  zjenousuje proces oproti layerInspectToComp(), ktera vracela objekt vrstvy
-    function layerInspectToComp(comp, wantedCompName) {
-        var regex = wantedCompName;
+    //  regex = wantedCompName
+    function layerInspectToComp(comp, regex) {
+        
         var compLayerArr = comp.layers; // prohlidka vrstev
         var foundCompsArr = [];
         for (var j = 1; j <= compLayerArr.length; j++) {
-            //  hledame nazev zdroje vrstvy, ale pouze pokud je kompozice
+            //  hledame nazev zdroje vrstvy, pokud je kompozice
             if (compLayerArr[j].source instanceof CompItem) {
                 var layerName = compLayerArr[j].source.name;
-                //  je vrstva slate?
                 var slateSearch = regex.test(layerName);
-                //  pokud je vrstva slate jdeme ho hledat
                 if (slateSearch) {
                     foundCompsArr.push(compLayerArr[j].source);
                 }
@@ -670,7 +667,8 @@ function slateShift(theComp/* , slateDur */)
 }
 
     //---------------------------------------------------
-            // compOut, protoze slate je vzdy v compOut
+            //  compOut - protoze slate je vzdy v compOut
+            //  compMaster - pokud prebalujeme
     function insertSlateEngine(compMaster, compOut, regex, switch_slateShift) {
         
         var layerArr = compOut.layers;
@@ -685,24 +683,36 @@ function slateShift(theComp/* , slateDur */)
             }
             placeTheSlate(compMaster, compOut, regex);
         } else if (layerArr.length > 0) {   // prohledame jestli v comp...
+    
     //make func // pozor - function layerInspection
-            var tempSlateTest;
-            for (var i = 1; i <= layerArr.length; i++) {
-                if (layerArr[i].source instanceof CompItem) {
-                    // hledame zdroj vrstvy (slate) pro pripad, ze by uvnitr byla prejmenovana
-                    var layerName = layerArr[i].source.name;
-                    var slateSearch = regex.test(layerName);   //   ...neni slate
-                    }
-                }
-            if (slateSearch) {  //pokud ano
+            // for (var i = 1; i <= layerArr.length; i++) {
+            //     if (layerArr[i].source instanceof CompItem) {
+            //         // hledame zdroj vrstvy (slate) pro pripad, ze by uvnitr byla prejmenovana
+            //         var layerName = layerArr[i].source.name;
+            //         var slateSearch = regex.test(layerName);   //   ...neni slate
+            //         }
+            //     }
+            // if (slateSearch) {  //pokud ano
+            //     alert('Slate alredy present.');
+            // } else {
+            //     if (switch_slateShift) {
+            //          slateShift(compOut/* , slateDur */);
+            //          }
+            //      placeTheSlate(compMaster, compOut, regex);  // nema slate - vkladame
+            //     }
+            // }
+            var slatesInComp = layerInspectToComp(compOut, regex);
+
+            if (slatesInComp.length > 0) {  //pokud ano
                 alert('Slate alredy present.');
             } else {
                 if (switch_slateShift) {
-                slateShift(compOut/* , slateDur */);
-                }
-            placeTheSlate(compMaster, compOut, regex);  // nema slate - vkladame
+                    slateShift(compOut/* , slateDur */);
+                    }
+                placeTheSlate(compMaster, compOut, regex);  // nema slate - vkladame
                 }
             }
+
         //  vlozeny slate - fitToCompSize
         for (var i = 1; i <= layerArr.length; i++) {
             var layerName = layerArr[i].name;

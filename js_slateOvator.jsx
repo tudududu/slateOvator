@@ -1,5 +1,5 @@
 //  slateOvator
-//  241209_v16a00
+//  241210_v16a01
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -70,6 +70,7 @@
 // 15f22 Navrat k 15f16, UI: compNameFSBtn barevna kontrolka vypnuta
 // v15g01 slateSearchGlobal() misto slateSearchAdvanced()
 // v16a00 slateSearchAdvanced() misto slateSearchGlobal()
+// v16a01 slateSearchAdvanced()
 
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
 //  vXX focus target
@@ -81,7 +82,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = 'v16a00';
+        var vers = 'v16a01';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -1027,16 +1028,7 @@ function slateOvator4(/*inputFolderLevelL */) {
 
 //---------------------------------------------------
 //  slateSearch
-//---------------------------------------------------
-//  search for the newest instance of the slate
-//  or the one from the very project
-//  volime kde budeme hledat vychozi slate pro duplikaci
-//  jestli je slate v aktualnim projektu,
-//  nebo budeme muset prohledat cely projekt
-//---------------------------------------------------
-//---------------------------------------------------
-//  slateSearch_v01 scenar
-//---------------------------------------------------
+//---------------------------------------------------scenar
    //  vstup: slate
     //  parentFolder
     //  arr slates of this date/version in pF
@@ -1046,7 +1038,10 @@ function slateOvator4(/*inputFolderLevelL */) {
     //  t3 + 1
     //  compose name
     //  return
-    
+//---------------------------------------------------
+//---------------------------------------------------
+
+//---------------------------------------------------    
 //---------------------------------------------------
 //  slateSearch_v02
 //  hledame nejnovejsi z celeho projektu
@@ -1054,38 +1049,50 @@ function slateOvator4(/*inputFolderLevelL */) {
 
 function slateSearchAdvanced(selectedComp, regexSlateGlobal) {
     var result;
-    const projectSlates = searchLocal(selectedComp, regexSlateGlobal);
-    const globalSlates = searchGlobal(regexSlateGlobal);
+    const slatesProject = searchLocal(selectedComp, regexSlateGlobal);
+    const slatesGlobal = searchGlobal(regexSlateGlobal);
     
-    var resultGlobal = theBlueprint(theNewest(projectSlates, regexSlateGlobal));
-    var resultProject = theBlueprint(theNewest(globalSlates, regexSlateGlobal));
-    const resultArr = [resultProject, resultGlobal];
-    result = theBlueprint(theNewest(resultArr, regexSlateGlobal));
+    var resultProject = theBlueprint(theNewest(slatesProject, regexSlateGlobal));
+    var resultGlobal = theBlueprint(theNewest(slatesGlobal, regexSlateGlobal));
 
-    /* if(projectSlates.length > 0) {
-        result = theBlueprint(theNewest(projectSlates, regexSlateGlobal));
+    const resultArr = [resultProject, resultGlobal];
+    var test = theNewest(resultArr, regexSlateGlobal);
+    
+    if (test.length > 1) {
+        result = resultProject;
     } else {
-        result = theBlueprint(theNewest(globalSlates, regexSlateGlobal));
+        // result = theBlueprint(theNewest(resultArr, regexSlateGlobal));
+        result = resultGlobal;
+    }
+    // !! jeste osetrit !!
+    /* if(slatesProject.length > 0) {
+        result = theBlueprint(theNewest(slatesProject, regexSlateGlobal));
+    } else {
+        result = theBlueprint(theNewest(slatesGlobal, regexSlateGlobal));
     } */
     return result;
 }
-
-/* function slateSearchAdvanced_bak(selectedComp, regexSlateGlobal) {
+//---------------------------------------------------v01
+//  search for the newest instance of the slate
+//  or the one from the very project
+//---------------------------------------------------
+/*  function slateSearchAdvanced_bak(selectedComp, regexSlateGlobal) {
     var result;
-    const projectSlates = searchLocal(selectedComp, regexSlateGlobal);
-    const globalSlates = searchGlobal(regexSlateGlobal);
+    const slatesProject = searchLocal(selectedComp, regexSlateGlobal);
+    const slatesGlobal = searchGlobal(regexSlateGlobal);
     
-    if(projectSlates.length > 0) {
-        result = theBlueprint(theNewest(projectSlates, regexSlateGlobal));
+    if(slatesProject.length > 0) {
+        result = theBlueprint(theNewest(slatesProject, regexSlateGlobal));
     } else {
-        result = theBlueprint(theNewest(globalSlates, regexSlateGlobal));
+        result = theBlueprint(theNewest(slatesGlobal, regexSlateGlobal));
     }
     return result;
 } */
+// jednoduse nejnovejsi
 /* function slateSearchGlobal(selectedComp, regexSlateGlobal) {
     var result;
-    const globalSlates = searchGlobal(regexSlateGlobal);
-    result = theBlueprint(theNewest(globalSlates, regexSlateGlobal));
+    const slatesGlobal = searchGlobal(regexSlateGlobal);
+    result = theBlueprint(theNewest(slatesGlobal, regexSlateGlobal));
     return result;
 } */
 //---------------------------------------------------

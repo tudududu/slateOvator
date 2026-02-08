@@ -1,5 +1,5 @@
 //  slateOvator
-//  241116_v15f11
+//  241116_v15f12
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -57,14 +57,7 @@
 // 15f11 insert slate kontrolouje pouze 1. vrstvu jestli neni slate uz v kompozici
 //       opraveno v insertSlateEngine()
 //       jeste stale bez layerInspection()
-
-//     241115 bylo vypnuto instanceof CompItem - nefunguje s tim compNameFromSlate() - proc?
-//            pokusim se pouzit v insertSlateEngine() - tam je instanceof CompItem potreba
-//     241115 var regex = wantedCompName; - jak to funguje???
-
-// 15f12   layerInspection() do insertSlateEngine()
-// + zkontrolovat jestli compNameFromSlate() funguje po uprave - instanceof CompItem zapnuto
-// redukce - jedno nebo druhe: layerInspectToComp() vs. layerInspection()
+// 15f12 vlozen layerInspectToComp() do insertSlateEngine()
 
 //  v15ex barevne tlacitko 'slate name' - prace nezacala
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
@@ -77,7 +70,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15f11';
+        var vers = '15f12';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -132,6 +125,7 @@
         var compNameBtn = panel04.add('button', undefined, 'Fill the slate');
         
         //  --------panel03--------Output comps--------
+        //  integrovano do panel05 Insert
         // var panel03 = win.add('panel', undefined, 'Make output compositions');
         //     panel03.orientation = 'column';
         //     panel03.alignChildren = 'fill';
@@ -442,12 +436,12 @@ function slateRegexSimple() {
         }
     
     function compNameFromSlate(slateCompL, layerName, parentComp) {
-        //  layerName - neni pouzita, protoze regex je zadan natvrdo zde uvnitr
-        //  zvazit upravu
+        //  slateCompL - slate ze ktereho bereme jmeno
+        //  layerName - neni pouzita, protoze regex je zadan natvrdo zde uvnitr // zvazit upravu
+        //  parentComp - jmeno kompozice, kterou zmenime jmeno
         var regex = /fileNameDuo/;
         //  hledame layer ve slatu dle jmena (vyhledavac nemuze byt omezen na CompItem)
         var targetLayerArr = layerInspection(slateCompL, regex);
-        
         var targetLayer = targetLayerArr[0];
         var newName0 = targetLayer.text.sourceText.value.text;
         var newName = newName0.replace(/ /g, '_');
@@ -473,15 +467,9 @@ function slateRegexSimple() {
         }
 
     //  hleda v comp vrstvu dle jmena a vraci pole >> nalezenych vrstev <<
-    //  pozor hledame take v insertSlateEngine(), ale ne pomoci layerInspection
-    //  predelat a pouzit vsude toto
-
-    //  241115 bylo vypnuto instanceof CompItem - nefunguje s tim compNameFromSlate - proc?
-    //          pokusim se pouzit v insertSlateEngine() - tam je instanceof CompItem potreba
-
     //  hledame objekt AV layer
     //  nehleda tedy zdroje, ale pouze nazvy vrstev v comp
-    //  regex = wantedCompName - jak to funguje??? - musi byt zadan regex !?!?
+    //  regex = wantedCompName - musi byt zadan regex !!!
     function layerInspection(comp, regex) {
         
         var compLayerArr = comp.layers; // prohlidka vrstev
@@ -582,34 +570,31 @@ app.endUndoGroup();
             compNamesMultiSlate(slateComp, callback, fieldLayerName, newTextInput, effectName);  
         } */
         
+    //  "Fill the slate" - vkladame nazev kompozice do slatu
     //  Spusti vkladac pokud je slate pouzit prave v jedne kompozici
-        function compNamesMultiSlate(slateCompL, callback, fieldLayerName, newTextInput, effectName) {
-            //  hledame pole parentComp (kde je pouzit)
-            if (slateCompL instanceof CompItem) {
-                    var parentComp = slateCompL.usedIn; //arr
-                // pokud je parentComp jen jedna spusti vkladac
-                if (parentComp.length == 1) {
-                    var parentCompName = parentComp[0].name;  //arr to string
-                    var newExpression = "comp(\"" + parentCompName + "\"" + ").name;";
-                    
-                    if (callback == compNameVkladOvator) {
-                        newTextInput = newExpression;
-                    } else if (callback == compNameFromSlate) {
-                        newTextInput = parentComp[0];
-                    }
-                    //  newTextInput predelat na newInput
-                    //  newTextInput predelat na newInput
-                    //  zjistit proc
-                    //  newTextInput predelat na newInput
-                    callback(slateCompL, fieldLayerName, newTextInput, effectName);
-                    //compNameVkladOvator(slateCompL, newExpression);
-                } else if (parentComp.length > 1) {
-                    alert("Slate " + slateCompL.name + " can only be used once.");
-                } else if (parentComp.length < 1) {
-                    alert("Slate " + slateCompL.name + " not used.");
+    function compNamesMultiSlate(slateCompL, callback, fieldLayerName, input, effectName) {
+        
+        if (slateCompL instanceof CompItem) {
+                var parentComp = slateCompL.usedIn; // arr parentComp (kde je pouzit)
+            // pokud je parentComp jen jedna spusti vkladac
+            if (parentComp.length == 1) {
+                var parentCompName = parentComp[0].name;  //arr to string
+                var newExpression = "comp(\"" + parentCompName + "\"" + ").name;";
+                
+                if (callback == compNameVkladOvator) {
+                    input = newExpression;
+                } else if (callback == compNameFromSlate) {
+                    input = parentComp[0];
                 }
+                callback(slateCompL, fieldLayerName, input, effectName);
+                //compNameVkladOvator(slateCompL, newExpression);
+            } else if (parentComp.length > 1) {
+                alert("Slate " + slateCompL.name + " can only be used once.");
+            } else if (parentComp.length < 1) {
+                alert("Slate " + slateCompL.name + " not used.");
             }
         }
+    }
 
 }
 
@@ -682,25 +667,8 @@ function slateShift(theComp/* , slateDur */)
                 slateShift(compOut/* , slateDur */);
             }
             placeTheSlate(compMaster, compOut, regex);
-        } else if (layerArr.length > 0) {   // prohledame jestli v comp...
-    
-    //make func // pozor - function layerInspection
-            // for (var i = 1; i <= layerArr.length; i++) {
-            //     if (layerArr[i].source instanceof CompItem) {
-            //         // hledame zdroj vrstvy (slate) pro pripad, ze by uvnitr byla prejmenovana
-            //         var layerName = layerArr[i].source.name;
-            //         var slateSearch = regex.test(layerName);   //   ...neni slate
-            //         }
-            //     }
-            // if (slateSearch) {  //pokud ano
-            //     alert('Slate alredy present.');
-            // } else {
-            //     if (switch_slateShift) {
-            //          slateShift(compOut/* , slateDur */);
-            //          }
-            //      placeTheSlate(compMaster, compOut, regex);  // nema slate - vkladame
-            //     }
-            // }
+        } else if (layerArr.length > 0) {
+            //  prohledame comp jestli nema slate, vratime pole pripadnych slatu
             var slatesInComp = layerInspectToComp(compOut, regex);
 
             if (slatesInComp.length > 0) {  //pokud ano

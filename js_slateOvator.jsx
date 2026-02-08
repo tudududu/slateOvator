@@ -1,5 +1,5 @@
 //  slateOvator
-//  240423_v15e2
+//  240501_v15e3
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -24,6 +24,7 @@
 // v15e pridano compNameFromSlate()
 // v15e1 uprava compNameFromSlate()
 // v15e2 uprava folderStructure()
+// v15e3 UI: tab through edittext fields - Preskupeni: misto skupin pole s tlacitkem je skupina poli a skup. tlacitek.
 
 //  v15x UI - compFolderLevel (ne)funkcnost, closable, (fce folderStructure)
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
@@ -36,7 +37,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15e2';
+        var vers = '15e3';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -44,7 +45,7 @@
         win.orientation = 'column';
         win.alignChildren = 'fill';
         win.preferredSize = [200, 300];
-        var buttonSize = [30, 20];
+        var buttonSize = [30, 23];
 
         /*var groupOne = win.add('group');
             groupOne.orientation = 'column';
@@ -70,7 +71,7 @@
         var panelTwo = win.add('panel', undefined, 'Make output compositions');
             panelTwo.orientation = 'column';
             panelTwo.alignChildren = 'fill';
-        var panelTwoGroupOne = panelTwo.add('group', undefined, 'panelOneGroupOne');
+        var panelTwoGroupOne = panelTwo.add('group', undefined, 'panelOneGroup_1');
             panelTwoGroupOne.orientation = 'row';
         //  label
         //var treeX = panelTwo.add("treeview", bounds = undefined, items = [1, 2, 3], {node: 1});
@@ -83,38 +84,45 @@
 
         //  panelOne Fields
         var panelOne = win.add('panel', undefined, 'Fields');
-            panelOne.orientation = 'column';
+            panelOne.orientation = 'row';
             panelOne.alignChildren = 'right';
-        var panelOneGroupOne = panelOne.add('group', undefined, 'panelOneGroupOne');
-            panelOneGroupOne.orientation = 'row';
-        var panelOneGroupTwo = panelOne.add('group', undefined, 'panelOneGroupTwo');
-            panelOneGroupTwo.orientation = 'row';
-        var panelOneGroupThree = panelOne.add('group', undefined, 'panelOneGroupThree');
-            panelOneGroupThree.orientation = 'row';
+        var panelOneGroupA = panelOne.add('group', undefined, 'panelOneGroupA');
+            panelOneGroupA.orientation = 'column';
+            panelOneGroupA.alignChildren = 'right';
+        var panelOneGroupB = panelOne.add('group', undefined, 'panelOneGroupA');
+            panelOneGroupB.orientation = 'row';
+        var panelOneGroup_1 = panelOneGroupA.add('group', undefined, 'panelOneGroup_1');
+            panelOneGroup_1.orientation = 'row';
+        var panelOneGroup_2 = panelOneGroupA.add('group', undefined, 'panelOneGroup_2');
+            panelOneGroup_2.orientation = 'row';
+        var panelOneGroup_3 = panelOneGroupA.add('group', undefined, 'panelOneGroup_3');
+            panelOneGroup_3.orientation = 'row';
+        var panelOneGroup_4 = panelOneGroupB.add('group', undefined, 'panelOneGroup_4');
+            panelOneGroup_4.orientation = 'column';
 
         //  label
-        var labelOne = panelOneGroupOne.add('statictext', undefined, 'Media: ');
-        var labelTwo = panelOneGroupTwo.add('statictext', undefined, 'SoundLevel: ');
-        var labelThree = panelOneGroupThree.add('statictext', undefined, 'Operator: ');
+        var labelOne = panelOneGroup_1.add('statictext', undefined, 'Media: ');
+        var labelTwo = panelOneGroup_2.add('statictext', undefined, 'SoundLevel: ');
+        var labelThree = panelOneGroup_3.add('statictext', undefined, 'Operator: ');
         //  input text
-        //var inputMedia = panelOneGroupOne.add('edittext', undefined, 'TV');
-        var inputMedia = panelOneGroupOne.add('edittext', undefined, 'TV', {enterKeySignalsOnChange: false});
+        //var inputMedia = panelOneGroup_1.add('edittext', undefined, 'TV');
+        var inputMedia = panelOneGroup_1.add('edittext', undefined, 'TV', {enterKeySignalsOnChange: false});
             inputMedia.characters = 10;
-        //var inputSoundLevel = panelOneGroupTwo.add('edittext', undefined, 'soundLevel');
-        var inputSoundLevel = panelOneGroupTwo.add('edittext', undefined, 'soundLevel', {enterKeySignalsOnChange: false});
+        //var inputSoundLevel = panelOneGroup_2.add('edittext', undefined, 'soundLevel');
+        var inputSoundLevel = panelOneGroup_2.add('edittext', undefined, 'soundLevel', {enterKeySignalsOnChange: false});
             inputSoundLevel.characters = 10;
-        //var inputOperator = panelOneGroupThree.add('edittext', undefined, 'yourName');
-        var inputOperator = panelOneGroupThree.add('edittext', undefined, 'yourName', {enterKeySignalsOnChange: false});
+        //var inputOperator = panelOneGroup_3.add('edittext', undefined, 'yourName');
+        var inputOperator = panelOneGroup_3.add('edittext', undefined, 'yourName', {enterKeySignalsOnChange: false});
             inputOperator.characters = 10;
         
         //  apply Button
-        var buttonOne = panelOneGroupOne.add('button', undefined, 'OK');
+        var buttonOne = panelOneGroup_4.add('button', undefined, 'OK');
             buttonOne.size = buttonSize;
-        var buttonTwo = panelOneGroupTwo.add('button', undefined, 'OK');
+        var buttonTwo = panelOneGroup_4.add('button', undefined, 'OK');
             buttonTwo.size = buttonSize;
-        var buttonThree = panelOneGroupThree.add('button', undefined, 'OK');
+        var buttonThree = panelOneGroup_4.add('button', undefined, 'OK');
             buttonThree.size = buttonSize;
-
+        
         //  panelOneB
         var panelOneB = win.add('panel', undefined, 'CompName from slate to outComp');
             panelOneB.orientation = 'column';
@@ -158,7 +166,7 @@
         buttonOne.onClick = triggerMedia;
         buttonTwo.onClick = triggerSoundLevel;
         buttonThree.onClick = triggerOperator;
-        
+    
         compNameBtn.onClick = triggerCompName;
         slateInsertBtn.onClick = triggerSlateInsert;
         prebalovatorBtn.onClick = triggerPrebalovator;

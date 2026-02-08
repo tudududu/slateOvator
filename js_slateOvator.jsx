@@ -1,5 +1,5 @@
 //  slateOvator
-//  241116_v15f15
+//  241117_v15f16
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -58,8 +58,9 @@
 //       opraveno v insertSlateEngine()
 //       jeste stale bez layerInspection()
 // 15f12 vlozen layerInspectToComp() do insertSlateEngine()
-// 15f14 barevna kontrolka 'Comp name from slate' pouze pri hoveru nad tlacitkem
-// 15f15 (comp|comps), cervena konntrolka vpravo u 'Comp name from slate'
+// 15f14 barevna kontrolka vlevo u 'Comp name from slate' pouze pri hoveru nad tlacitkem
+// 15f15 barevna kontrolka vpravo u 'Comp name from slate', (comp|comps)
+// 15f16 kompaktnejsi design - zrusen panel04, barevna kontrolka vpravo u 'Comp name from slate'
 
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
 //  vXX focus target
@@ -71,7 +72,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15f15';
+        var vers = '15f16';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -85,7 +86,7 @@
             target.text = newText;
         }
         //  --------panel05--------Insert slate into composition--------
-        var panel05 = win.add('panel', undefined, "Insert slate");
+        var panel05 = win.add('panel', undefined, undefined);
             panel05.orientation = 'column';
             panel05.alignChildren = 'fill';
         var panel05_g01 = panel05.add("group", undefined, { name: "panel05_g01" });
@@ -118,12 +119,12 @@
             };
 
         //  --------panel04--------Fill the slate--------
-        var panel04 = win.add('panel', undefined, undefined);
-            panel04.orientation = 'column';
-            panel04.alignChildren = 'fill';
+        // var panel04 = win.add('panel', undefined, undefined);
+        //     panel04.orientation = 'column';
+        //     panel04.alignChildren = 'fill';
         //var label = panel05.add('statictext', undefined, "Pass comp name into the slate");
         //  apply Button
-        var fillSlateBtn = panel04.add('button', undefined, 'Fill the slate');
+        var fillSlateBtn = panel05.add('button', undefined, 'Fill the slate');
         
         //  --------panel03--------Output comps--------
         //  integrovano do panel05 Insert
@@ -194,8 +195,8 @@
             btn03_Operator.size = buttonSize;
         
         //  --------panel01--------Comp name from slate--------
-        var panel01 = win.add('panel', undefined, undefined);
-            panel01.orientation = 'row';
+        var panel01 = win.add('panel', undefined, undefined, {borderStyle: "sunken"});
+            panel01.orientation = 'column';
             panel01.alignChildren = 'fill';
         var panel01_g01 = panel01.add("group", undefined, { name: "panel01_g01" });
             panel01_g01.orientation = "row";

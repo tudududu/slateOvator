@@ -1,5 +1,5 @@
 //  slateOvator
-//  240603_v15e4
+//  240605_v15e5
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -28,6 +28,7 @@
 // v15e3 UI: compFolderLevel field: (ne)funkcnost (fce folderStructure) - opraveno
 // v15e4 UI: compFolderLevel field: bud odstranit nebo closable, (fce folderStructure)
 //       odstraneno, automatizovano - hleda "comps", pokud comps !== 1 out bude v root
+// v15e5 ucesani automatizace compFolderLevel
 
 //  v15ex barevne tlacitko 'slate name' - prace nezacala
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
@@ -40,7 +41,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15e4';
+        var vers = '15e5';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -760,19 +761,27 @@ function slateOvator_part04a(/* inputFolderLevel */L) {
                
         //  parent pro 'out'
         //----------------------folderLevel automation
-        var itemsArrRev = [];
-        var itemsArrNamesRev = [];
-        for (var i = itemsArr.length - 1; i >= 0; i--) {
-            itemsArrRev.push(itemsArr[i]);
-            itemsArrNamesRev.push(itemsArr[i].name);    //pomocne
-        }
-        //alert(itemsArrNamesRev);
-        var itemCompsLevel = [];
-        for (var j = 0; j < itemsArrRev.length; j++) {
-            if (itemsArrRev[j].name == "comps") {
-                itemCompsLevel.push(j);
+        function reverseArr(arr) {  //dosadit itemsArr
+            var itemsArrRev = [];
+            //var itemsArrNamesRev = [];
+            for (var i = arr.length - 1; i >= 0; i--) {
+                itemsArrRev.push(arr[i]);
+            //    itemsArrNamesRev.push(arr[i].name);    //pomocne
+            //alert(itemsArrNamesRev);
             }
+            return itemsArrRev;
         }
+        function compsLevelIndex(arrRev) { //dosadit itemsArrRev
+        var itemCompsLevel = [];
+        for (var j = 0; j < arrRev.length; j++) {
+            if (arrRev[j].name == "comps") {
+                itemCompsLevel.push(j);
+                }
+            }
+            return itemCompsLevel;
+        }
+        var itemsArrRev = reverseArr(itemsArr);
+        var itemCompsLevel = compsLevelIndex(itemsArrRev);
         //alert(itemCompsLevel);
         
         if (itemCompsLevel.length === 1) {

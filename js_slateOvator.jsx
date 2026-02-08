@@ -1,5 +1,5 @@
 //  slateOvator
-//  241112_v15f08
+//  241115_v15f09
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -52,6 +52,10 @@
 // 15f07 insertSlateEngine()
 // 15f08 insertSlateEngine() - osetreno, aby se slate vkladalo pouze jednou, i kdyz je v kompozici více vrstev se slatem (prejmenovanych)
 
+// 15f01-08    slate lze vlozit primo do kompozice zaroven s posunutim vrstev (slateShift)
+// 15f09   vsechny 3 funkce svedeny do spolecneho "Slate insert" btn, zrusen prebalovator
+//         insert slate kontrolouje pouze 1. vrstvu jestli neni slate uz v kompozici
+
 //  v15ex barevne tlacitko 'slate name' - prace nezacala
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
 //  vXX focus target
@@ -63,7 +67,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15f06';
+        var vers = '15f09';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -118,15 +122,15 @@
         var compNameBtn = panel04.add('button', undefined, 'Fill the slate');
         
         //  --------panel03--------Output comps--------
-        var panel03 = win.add('panel', undefined, 'Make output compositions');
-            panel03.orientation = 'column';
-            panel03.alignChildren = 'fill';
-        var panel03_g01 = panel03.add("group", undefined, { name: "panel03_g01" });
-            panel03_g01.orientation = "row";
-            panel03_g01.alignment = "fill";
-            panel03_g01.alignChildren = ["fill", "center"];
-            panel03_g01.spacing = 10;
-            panel03_g01.margins = 0;
+        // var panel03 = win.add('panel', undefined, 'Make output compositions');
+        //     panel03.orientation = 'column';
+        //     panel03.alignChildren = 'fill';
+        // var panel03_g01 = panel03.add("group", undefined, { name: "panel03_g01" });
+        //     panel03_g01.orientation = "row";
+        //     panel03_g01.alignment = "fill";
+        //     panel03_g01.alignChildren = ["fill", "center"];
+        //     panel03_g01.spacing = 10;
+        //     panel03_g01.margins = 0;
         //  folder level field + popisek
         /* var panel03_groupOne = panel03.add('group', undefined, 'panel03_groupOne');
             panel03_groupOne.orientation = 'row';
@@ -134,9 +138,9 @@
             panel03_groupOne.alignChildren = 'fill'; */
         
         //  apply Button
-        var prebalovatorBtn = panel03_g01.add('button', undefined, 'Output comps');
-            prebalovatorBtn.alignChildren = 'fill';
-            prebalovatorBtn.preferredSize = [200, 30];
+        // var prebalovatorBtn = panel03_g01.add('button', undefined, 'Output comps');
+        //     prebalovatorBtn.alignChildren = 'fill';
+        //     prebalovatorBtn.preferredSize = [200, 30];
         //var inputLabel = panel03_groupOne.add('statictext', undefined, 'Set the Comps folder level:');
         /* var inputFolderLevel = panel03_g01.add('edittext', undefined, '3', {enterKeySignalsOnChange: false});
             inputFolderLevel.characters = 4;
@@ -231,9 +235,9 @@
                 slateOvator4(/*inputFolderLevel.text */);
                 }
         }
-        function triggerPrebalovator() {
-            slateOvator4(/*inputFolderLevel.text */);
-        }
+        // function triggerPrebalovator() {
+        //     slateOvator4(/*inputFolderLevel.text */);
+        // }
         inputMedia.onChange = triggerMedia;
         inputOperator.onChange = triggerOperator;
         inputSoundLevel.onChange = triggerSoundLevel;
@@ -247,7 +251,7 @@
         // panel05.slateInsertBtn.onClick = function() {
         //     slateOvator3a(this.parent);
         // }
-        prebalovatorBtn.onClick = triggerPrebalovator;
+        // prebalovatorBtn.onClick = triggerPrebalovator;
         compNameBtn2.onClick = triggerCompNameBack;
 
         //  --------panel00--------switches--------

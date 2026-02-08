@@ -1,5 +1,5 @@
 /* slateOvator
-250215_v16a03
+250321_v16a04
 
 v01 240103 joining parts 1, 2, 3
 v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -74,22 +74,26 @@ v15e7 UI: output comps pokus o 'justify fill'
 16a02 slateSearch_v02 - hleda nejnovejsi verzi slatu v celem AE projektu
         prednost ma slate z vlastniho projektu, v pripade ze je i tam
         NEFUNGUJE spravne - najde nejnovejsi, ale pojmenuje ho jmenem starsi verze
-16a03  nouzova oprava - popsat
-    - dalsi problem 1169 - popsat
-    - pri absenci slatu skonci uprostred, bez vysvestleni - hlaska
-    - nefunguje vyhledavani slatu (napr. pokud je v importu)
+16a03 nouzova oprava - popsat
+      - dalsi problem 1169 - popsat
+      - pri absenci slatu skonci uprostred, bez vysvestleni - hlaska
+      - nefunguje vyhledavani slatu (napr. pokud je v importu)
+16a04 nastaveny podminky v slateSearchAdvanced() - pokud neni nalezen slate v projektu nebo mimo nebo vubec, proces se nezastavi
+      v pripade, ze slate je jen jeden projevi se chyba - opakuje se theNewest() a do vstupniho pole se prida undefined a zastavi se sortReverseOrder()
+      ted opravim primo v slateSearchAdvanced(), ale pozdeji se k tomu vratim
 
 vXX vicekrat pouzity slateSarch vyhodit do fce
 vXX focus target
 vXX z callback fci oddelat instanceof pokud nejsou potreba
 */
+
 (function (thisObj) {
     
     newPanel(thisObj);
 
     function newPanel(thisObj) {
 
-        var vers = '16a03';
+        var vers = '16a04';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -1055,29 +1059,50 @@ function slateOvator4(/*inputFolderLevelL */) {
 //---------------------------------------------------
 //  slateSearch_v02
 //  hledame nejnovejsi z celeho projektu,
-//  prednost ma projekt
+//  prednost ma projekt (pokud je nejnovejsi v projektu i mimo)
 
 //---------------------------------------------------
 
 //---------------------------------------------------
 
 function slateSearchAdvanced(selectedComp, regexSlateGlobal) {
-    var result;
+    var result, resultProject, resultGlobal;
     const slatesProject = searchLocal(selectedComp, regexSlateGlobal);
     const slatesGlobal = searchGlobal(regexSlateGlobal);
-    
-    var resultProject = theBlueprint(theNewest(slatesProject, regexSlateGlobal));
-    var resultGlobal = theBlueprint(theNewest(slatesGlobal, regexSlateGlobal));
-
-    const resultArr = [resultProject, resultGlobal];
-    var test = theNewest(resultArr, regexSlateGlobal);
-    
-    if (test.length > 1) {
+    // nejnovejsi
+    if (slatesProject.length == 0 && slatesGlobal.length == 0) {
+        result = alert("No slates found.");
+    }
+    if (slatesProject.length != 0) {
+        if (slatesProject.length > 1) {
+            resultProject = theBlueprint(theNewest(slatesProject, regexSlateGlobal));
+            // resultProject = sortAlphabetOrder(slatesProject); // zkusit zjednusit
+        } else if (slatesProject.length == 1) {
+            resultProject = slatesProject[0];
+        }
         result = resultProject;
-    } else {
+    }
+    if (slatesGlobal.length != 0) {
+        if (slatesGlobal.length > 1) {
+            resultGlobal = theBlueprint(theNewest(slatesGlobal, regexSlateGlobal));
+            // resultGlobal = sortAlphabetOrder(slatesGlobal); // zkusit
+        } else if (slatesGlobal.length == 1) {
+            resultGlobal = slatesGlobal[0];
+        }
         result = resultGlobal;
     }
-    // !! jeste osetrit pokud je to potreba !!
+    // porovname kde je nejnovejsi, pokud najde 2 znamena to ze je v obou
+    if (slatesProject.length != 0 && slatesGlobal.length != 0) {
+        const resultArr = [resultProject, resultGlobal];
+        var test = theNewest(resultArr, regexSlateGlobal);
+        //  pokud v obou bereme z projektu
+        if (test.length > 1) {
+            result = resultProject;
+        } else {
+            result = resultGlobal;
+        }
+        // !! jeste osetrit pokud je to potreba !!
+    }
     return result;
 }
 
@@ -1117,6 +1142,7 @@ function searchLocal(selectedComp, regex) {
 //  vyhledame vsechny slaty v proj
 //  predelat, tak aby se dalo hledat i ve slozce slate
 //  tj. zadavame kde bude hledat
+//  - nao sei o que pensei  mas seria bom usalo tambem no No.1
 function searchGlobal(regexL) {
     const slateArr = [];
     for (var i = 1; i <= app.project.numItems; i++) { // procura do slate(name)
@@ -1166,25 +1192,31 @@ function commonArray(arr1, arr2) {
 //  2. sort
 //  pozor funguje i s polem stringu, ale spatne
 function sortAlphabetOrder(arr) {
-  const arrCopy = arr.slice();
-  return arrCopy.sort(function(a, b) {
-    return a.name === b.name ? 0 : a.name > b.name ? 1 : -1;
-  })
+    if (arr.length == 1) {
+        return arr;
+    }
+    const arrCopy = arr.slice();
+    return arrCopy.sort(function(a, b) {
+        return a.name === b.name ? 0 : a.name > b.name ? 1 : -1;
+    })
 }
 
 function sortReverseOrder(arr) {
-  const arrCopy = arr.slice();
-  return arrCopy.sort(function(a, b) {
-    return a.name === b.name ? 0 : a.name < b.name ? 1 : -1;
-  })
+    if (arr.length == 1) {
+        return arr;
+    }
+    const arrCopy = arr.slice();
+    return arrCopy.sort(function(a, b) {
+        return a.name === b.name ? 0 : a.name < b.name ? 1 : -1;
+    })
 }
 //test
-    function testSort(arr) {
-            const itemNames = arr.myMap(function(item) {
-            return item.name;
-        })
-        return itemNames;
-    }
+    // function testSort(arr) {
+    //         const itemNames = arr.myMap(function(item) {
+    //         return item.name;
+    //     })
+    //     return itemNames;
+    // }
 //---------------------------------------------------
 //  3. vybereme nejnovejsi verzi z pole vsech slatu 
 //  vraci string 
@@ -1195,6 +1227,7 @@ function sortReverseOrder(arr) {
 function theNewestSlateName(slateArr) {
     //  abecedni serazeni sestupne
     const arrRevSorted = sortReverseOrder(slateArr);
+    $.writeln(arrRevSorted[0].name);
     //  jmeno nejnovejsiho slatu
     var latestSlateName = arrRevSorted[0].name;
     //  date substr 
@@ -1213,6 +1246,7 @@ function theNewestSlateName(slateArr) {
 
 function slateRegexNewest(arr, regexG) {
     var str = theNewestSlateName(arr);
+    $.writeln(str);
     //var str = "/^" + name + "/";  
     //neni mozne takto vkladat promennou do regexu, je pak string a ne objekt
     //pridavame backslash do regexu pred zavorky

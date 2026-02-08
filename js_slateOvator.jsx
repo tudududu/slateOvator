@@ -1,5 +1,5 @@
 //  slateOvator
-//  241115_v15f09
+//  241116_v15f10
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -51,10 +51,20 @@
 // 15f06 UI: radiobutton pro complete vs simple insert - pouze vlozeni slatu bez prodlouzeni a posunu, pripadne s prodlouzenim a posunem
 // 15f07 insertSlateEngine()
 // 15f08 insertSlateEngine() - osetreno, aby se slate vkladalo pouze jednou, i kdyz je v kompozici více vrstev se slatem (prejmenovanych)
-
 // 15f01-08    slate lze vlozit primo do kompozice zaroven s posunutim vrstev (slateShift)
-// 15f09   vsechny 3 funkce svedeny do spolecneho "Slate insert" btn, zrusen prebalovator
-//         insert slate kontrolouje pouze 1. vrstvu jestli neni slate uz v kompozici
+// 15f09 vsechny 3 funkce svedeny do spolecneho "Slate insert" btn, zrusen prebalovator
+// 15f10 win.slateInsertBtn ->  var slateInsertBtn
+// 15f11 insert slate kontrolouje pouze 1. vrstvu jestli neni slate uz v kompozici
+//       opraveno v insertSlateEngine()
+//       jeste stale bez layerInspection()
+
+//     241115 bylo vypnuto instanceof CompItem - nefunguje s tim compNameFromSlate() - proc?
+//            pokusim se pouzit v insertSlateEngine() - tam je instanceof CompItem potreba
+//     241115 var regex = wantedCompName; - jak to funguje???
+
+// 15s12   layerInspection() do insertSlateEngine()
+// + zkontrolovat jestli compNameFromSlate() funguje po uprave - instanceof CompItem zapnuto
+// redukce - jedno nebo druhe: layerInspectToComp() vs. layerInspection()
 
 //  v15ex barevne tlacitko 'slate name' - prace nezacala
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
@@ -67,7 +77,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15f09';
+        var vers = '15f11';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -93,24 +103,24 @@
         //  label
         //var label = panel05.add('statictext', undefined, 'Insert slate into composition');
         //  apply Button
-        win.slateInsertBtn = panel05.add('button', undefined, 'Complete insert');
+        var slateInsertBtn = panel05.add('button', undefined, 'Complete insert');
     
             // win.repRad = win.panel05.add('radiobutton', [14,13,174,35], 'Search and Replace');
         var comRad = panel05_g01.add('radiobutton', undefined, 'Complete');
             comRad.alignChildren = 'fill';
             comRad.value = true;
             comRad.onClick = function () {
-                doTextChange(win.slateInsertBtn, 'Complete insert');
+                doTextChange(slateInsertBtn, 'Complete insert');
             };
         var insRad = panel05_g01.add('radiobutton', undefined, 'Simple');
             insRad.alignChildren = 'fill';
             insRad.onClick = function () {
-                doTextChange(win.slateInsertBtn, 'Simple insert');
+                doTextChange(slateInsertBtn, 'Simple insert');
             };
         var outRad = panel05_g01.add('radiobutton', undefined, 'Out');
             outRad.alignChildren = 'fill';
             outRad.onClick = function () {
-                doTextChange(win.slateInsertBtn, 'Out comps');
+                doTextChange(slateInsertBtn, 'Out comps');
             };
 
         //  --------panel04--------Fill the slate--------
@@ -217,12 +227,6 @@
         function triggerCompNameBack() {
         slateOvator2(compNameFromSlate);
         }
-        // function triggerSlateInsert() {
-        //     var switch_slateShift = true;
-        //     //alert(insRad.value);
-        //     if (insRad.value) {switch_slateShift = false;}
-        //     slateOvator3(switch_slateShift);
-        // }
         function triggerSlateInsert() {
             var switch_slateShift = true;
             if (comRad.value) {
@@ -247,11 +251,7 @@
         btn03_Operator.onClick = triggerOperator;
     
         compNameBtn.onClick = triggerCompName;
-        win.slateInsertBtn.onClick = triggerSlateInsert;
-        // panel05.slateInsertBtn.onClick = function() {
-        //     slateOvator3a(this.parent);
-        // }
-        // prebalovatorBtn.onClick = triggerPrebalovator;
+        slateInsertBtn.onClick = triggerSlateInsert;
         compNameBtn2.onClick = triggerCompNameBack;
 
         //  --------panel00--------switches--------
@@ -475,13 +475,17 @@ function slateRegexSimple() {
     //  pozor hledame take v insertSlateEngine(), ale ne pomoci layerInspection
     //  predelat a pouzit vsude toto
 
+    //  241115 bylo vypnuto instanceof CompItem - nefunguje s tim compNameFromSlate - proc?
+    //          pokusim se pouzit v insertSlateEngine() - tam je instanceof CompItem potreba
+    //  241115 var regex = wantedCompName; - jak to funguje??? 
+
     function layerInspection(comp, wantedCompName) {
         var regex = wantedCompName;
         var compLayerArr = comp.layers; // prohlidka vrstev
         var foundLayersArr = [];
         for (var j = 1; j <= compLayerArr.length; j++) {
             //  hledame nazev zdroje vrstvy, ale pouze pokud je kompozice
-            //if (compLayerArr[j].source instanceof CompItem) {
+            // if (compLayerArr[j].source instanceof CompItem) {
                 var layerName = compLayerArr[j].name;
                 //  je vrstva slate?
                 var slateSearch = regex.test(layerName);
@@ -489,7 +493,7 @@ function slateRegexSimple() {
                 if (slateSearch) {
                     foundLayersArr.push(compLayerArr[j]);
                 }
-            //}
+            // }
         }
         return foundLayersArr;                  
     }
@@ -666,7 +670,8 @@ function slateShift(theComp/* , slateDur */)
 }
 
     //---------------------------------------------------
-    function insertSlateEngine(compMaster, compOut, regex, switch_slateShift) { // compMaster je objekt (polozka z pole)
+            // compOut, protoze slate je vzdy v compOut
+    function insertSlateEngine(compMaster, compOut, regex, switch_slateShift) {
         
         var layerArr = compOut.layers;
         //nahradit strucnejsim:
@@ -681,26 +686,23 @@ function slateShift(theComp/* , slateDur */)
             placeTheSlate(compMaster, compOut, regex);
         } else if (layerArr.length > 0) {   // prohledame jestli v comp...
     //make func // pozor - function layerInspection
+            var tempSlateTest;
             for (var i = 1; i <= layerArr.length; i++) {
                 if (layerArr[i].source instanceof CompItem) {
                     // hledame zdroj vrstvy (slate) pro pripad, ze by uvnitr byla prejmenovana
                     var layerName = layerArr[i].source.name;
                     var slateSearch = regex.test(layerName);   //   ...neni slate
-
-                    if (slateSearch) {  //pokud ano konci
-                        alert('Slate alredy present.');
-                        //  nedame ho tam take?
-                        break;
-                    } else {
-                        if (switch_slateShift) {
-                            slateShift(compOut/* , slateDur */);
-                        }
-                        placeTheSlate(compMaster, compOut, regex);  // nema slate - vkladame
-                        break;
                     }
                 }
+            if (slateSearch) {  //pokud ano
+                alert('Slate alredy present.');
+            } else {
+                if (switch_slateShift) {
+                slateShift(compOut/* , slateDur */);
+                }
+            placeTheSlate(compMaster, compOut, regex);  // nema slate - vkladame
+                }
             }
-        }
         //  vlozeny slate - fitToCompSize
         for (var i = 1; i <= layerArr.length; i++) {
             var layerName = layerArr[i].name;
@@ -711,8 +713,7 @@ function slateShift(theComp/* , slateDur */)
             }
         }
         // a nastavime zacatek na -01s
-        // compOut, protoze slate je vzdy v compOut
-        compOut.displayStartTime = -1; //musi to byt tady?
+        compOut.displayStartTime = -1;
     }
     //---------------------------------------------------
     //  vkladame kopii slatu do kompozice

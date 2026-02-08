@@ -1,11 +1,11 @@
 /* slateOvator
-241218_v16a02
+250215_v16a03
 
 v01 240103 joining parts 1, 2, 3
 v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
 v03 slateOvator_part3 v08h limited to CompItem
 v05 SlateOvator_part_02: compNamesMultiFnc
-v07_wip fixing broken expressions due to the change of the name (fail)
+v07 wip fixing broken expressions due to the change of the name (fail)
 v07 slateOvator_part04a duplikat kompozice s apendixem do podslozky v parentFoldru
 v08 zacleneni part3 do part4
 v09 insert compName via callback
@@ -72,20 +72,24 @@ v15e7 UI: output comps pokus o 'justify fill'
 16a00 slateSearchAdvanced() misto slateSearchGlobal()
 16a01 slateSearchAdvanced()
 16a02 slateSearch_v02 - hleda nejnovejsi verzi slatu v celem AE projektu
-prednost ma slate z vlastniho projektu, v pripade ze je i tam
-NEFUNGUJE spravne - najde nejnovejsi, ale pojmenuje ho jmenem starsi verze
+        prednost ma slate z vlastniho projektu, v pripade ze je i tam
+        NEFUNGUJE spravne - najde nejnovejsi, ale pojmenuje ho jmenem starsi verze
+16a03  nouzova oprava - popsat
+    - dalsi problem 1169 - popsat
+    - pri absenci slatu skonci uprostred, bez vysvestleni - hlaska
+    - nefunguje vyhledavani slatu (napr. pokud je v importu)
 
 vXX vicekrat pouzity slateSarch vyhodit do fce
 vXX focus target
-vXX z callback fci oddelat instanceof pokud nejsou potreba */
-
+vXX z callback fci oddelat instanceof pokud nejsou potreba
+*/
 (function (thisObj) {
     
     newPanel(thisObj);
 
     function newPanel(thisObj) {
 
-        var vers = '16a02';
+        var vers = '16a03';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -760,7 +764,7 @@ function slateShift(theComp/* , slateDur */)
         //alert(slate.name);
         var newName = nameNewSlate(slateMaster, regex);
         var newSlate = slateMaster.duplicate();
-            newSlate.name = newName;
+            // newSlate.name = newName;
             compOut.layers.add(newSlate);
         }
     //---------------------------------------------------

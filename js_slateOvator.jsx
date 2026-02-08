@@ -1,5 +1,5 @@
 //  slateOvator
-//  241109_v15f02
+//  241109_v15f03
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -40,11 +40,13 @@
 //       layerInspectToComp() misto layerInspection():
 //       misto AVLayer davame rovnou CompItem findSlateComp() tim padem vyrazena
 //       POZOR layerInspection() je stale pouzit v logoTlacitkovatOr(), compNameFromSlate()
-// 15e11   240914  nameNewSlate() vyreseno hledani posledni kopie slatu (99, 100, 101) 3 reseni
-// 15e12   240914  nameNewSlate() reseni 3 (jistota)
-// 15e13   241107  simple output slate insertion
-// 15e14   uplne prekopani - zjednoduseni zaverecne casti nove kopie slatu
-            
+// 15e11 240914  nameNewSlate() vyreseno hledani posledni kopie slatu (99, 100, 101) 3 reseni
+// 15e12 240914  nameNewSlate() reseni 3 (jistota)
+// 15e13 241107  simple output slate insertion
+// 15f01 uplne prekopani - zjednoduseni zaverecne casti nove kopie slatu
+// 15f02 aplikaceDoComp() misto insertSlateEngine()
+// 15f03 compLengthAdjust() - posun vrstev a prodlouzeni kompozice pouze pokud neni slate, jinak se posune pouze zacatek kompozice
+
 //  v15ex barevne tlacitko 'slate name' - prace nezacala
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
 //  vXX focus target
@@ -56,7 +58,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15f02';
+        var vers = '15f03';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -587,8 +589,8 @@ function slateOvator3() {
             if (compSelection[j] instanceof CompItem) {
                 var compMaster = compSelection[j];
                 var compOut = compSelection[j];
-            // insertSlateEngine(compMaster, compOut, regex);
-            aplikaceDoComp(compMaster, compOut, regex);
+            insertSlateEngine(compMaster, compOut, regex);
+            // aplikaceDoComp(compMaster, compOut, regex);
             }
         }
     }
@@ -597,17 +599,17 @@ function slateOvator3() {
 //  2. shift layers by slateLength
 function compLengthAdjust(theComp/* , slateDur */)
 {
-    for (var i = 1; i <= theComp.numLayers; i++) {
-        var curLayer = theComp.layer(i);
         var compDur = theComp.duration;
         var slateDur = 1;
-        compDur += slateDur;
+        theComp.duration = compDur + slateDur;
+    for (var i = 1; i <= theComp.numLayers; i++) {
+        var curLayer = theComp.layer(i);
         // if (curLayer) {nevime proc?, vyhodit}
         if (curLayer) {
             // if (curLayer.outPoint >= compEnd) {
                 lockedOne = false;
                 if (curLayer.locked) {lockedOne = true; curLayer.locked = false;}
-                curLayer.inPoint += slateDur;
+                curLayer.startTime += slateDur;
                 if (lockedOne) {curLayer.locked = true;}
                 lockedOne = false;
             // }
@@ -616,10 +618,12 @@ function compLengthAdjust(theComp/* , slateDur */)
 }
 
 //
-// function insertSlateEngine(compMaster, compOut, regex) {
-    
-    // aplikaceDoComp(compMaster, compOut, regex);
-
+function insertSlateEngine(compMaster, compOut, regex) 
+{
+    // zbyva osetrit compLengthAdjust(), aby se provedla pouze pokud neni slate
+    compLengthAdjust(compOut/* , slateDur */) 
+    aplikaceDoComp(compMaster, compOut, regex);
+}
 
     //---------------------------------------------------
     function aplikaceDoComp(compMaster, compOut, regex) { // compMaster je objekt (polozka z pole)
@@ -655,7 +659,7 @@ function compLengthAdjust(theComp/* , slateDur */)
             }
         }
         // a nastavime zacatek na -01s
-        // proc je tohle compOut
+        // compOut, protoze slate je vzdy v compOut
         compOut.displayStartTime = -1; //musi to byt tady?
     }
     //---------------------------------------------------
@@ -724,7 +728,7 @@ function compLengthAdjust(theComp/* , slateDur */)
         fitToCompScaleAction(myLayer, fitToCompScale);
         centerCompPosition(myCompSize, myLayer);
     }
-// }
+
 
 //======================================
 //======================================

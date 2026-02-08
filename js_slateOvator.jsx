@@ -1,5 +1,5 @@
 //  slateOvator
-//  240501_v15e3
+//  240603_v15e4
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -25,8 +25,11 @@
 // v15e1 uprava compNameFromSlate()
 // v15e2 uprava folderStructure()
 // v15e3 UI: tab through edittext fields - Preskupeni: misto skupin pole s tlacitkem je skupina poli a skup. tlacitek.
+// v15e3 UI: compFolderLevel field: (ne)funkcnost (fce folderStructure) - opraveno
+// v15e4 UI: compFolderLevel field: bud odstranit nebo closable, (fce folderStructure)
+//       odstraneno, automatizovano - hleda "comps", pokud comps !== 1 out bude v root
 
-//  v15x UI - compFolderLevel (ne)funkcnost, closable, (fce folderStructure)
+//  v15ex barevne tlacitko 'slate name' - prace nezacala
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
 //  vXX focus target
 //  vXX z callback fci oddelat instanceof pokud nejsou potreba
@@ -37,7 +40,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15e3';
+        var vers = '15e4';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -47,88 +50,86 @@
         win.preferredSize = [200, 300];
         var buttonSize = [30, 23];
 
-        /*var groupOne = win.add('group');
-            groupOne.orientation = 'column';
-            groupOne.alignChildren = 'fill';*/
+        //  --------panel05--------Insert slate into composition--------
+        var panel05 = win.add('panel', undefined, "Insert slate into composition");
+            panel05.orientation = 'column';
+            panel05.alignChildren = 'fill';
+        //  label
+        //var label = panel05.add('statictext', undefined, 'Insert slate into composition');
+        //  apply Button
+        var slateInsertBtn = panel05.add('button', undefined, 'Insert slate');
+
+        //  --------panel04--------Fill the slate--------
+        var panel04 = win.add('panel', undefined, "Pass comp name into the slate");
+            panel04.orientation = 'column';
+            panel04.alignChildren = 'fill';
+        //var label = panel05.add('statictext', undefined, "Pass comp name into the slate");
+        //  apply Button
+        var compNameBtn = panel04.add('button', undefined, 'Fill the slate');
         
-        //  panelFour
-        var panelFour = win.add('panel', undefined, 'Insert slate into composition');
-            panelFour.orientation = 'column';
-            panelFour.alignChildren = 'fill';
+        //  --------panel03--------Output comps--------
+        var panel03 = win.add('panel', undefined, 'Make output compositions');
+            panel03.orientation = 'column';
+            panel03.alignChildren = 'fill';
+        /*         //  folder level field + popisek
+        var panel03_groupOne = panel03.add('group', undefined, 'panel03_groupOne');
+            panel03_groupOne.orientation = 'row';
         //  label
-        //var label = panelFour.add('statictext', undefined, 'Insert slate into composition');
+        var inputLabel = panel03_groupOne.add('statictext', undefined, 'Set the Comps folder level:');
+            //var treeX = panel03.add("treeview", bounds = undefined, items = [1, 2, 3], {node: 1});
+            //panel03.add("slider", bounds = undefined, value = 3, minvalue = 1, maxvalue = 3, {name: 'levelSlider'});
+        var inputFolderLevel = panel03_groupOne.add('edittext', undefined, '3', {enterKeySignalsOnChange: false});
+            inputFolderLevel.characters = 6; */
         //  apply Button
-        var slateInsertBtn = panelFour.add('button', undefined, 'Insert slate');
+        var prebalovatorBtn = panel03.add('button', undefined, 'Output comps');
 
-        //  panelThree
-        var panelThree = win.add('panel', undefined, 'Pass the compName to the slate');
-            panelThree.orientation = 'column';
-            panelThree.alignChildren = 'fill';
-        //  apply Button
-        var compNameBtn = panelThree.add('button', undefined, 'Fill the slate');
-        
-        //  panelTwo
-        var panelTwo = win.add('panel', undefined, 'Make output compositions');
-            panelTwo.orientation = 'column';
-            panelTwo.alignChildren = 'fill';
-        var panelTwoGroupOne = panelTwo.add('group', undefined, 'panelOneGroup_1');
-            panelTwoGroupOne.orientation = 'row';
-        //  label
-        //var treeX = panelTwo.add("treeview", bounds = undefined, items = [1, 2, 3], {node: 1});
-        var inputLabel = panelTwoGroupOne.add('statictext', undefined, 'Set the Comps folder level:');
-            //panelTwo.add("slider", bounds = undefined, value = 3, minvalue = 1, maxvalue = 3, {name: 'levelSlider'});
-        var inputFolderLevel = panelTwoGroupOne.add('edittext', undefined, '3', {enterKeySignalsOnChange: false});
-            inputFolderLevel.characters = 6;
-        //  apply Button
-        var prebalovatorBtn = panelTwo.add('button', undefined, 'Output comps');
-
-        //  panelOne Fields
-        var panelOne = win.add('panel', undefined, 'Fields');
-            panelOne.orientation = 'row';
-            panelOne.alignChildren = 'right';
-        var panelOneGroupA = panelOne.add('group', undefined, 'panelOneGroupA');
-            panelOneGroupA.orientation = 'column';
-            panelOneGroupA.alignChildren = 'right';
-        var panelOneGroupB = panelOne.add('group', undefined, 'panelOneGroupA');
-            panelOneGroupB.orientation = 'row';
-        var panelOneGroup_1 = panelOneGroupA.add('group', undefined, 'panelOneGroup_1');
-            panelOneGroup_1.orientation = 'row';
-        var panelOneGroup_2 = panelOneGroupA.add('group', undefined, 'panelOneGroup_2');
-            panelOneGroup_2.orientation = 'row';
-        var panelOneGroup_3 = panelOneGroupA.add('group', undefined, 'panelOneGroup_3');
-            panelOneGroup_3.orientation = 'row';
-        var panelOneGroup_4 = panelOneGroupB.add('group', undefined, 'panelOneGroup_4');
-            panelOneGroup_4.orientation = 'column';
+        //  --------panel02--------fields--------
+        var panel02 = win.add('panel', undefined, 'Fields');
+            panel02.orientation = 'row';
+            panel02.alignChildren = 'right';
+        var panel02_groupA = panel02.add('group', undefined, 'panel02_groupA');
+            panel02_groupA.orientation = 'column';
+            panel02_groupA.alignChildren = 'right';
+        var panel02_groupB = panel02.add('group', undefined, 'panel02_groupB');
+            panel02_groupB.orientation = 'row';
+        var panel02_group_1 = panel02_groupA.add('group', undefined, 'panel02_group_1');
+            panel02_group_1.orientation = 'row';
+        var panel02_group_2 = panel02_groupA.add('group', undefined, 'panel02_group_2');
+            panel02_group_2.orientation = 'row';
+        var panel02_group_3 = panel02_groupA.add('group', undefined, 'panel02_group_3');
+            panel02_group_3.orientation = 'row';
+        var panel02_group_4 = panel02_groupB.add('group', undefined, 'panel02_group_4');
+            panel02_group_4.orientation = 'column';
 
         //  label
-        var labelOne = panelOneGroup_1.add('statictext', undefined, 'Media: ');
-        var labelTwo = panelOneGroup_2.add('statictext', undefined, 'SoundLevel: ');
-        var labelThree = panelOneGroup_3.add('statictext', undefined, 'Operator: ');
+        var labelOne = panel02_group_1.add('statictext', undefined, 'Media: ');
+        var labelTwo = panel02_group_2.add('statictext', undefined, 'SoundLevel: ');
+        var labelThree = panel02_group_3.add('statictext', undefined, 'Operator: ');
         //  input text
-        //var inputMedia = panelOneGroup_1.add('edittext', undefined, 'TV');
-        var inputMedia = panelOneGroup_1.add('edittext', undefined, 'TV', {enterKeySignalsOnChange: false});
+        //var inputMedia = panel02_group_1.add('edittext', undefined, 'TV');
+        var inputMedia = panel02_group_1.add('edittext', undefined, 'TV', {enterKeySignalsOnChange: false});
             inputMedia.characters = 10;
-        //var inputSoundLevel = panelOneGroup_2.add('edittext', undefined, 'soundLevel');
-        var inputSoundLevel = panelOneGroup_2.add('edittext', undefined, 'soundLevel', {enterKeySignalsOnChange: false});
+        //var inputSoundLevel = panel02_group_2.add('edittext', undefined, 'soundLevel');
+        var inputSoundLevel = panel02_group_2.add('edittext', undefined, 'soundLevel', {enterKeySignalsOnChange: false});
             inputSoundLevel.characters = 10;
-        //var inputOperator = panelOneGroup_3.add('edittext', undefined, 'yourName');
-        var inputOperator = panelOneGroup_3.add('edittext', undefined, 'yourName', {enterKeySignalsOnChange: false});
+        //var inputOperator = panel02_group_3.add('edittext', undefined, 'yourName');
+        var inputOperator = panel02_group_3.add('edittext', undefined, 'yourName', {enterKeySignalsOnChange: false});
             inputOperator.characters = 10;
         
         //  apply Button
-        var buttonOne = panelOneGroup_4.add('button', undefined, 'OK');
-            buttonOne.size = buttonSize;
-        var buttonTwo = panelOneGroup_4.add('button', undefined, 'OK');
-            buttonTwo.size = buttonSize;
-        var buttonThree = panelOneGroup_4.add('button', undefined, 'OK');
-            buttonThree.size = buttonSize;
+        var btn01_media = panel02_group_4.add('button', undefined, 'OK');
+            btn01_media.size = buttonSize;
+        var btn02_sndLvl = panel02_group_4.add('button', undefined, 'OK');
+            btn02_sndLvl.size = buttonSize;
+        var btn03_Operator = panel02_group_4.add('button', undefined, 'OK');
+            btn03_Operator.size = buttonSize;
         
-        //  panelOneB
-        var panelOneB = win.add('panel', undefined, 'CompName from slate to outComp');
-            panelOneB.orientation = 'column';
-            panelOneB.alignChildren = 'fill';
+        //  --------panel01--------Comp name from slate--------
+        var panel01 = win.add('panel', undefined, undefined);
+            panel01.orientation = 'column';
+            panel01.alignChildren = 'fill';
         //  apply Button
-        var compNameBtn2 = panelOneB.add('button', undefined, 'Change outComp name');
+        var compNameBtn2 = panel01.add('button', undefined, 'Comp name from slate');
         
         // --- Action ---
         function triggerMedia() {
@@ -152,28 +153,26 @@
         function triggerCompNameBack() {
         slateOvator2(compNameFromSlate);
         }
-
         function triggerSlateInsert() {
             slateOvator3();
         }
         function triggerPrebalovator() {
-            slateOvator_part04a(inputFolderLevel.text);
+            slateOvator_part04a(/* inputFolderLevel.text */);
         }
         inputMedia.onChange = triggerMedia;
         inputOperator.onChange = triggerOperator;
         inputSoundLevel.onChange = triggerSoundLevel;
 
-        buttonOne.onClick = triggerMedia;
-        buttonTwo.onClick = triggerSoundLevel;
-        buttonThree.onClick = triggerOperator;
+        btn01_media.onClick = triggerMedia;
+        btn02_sndLvl.onClick = triggerSoundLevel;
+        btn03_Operator.onClick = triggerOperator;
     
         compNameBtn.onClick = triggerCompName;
         slateInsertBtn.onClick = triggerSlateInsert;
         prebalovatorBtn.onClick = triggerPrebalovator;
         compNameBtn2.onClick = triggerCompNameBack;
 
-        //  switches
-
+        //  --------panel00--------switches--------
         var panelZero = win.add('panel', undefined, 'Tags');
             panelZero.orientation = 'row';
             panelZero.alignChildren = 'fill';
@@ -185,23 +184,23 @@
             //panelZeroGroupOne.alignChildren = 'left';
 
         var checkbox_Media = panelZeroGroupOne.add("checkbox", [undefined,undefined,100,18], ' Media');
-        checkbox_Media.value = true;
+            checkbox_Media.value = true;
         var checkbox_Sound = panelZeroGroupOne.add("checkbox", [undefined,undefined,100,18], ' Sound');
-        checkbox_Sound.value = true;
+            checkbox_Sound.value = true;
         var checkbox_Aspect = panelZeroGroupOne.add("checkbox", [undefined,undefined,100,18], ' Aspect');
         var checkbox_Resolution = panelZeroGroupOne.add("checkbox", [undefined,undefined,100,18], ' Resolution');
         var checkbox_Framerate = panelZeroGroupOne.add("checkbox", [undefined,undefined,100,18], ' Framerate');
         var checkbox_Subtitle = panelZeroGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Subtitle');
         var checkbox_Language = panelZeroGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Language');
         var checkbox_Brand = panelZeroGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Brand');
-        checkbox_Brand.value = true;
+            checkbox_Brand.value = true;
         var checkbox_Title = panelZeroGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Title');
-        checkbox_Title.value = true;
+            checkbox_Title.value = true;
         var checkbox_Logo = panelZeroGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Logo');
         
         // --- Action ---
         
-            var switchesLayerName = "controls";
+        var switchesLayerName = "controls";
         function checkTagMedia() {
             slateOvator2(tlacitkovatOr, switchesLayerName, checkbox_Media.value, 'media_Switch');
         }
@@ -304,10 +303,11 @@ function slateRegexSimple() {
         
 //======================================callback funkce pro so2
 
-    //  prepis pole 
+    //  prepis hodnoty pole ve slatu
     //  oproti slate0vatoru1 predelano z pole na objekt
+    //  tj. kompzici vkladame jako objekt a ne jako pole
     function renameField(comp, fieldLayerName, newTextInput) {
-    //for (var j = 0; j < comp.length; j++) {
+    
         if (comp instanceof CompItem) {
         var layerArr = comp.layers;
         for (var i = 1; i <= layerArr.length; i++) {
@@ -654,7 +654,7 @@ function insertSlateEngine(compMaster, compOut, regex) {
 //  zadanim parentFolder pro 'out' ve funkci folderStructure => promenna folderParentParent
 //  pridano vkladani slatu
 
-function slateOvator_part04a(inputFolderLevelL) {
+function slateOvator_part04a(/* inputFolderLevel */L) {
 
     app.beginUndoGroup("Make output compositions");
 
@@ -695,10 +695,10 @@ function slateOvator_part04a(inputFolderLevelL) {
         naming(myCompMaster, myCompOut);
         //deleteLayers(myCompOut);
         prebalovator(myCompMaster, myCompOut, regex);
-//  lepe popsat pochopit, doresit 'out' uroven aby fungovala
+        //  lepe popsat pochopit
         var pathItemsArr = folderPath(myCompMaster);
         //  parent folder pro outComp s celou cestou az k 'out'
-        //  ?? folderStructure vraci prvni slozku v rade za selectedComp
+        //  folderStructure vraci prvni slozku v rade za selectedComp
         var myCompOutFolderParent = folderStructure(pathItemsArr);
         //  setting FP for outComp
         myCompOut.parentFolder = myCompOutFolderParent;
@@ -757,10 +757,36 @@ function slateOvator_part04a(inputFolderLevelL) {
     }
 
     function folderStructure(itemsArr) {
-        var compFolderLevel = parseInt(inputFolderLevelL);
-        var outFolderIndex = (compFolderLevel - 2);
+               
         //  parent pro 'out'
+        //----------------------folderLevel automation
+        var itemsArrRev = [];
+        var itemsArrNamesRev = [];
+        for (var i = itemsArr.length - 1; i >= 0; i--) {
+            itemsArrRev.push(itemsArr[i]);
+            itemsArrNamesRev.push(itemsArr[i].name);    //pomocne
+        }
+        //alert(itemsArrNamesRev);
+        var itemCompsLevel = [];
+        for (var j = 0; j < itemsArrRev.length; j++) {
+            if (itemsArrRev[j].name == "comps") {
+                itemCompsLevel.push(j);
+            }
+        }
+        //alert(itemCompsLevel);
         
+        if (itemCompsLevel.length === 1) {
+            compFolderLevel = itemCompsLevel[0] + 1;
+        }   else {
+            compFolderLevel = 2;
+            //zruseno - vstup z UI
+            //parseInt(inputFolderLevelL);
+        }
+        //alert(compFolderLevel);
+
+        var outFolderIndex = (compFolderLevel - 2);
+        //----------------------folderLevel automation
+
         if (outFolderIndex > 0 && outFolderIndex <= compFolderLevel) {
             var outFolderParent = itemsArr[itemsArr.length - outFolderIndex];
             } else {

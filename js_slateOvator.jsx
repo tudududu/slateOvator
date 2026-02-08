@@ -1,5 +1,5 @@
 //  slateOvator
-//  241118_v15f21
+//  241118_v15f22
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -66,6 +66,8 @@
 // 15f19 UI: compNameFSBtn s barevnou kontrolkou, neroztahuje se na celou sirku panelu
 // 15f20 UI: compNameFSBtn fixed preferredSize
 // 15f21 UI: compNameFSBtn barevna kontrolka nad
+// 15f14-15f21 UI: pokusy s pridanim barevne kontrolky pro 'compNameFSBtn', idealni cil je mit kontrolku na strane tlacitka, coz koliduje s align fill - tlacitko se neroztahuje nasiru panelu
+// 15f22 Navrat k 15f16, UI: compNameFSBtn barevna kontrolka vypnuta
 
 //  vXX vicekrat pouzity slateSarch vyhodit do fce
 //  vXX focus target
@@ -77,7 +79,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15f21';
+        var vers = '15f22';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -94,7 +96,6 @@
         var panel05 = win.add('panel', undefined, undefined);
             panel05.orientation = 'column';
             panel05.alignChildren = 'fill';
-            panel05.preferredSize = [200, 30];
         var panel05_g01 = panel05.add("group", undefined, { name: "panel05_g01" });
             panel05_g01.orientation = "row";
             panel05_g01.alignment = "fill";
@@ -105,10 +106,7 @@
         //var label = panel05.add('statictext', undefined, 'Insert slate into composition');
         //  apply Button
         var slateInsertBtn = panel05.add('button', undefined, 'Complete insert');
-            slateInsertBtn.preferredSize = [200, 30];
-        var fillSlateBtn = panel05.add('button', undefined, 'Fill the slate');
-            fillSlateBtn.preferredSize = [200, 30];
-            
+    
             // win.repRad = win.panel05.add('radiobutton', [14,13,174,35], 'Search and Replace');
         var comRad = panel05_g01.add('radiobutton', undefined, 'Complete');
             comRad.alignChildren = 'fill';
@@ -127,6 +125,14 @@
                 doTextChange(slateInsertBtn, 'Out comps');
             };
 
+        //  --------panel04--------Fill the slate--------
+        // var panel04 = win.add('panel', undefined, undefined);
+        //     panel04.orientation = 'column';
+        //     panel04.alignChildren = 'fill';
+        //var label = panel05.add('statictext', undefined, "Pass comp name into the slate");
+        //  apply Button
+        var fillSlateBtn = panel05.add('button', undefined, 'Fill the slate');
+        
         //  --------panel03--------Output comps--------
         //  integrovano do panel05 Insert
         // var panel03 = win.add('panel', undefined, 'Make output compositions');
@@ -199,53 +205,51 @@
         var panel01 = win.add('panel', undefined, undefined, {borderStyle: "sunken"});
             panel01.orientation = 'column';
             panel01.alignChildren = 'fill';
-        var panel01_g01 = panel01.add("group", undefined, { name: "panel01_g01" });
-            panel01_g01.orientation = "row";
-            panel01_g01.alignment = "fill";
-            // panel01_g01.alignChildren = ["fill", "center"];
-            panel01_g01.alignChildren = "fill";
-            panel01_g01.spacing = 10;
-            panel01_g01.margins = 0;
+        // var panel01_g01 = panel01.add("group", undefined, { name: "panel01_g01" });
+        //     panel01_g01.orientation = "row";
+        //     panel01_g01.alignment = "fill";
+        //     panel01_g01.alignChildren = ["fill", "center"];
+        //     panel01_g01.spacing = 10;
+        //     panel01_g01.margins = 0;
 
         // Apply Button
         var compNameFSBtn = panel01.add('button', undefined, 'Comp name from slate');
         // compNameFSBtn.alignChildren = 'fill';
         // compNameFSBtn.preferredSize = [200, 30];
 
-        // Draw colored circle element
-        var colorElement = panel01_g01.add('panel', undefined);
-        colorElement.preferredSize = [400, 4]; // Size of the colored element
-        colorElement.visible = false; // Initially hidden
+        // // Draw colored circle element
+        // var colorElement = panel01_g01.add('panel', undefined);
+        // colorElement.preferredSize = [6, 30]; // Size of the colored element
+        // colorElement.visible = false; // Initially hidden
 
-        // --- Customize Button Highlight Color ---
-        colorElement.onDraw = function () {
-            var g = colorElement.graphics;
-            var brush = g.newBrush(g.BrushType.SOLID_COLOR, [0.7, 0, 0.0, 1]); // color
-            // g.rectPath(0, 0, 200, 4);
-            g.rectPath(0, 0, compNameFSBtn.size[0], compNameFSBtn.size[1]);
-            g.fillPath(brush);
-        };
-        // --- Variables to track mouse state ---
-        var isMouseOver = false;
+        // // --- Customize Button Highlight Color ---
+        // colorElement.onDraw = function () {
+        //     var g = colorElement.graphics;
+        //     var brush = g.newBrush(g.BrushType.SOLID_COLOR, [0.7, 0, 0.0, 1]); // color
+        //     g.rectPath(0, 0, 4, 29);
+        //     g.fillPath(brush);
+        // };
+        // // --- Variables to track mouse state ---
+        // var isMouseOver = false;
 
-        // Mouse event handlers
-        compNameFSBtn.addEventListener('mouseover', function () {
-            isMouseOver = true;
-            colorElement.visible = true; // Show colored element on hover
-            compNameFSBtn.notify('onDraw');
-        });
+        // // Mouse event handlers
+        // compNameFSBtn.addEventListener('mouseover', function () {
+        //     isMouseOver = true;
+        //     colorElement.visible = true; // Show colored element on hover
+        //     compNameFSBtn.notify('onDraw');
+        // });
 
-        compNameFSBtn.addEventListener('mouseout', function () {
-            isMouseOver = false;
-            colorElement.visible = false; // Hide colored element when not hovering
-            compNameFSBtn.notify('onDraw');
-        });
+        // compNameFSBtn.addEventListener('mouseout', function () {
+        //     isMouseOver = false;
+        //     colorElement.visible = false; // Hide colored element when not hovering
+        //     compNameFSBtn.notify('onDraw');
+        // });
 
-        // Action on button click
-        compNameFSBtn.onClick = function () {
-            slateOvator2();
-        };
-        // --- Customize Button Highlight Color --- end
+        // // Action on button click
+        // compNameFSBtn.onClick = function () {
+        //     slateOvator2();
+        // };
+        // // --- Customize Button Highlight Color --- end
 
         // --- Action ---
         function triggerMedia() {

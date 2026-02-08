@@ -1,5 +1,5 @@
 //  slateOvator
-//  241109_v15f01
+//  241109_v15f02
 
 // v01 240103 joining parts 1, 2, 3
 // v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -56,7 +56,7 @@
 
     function newPanel(thisObj) {
 
-        var vers = '15f01';
+        var vers = '15f02';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -587,7 +587,8 @@ function slateOvator3() {
             if (compSelection[j] instanceof CompItem) {
                 var compMaster = compSelection[j];
                 var compOut = compSelection[j];
-            insertSlateEngine(compMaster, compOut, regex);
+            // insertSlateEngine(compMaster, compOut, regex);
+            aplikaceDoComp(compMaster, compOut, regex);
             }
         }
     }
@@ -615,9 +616,9 @@ function compLengthAdjust(theComp/* , slateDur */)
 }
 
 //
-function insertSlateEngine(compMaster, compOut, regex) {
+// function insertSlateEngine(compMaster, compOut, regex) {
     
-    aplikaceDoComp(compMaster, compOut, regex);
+    // aplikaceDoComp(compMaster, compOut, regex);
 
 
     //---------------------------------------------------
@@ -722,8 +723,8 @@ function insertSlateEngine(compMaster, compOut, regex) {
 
         fitToCompScaleAction(myLayer, fitToCompScale);
         centerCompPosition(myCompSize, myLayer);
-        }
     }
+// }
 
 //======================================
 //======================================
@@ -801,7 +802,8 @@ function slateOvator_part04a(/* inputFolderLevelL */) {
         var compOutLayers = compOut.layers;
             compOutLayers.add(compMaster);
             compOut.layer(1).startTime = 1;
-            insertSlateEngine(compMaster, compOut, regex);
+            // insertSlateEngine(compMaster, compOut, regex);
+            aplikaceDoComp(compMaster, compOut, regex);
     }
     //
     function makeFolder(folderName, folderParent) {

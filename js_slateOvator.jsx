@@ -1,5 +1,5 @@
 /* slateOvator
-250622_v16a11
+250712_v16a12
 
 v01 240103 joining parts 1, 2, 3
 v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -97,6 +97,7 @@ v15e7 UI: output comps pokus o 'justify fill'
       one slate in more comps - 16a08
       check if slate is linked to the parent comp
       (slate is linked to another comp OR more slates linked to one comp)
+16a12 compNamesMultiSlate() alert: number of comps added
 
 vXX vicekrat pouzity slateSarch vyhodit do fce
 vXX focus target
@@ -109,7 +110,7 @@ vXX z callback fci oddelat instanceof pokud nejsou potreba
 
     function newPanel(thisObj) {
 
-        var vers = '16a11';
+        var vers = '16a12';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -604,9 +605,10 @@ function slateRegexSimple() {
 var alert_01 = 'Too many or no slates.\n' +
                 'Slate name must be in format:\n' +
                 '\"slate_(vYYMMDD)\".';
+var alert_02 = 'Too many or no slates.\n';
 
 //======================================
-
+// UNDER CONSTRUCTION
 //======================================
 //  SlateOvator_part_01
 
@@ -619,13 +621,10 @@ function compNameFromSlate(selectedInput) {
         return item instanceof CompItem;
     })
 
-    // Gather all slateArrs and 
-    // check if all have exactly one slate
+    // Gather all slateArrs and check if all have exactly one slate
     var allHaveOneSlate = true;
     var allSlatesUsedOnce = true;
-    var allCompsLinkedUnique = true;
     var slateArrs = [];
-
     for (var i = 0; i < selectedComps.length; i++) {
         var slateArr = layerInspectToComp(selectedComps[i], regex);
         slateArrs.push(slateArr);
@@ -638,33 +637,18 @@ function compNameFromSlate(selectedInput) {
     if (!allHaveOneSlate) {
         return;
     }
-    // UNDER CONSTRUCTION
+
     // Check if slate is used in multiple comps
-    /*     for (var i = 0; i < slateArrs.length; i++) {
-        var slate = slateArrs[i][0];
-        var parentComp = slate.usedIn; // arr parentComp (kde je pouzit)
-        if (parentComp.length !== 1) {
-        allSlatesUsedOnce = false;
-        alert("Slate " + slate.name + " can only be used once.");
-        }
-    }
-
-    if (!allSlatesUsedOnce) {
-        return;
-    }
-    */    
-
-    // Check if slate is linked to the parent comp
     for (var i = 0; i < slateArrs.length; i++) {
         var slate = slateArrs[i][0];
         var parentComp = slate.usedIn; // arr parentComp (kde je pouzit)
         if (parentComp.length !== 1) {
-        allCompsLinkedUnique = false;
-        alert("Slate " + slate.name + " is not linked to its parent Comp.");
+        allSlatesUsedOnce = false;
+        alert(alert_01 + "Slate " + slate.name + " can only be used once.");
         }
     }
 
-    if (!allCompsLinkedUnique) {
+    if (!allSlatesUsedOnce) {
         return;
     }
 
@@ -804,7 +788,10 @@ app.endUndoGroup();
                 callback(slateCompL, fieldLayerName, input, effectName);
                 //compNameVkladOvator(slateCompL, newExpression);
             } else if (parentComp.length > 1) {
-                alert("Slate: " + slateCompL.name + " can only be used once.");
+                alert("Slate: " + slateCompL.name + " can only be used once." + "\n\n" + "Used in: " + parentComp.length);
+                // alert("Slate: " + slateCompL.name + " can only be used once.");
+                // alert("Slate: " + slateCompL.name + " can only be used once." + "\n\n" + parentComp[i].name);
+                // alert(alert_02 + "\n\nComposition:\n\n" + selectedComps[i].name + "\n\nScript execution canceled.");
             } else if (parentComp.length < 1) {
                 alert("Slate: " + slateCompL.name + " not used.");
             }

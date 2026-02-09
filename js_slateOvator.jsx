@@ -1,5 +1,5 @@
 /* slateOvator
-250422_v16a07
+250425_v16a08
 
 v01 240103 joining parts 1, 2, 3
 v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -86,6 +86,8 @@ v15e7 UI: output comps pokus o 'justify fill'
       "too many or no slates." alert je nevhodne umisteny tak, ze zmena se provede ve zbytku vyberu
 16a07 alert pred funkci, tak ze se pri nedodrzeni pominky "if (slateArr.length == 1) {}"
       tj. ze v kazde kompozici je prave 1 slate vubec neprovede slateOvator1() a slateOvator2()
+16a08 slateOvator2() - prerusi se pokud jsou 2 slaty v kompozici
+      slateOvator1() - prerusi se pokud je slate pouzity vicekrat
 
 vXX vicekrat pouzity slateSarch vyhodit do fce
 vXX focus target
@@ -98,7 +100,7 @@ vXX z callback fci oddelat instanceof pokud nejsou potreba
 
     function newPanel(thisObj) {
 
-        var vers = '16a07';
+        var vers = '16a08';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -606,6 +608,7 @@ function compNameFromSlate(selectedComps) {
 
     // Gather all slateArrs and check if all have exactly one slate
     var allHaveOneSlate = true;
+    var allSlatesUsedOnce = true;
     var slateArrs = [];
     for (var i = 0; i < selectedComps.length; i++) {
         if (selectedComps[i] instanceof CompItem) {
@@ -617,8 +620,22 @@ function compNameFromSlate(selectedComps) {
             }
         }
     }
-
+    
     if (!allHaveOneSlate) {
+        return;
+    }
+
+    // Check if slate is used in multiple comps
+    for (var i = 0; i < slateArrs.length; i++) {
+        var slate = slateArrs[i][0];
+        var parentComp = slate.usedIn; // arr parentComp (kde je pouzit)
+        if (parentComp.length !== 1) {
+        allSlatesUsedOnce = false;
+        alert("Slate " + slate.name + " can only be used once.");
+        }
+    }
+
+    if (!allSlatesUsedOnce) {
         return;
     }
 
@@ -714,8 +731,10 @@ app.endUndoGroup();
                     // slate nebo slaty v kompozici
                     var slateArr = layerInspectToComp(selectedComps[i], regex);
                     if (slateArr.length !== 1) {
-                        alert(alert_01 + "\n\nComposition:\n\n" + selectedComps[i].name);
-                        continue; // skip to next selectedComp
+                        // alert(alert_01 + "\n\nComposition:\n\n" + selectedComps[i].name);
+                        // continue; // skip to next selectedComp
+                        alert(alert_01 + "\n\nComposition:\n\n" + selectedComps[i].name + "\n\nScript execution canceled.");
+                        break; // break out of the loop
                     }
                     // pokud je prave jeden slate, proved akci
                     var slateLayer = slateArr[0];
@@ -749,15 +768,16 @@ app.endUndoGroup();
                 
                 if (callback == compNameVkladOvator) {
                     input = newExpression;
-                } else if (callback == change_compNameFromSlate) {
-                    input = parentComp[0];
-                }
+                } 
+                // else if (callback == change_compNameFromSlate) {
+                //     input = parentComp[0];
+                // }
                 callback(slateCompL, fieldLayerName, input, effectName);
                 //compNameVkladOvator(slateCompL, newExpression);
             } else if (parentComp.length > 1) {
-                alert("Slate " + slateCompL.name + " can only be used once.");
+                alert("Slate: " + slateCompL.name + " can only be used once.");
             } else if (parentComp.length < 1) {
-                alert("Slate " + slateCompL.name + " not used.");
+                alert("Slate: " + slateCompL.name + " not used.");
             }
         }
     }

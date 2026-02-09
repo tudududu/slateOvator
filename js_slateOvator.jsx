@@ -1,5 +1,5 @@
 /* slateOvator
-250714_v16b02
+260209_v16.3.0
 
 v01 240103 joining parts 1, 2, 3
 v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -100,6 +100,7 @@ v15e7 UI: output comps pokus o 'justify fill'
 16a12 compNamesMultiSlate() alert: number of comps added
 16b01 slateOvator1(compNameFromSlate, checkbox_Date.value, checkbox_Version.value);
 16b02 date and version checkboxes in compNameFromSlate group
+16.3.0 version reset checkbox added to compNameFromSlate() - switch_version_reset
 
 vXX vicekrat pouzity slateSarch vyhodit do fce
 vXX focus target
@@ -112,7 +113,7 @@ vXX z callback fci oddelat instanceof pokud nejsou potreba
 
     function newPanel(thisObj) {
 
-        var vers = '16b02';
+        var vers = '16.3.0';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -253,8 +254,9 @@ vXX z callback fci oddelat instanceof pokud nejsou potreba
         // Apply Button
         var compNameFSBtn = panel01group01.add('button', undefined, 'Comp name from slate');
         
-        var checkbox_Date = panel01group02.add("checkbox", [undefined,undefined,100,18], ' Date');
-        var checkbox_Version = panel01group02.add("checkbox", [undefined,undefined,100,18], ' Version');
+        var checkbox_Date = panel01group02.add("checkbox", [undefined,undefined,70,18], ' Date');
+        var checkbox_Version = panel01group02.add("checkbox", [undefined,undefined,70,18], ' Version');
+        var checkbox_VersionReset = panel01group02.add("checkbox", [undefined,undefined,70,18], 'Reset');
         // compNameFSBtn.alignChildren = 'fill';
         // compNameFSBtn.preferredSize = [200, 30];
         // // Draw colored circle element
@@ -311,7 +313,7 @@ vXX z callback fci oddelat instanceof pokud nejsou potreba
         slateOvator2(compNameVkladOvator);
         }
         function triggerCompNameBack() {
-        slateOvator1(compNameFromSlate, checkbox_Date.value, checkbox_Version.value);
+        slateOvator1(compNameFromSlate, checkbox_Date.value, checkbox_Version.value, checkbox_VersionReset.value);
         }
         function triggerSlateInsert() {
             var switch_slateShift = true;
@@ -568,7 +570,7 @@ function slateRegexSimple() {
         }
     }
 
-    function newCompNameWithDateAndVersion(compName, switch_date, switch_version) {
+    function newCompNameWithDateAndVersion(compName, switch_date, switch_version, switch_version_reset) {
         //  vytvori nove jmeno kompozice s datem a verzi
         //  format: "Client_Brand_ISO_JobNo_Campaign_Title_20s_TV_XdB_yymmdd_v01"
         // Remove the last two underscore-separated elements (date and version)
@@ -581,6 +583,9 @@ function slateRegexSimple() {
         }
         if (switch_version) {
             version = increment_version(compName);
+        }
+        if (switch_version_reset) {
+            version = "01";
         }
 
         var parts = compName.split('_');
@@ -595,7 +600,7 @@ function slateRegexSimple() {
         return newCompName;
     }
 
-    function change_compNameFromSlate(slateCompL, layerName, parentComp, switch_date, switch_version) {
+    function change_compNameFromSlate(slateCompL, layerName, parentComp, switch_date, switch_version, switch_version_reset) {
         //  slateCompL - slate ze ktereho bereme jmeno
         //  layerName - hledame layer s finalnim jmenem vytvorenym ve slatu
             //  neni pouzita, protoze regex je zadan natvrdo zde uvnitr // zvazit upravu
@@ -606,7 +611,7 @@ function slateRegexSimple() {
         var targetLayer = targetLayerArr[0];
         var newNameFromSlate = targetLayer.text.sourceText.value.text;
         var newName = newNameFromSlate.replace(/ /g, '_');  // nahradime mezery podtrzitky
-        newName = newCompNameWithDateAndVersion(newName, switch_date, switch_version);
+        newName = newCompNameWithDateAndVersion(newName, switch_date, switch_version, switch_version_reset);
         var oldName = parentComp.name;
         parentComp.name = newName;
         app.project.autoFixExpressions(oldName, newName);
@@ -692,7 +697,7 @@ var alert_02 = 'Too many or no slates.\n';
 //======================================
 //  SlateOvator_part_01
 
-function compNameFromSlate(selectedInput, switch_date, switch_version) {
+function compNameFromSlate(selectedInput, switch_date, switch_version, switch_version_reset) {
     //  regex pro hledani slatu
     var regex = slateRegexSimple();
     const newCompNames = [];
@@ -757,7 +762,7 @@ function compNameFromSlate(selectedInput, switch_date, switch_version) {
     } else {
     for (var i = 0; i < selectedComps.length; i++) {
             var slate = slateArrs[i][0];
-            change_compNameFromSlate(slate, "layerName", selectedComps[i], switch_date, switch_version);
+            change_compNameFromSlate(slate, "layerName", selectedComps[i], switch_date, switch_version, switch_version_reset);
         }
     }
 }
@@ -765,7 +770,7 @@ function compNameFromSlate(selectedInput, switch_date, switch_version) {
 var slateOvator1Undo = 'Comp name from slate';
 //  oznacit lze slate nebo kompozici
 
-function slateOvator1(callback, switch_date, switch_version) {
+function slateOvator1(callback, switch_date, switch_version, switch_version_reset) {
 
     app.beginUndoGroup(slateOvator1Undo);
 
@@ -774,7 +779,7 @@ function slateOvator1(callback, switch_date, switch_version) {
         if (selected.length == 0) {
             alert("Select a composition");
         } else {
-            callback(selected, switch_date, switch_version);
+            callback(selected, switch_date, switch_version, switch_version_reset);
         }
 
     app.endUndoGroup();

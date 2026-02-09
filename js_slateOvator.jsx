@@ -1,5 +1,5 @@
 /* slateOvator
-250321_v16a05
+250420_v16a06
 
 v01 240103 joining parts 1, 2, 3
 v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -72,8 +72,8 @@ v15e7 UI: output comps pokus o 'justify fill'
 16a00 slateSearchAdvanced() misto slateSearchGlobal()
 16a01 slateSearchAdvanced()
 16a02 slateSearch_v02 - hleda nejnovejsi verzi slatu v celem AE projektu
-        prednost ma slate z vlastniho projektu, v pripade ze je i tam
-        NEFUNGUJE spravne - najde nejnovejsi, ale pojmenuje ho jmenem starsi verze
+      prednost ma slate z vlastniho projektu, v pripade ze je i tam
+      NEFUNGUJE spravne - najde nejnovejsi, ale pojmenuje ho jmenem starsi verze
 16a03 nouzova oprava - popsat
       - dalsi problem 1169 - popsat
       - pri absenci slatu skonci uprostred, bez vysvestleni - hlaska
@@ -82,6 +82,9 @@ v15e7 UI: output comps pokus o 'justify fill'
       v pripade, ze slate je jen jeden projevi se chyba - opakuje se theNewest() a do vstupniho pole se prida undefined a zastavi se sortReverseOrder()
       ted opravim primo v slateSearchAdvanced(), ale pozdeji se k tomu vratim
 16a05 slateSearchAdvanced() - oprava chyby, kdyz je slate jen jeden. Podminka pro vstup do porovnani byla zalozena na spatne promenne (musi byt zalozena na vysledku vyhledavani nejnovejsiho slatu)
+16a06 compNameFromSlate() presunut do slateOvator1(), pridana kontrola duplikovanych nazvu
+      "too many or no slates." alert je nevhodne umisteny tak, ze zmena se provede ve zbytku vyberu
+
 vXX vicekrat pouzity slateSarch vyhodit do fce
 vXX focus target
 vXX z callback fci oddelat instanceof pokud nejsou potreba
@@ -93,7 +96,7 @@ vXX z callback fci oddelat instanceof pokud nejsou potreba
 
     function newPanel(thisObj) {
 
-        var vers = '16a05';
+        var vers = '16a06';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -285,7 +288,7 @@ vXX z callback fci oddelat instanceof pokud nejsou potreba
         slateOvator2(compNameVkladOvator);
         }
         function triggerCompNameBack() {
-        slateOvator2(compNameFromSlate);
+        slateOvator1(compNameFromSlate);
         }
         function triggerSlateInsert() {
             var switch_slateShift = true;
@@ -496,25 +499,39 @@ function slateRegexSimple() {
         for (var i = 1; i <= layerArr.length; i++) {
             if (layerArr[i].name == layerName) {
                 layerArr[i].effect(effectName)("Checkbox").setValue(switchInput);
-                }
             }
         }
+    }
     
-    function compNameFromSlate(slateCompL, layerName, parentComp) {
+    function change_compNameFromSlate(slateCompL, layerName, parentComp) {
         //  slateCompL - slate ze ktereho bereme jmeno
         //  layerName - neni pouzita, protoze regex je zadan natvrdo zde uvnitr // zvazit upravu
-        //  parentComp - jmeno kompozice, kterou zmenime jmeno
+        //  parentComp - jmeno kompozice, ktere zmenime jmeno
         var regex = /fileNameDuo/;
         //  hledame layer ve slatu dle jmena (vyhledavac nemuze byt omezen na CompItem)
         var targetLayerArr = layerInspection(slateCompL, regex);
         var targetLayer = targetLayerArr[0];
-        var newName0 = targetLayer.text.sourceText.value.text;
-        var newName = newName0.replace(/ /g, '_');
+        var newNameFromSlate = targetLayer.text.sourceText.value.text;
+        var newName = newNameFromSlate.replace(/ /g, '_');  // nahradime mezery podtrzitky
         var oldName = parentComp.name;
         parentComp.name = newName;
         app.project.autoFixExpressions(oldName, newName);
-        }
+    }
     
+    function get_compNameFromSlate(slateCompL, layerName) {
+        //  slateCompL - slate ze ktereho bereme jmeno
+        //  layerName - neni pouzita, protoze regex je zadan natvrdo zde uvnitr // zvazit upravu
+        
+        var regex = /fileNameDuo/;
+        //  hledame layer ve slatu dle jmena (vyhledavac nemuze byt omezen na CompItem)
+        var targetLayerArr = layerInspection(slateCompL, regex);
+        var targetLayer = targetLayerArr[0];
+        var newNameFromSlate = targetLayer.text.sourceText.value.text;
+        var newName = newNameFromSlate.replace(/ /g, '_');  // nahradime mezery podtrzitky
+        return newName;
+    }
+    
+
 //======================================helper fnc
     function findCompByID(sbgID) {
         
@@ -531,7 +548,8 @@ function slateRegexSimple() {
         return result;
         }
 
-    //  hleda v comp vrstvu dle jmena a vraci pole >> nalezenych vrstev <<
+    //  hleda: v comp vrstvu dle jmena
+    //  vraci: pole >> nalezenych vrstev <<
     //  hledame objekt AV layer
     //  nehleda tedy zdroje, ale pouze nazvy vrstev v comp
     //  regex = wantedCompName - musi byt zadan regex !!!
@@ -549,9 +567,9 @@ function slateRegexSimple() {
         return foundLayersArr;                  
     }
     
-    //  hleda v comp vrstvu dle jmena 
-    //  a vraci pole >> zdroju nalezenych vrstev <<
-    //  zjenousuje proces oproti layerInspectToComp(), ktera vracela objekt vrstvy
+    //  hleda: v comp vrstvu dle jmena 
+    //  vraci: pole >> zdroju nalezenych vrstev <<
+    //  zjenousuje proces oproti layerInspectToComp(), tim ze vraci primo zdroj
     //  regex = wantedCompName
     function layerInspectToComp(comp, regex) {
         
@@ -569,6 +587,108 @@ function slateRegexSimple() {
         }
         return foundCompsArr;                  
     }
+//======================================
+// UNDER CONSTRUCTION
+//======================================
+//  SlateOvator_part_01
+
+var alert_01 = 'Too many or no slates.\n' +
+                'Slate name must be in format:\n' +
+                '\"slate_(vYYMMDD)\".';
+                
+        //  get_compNameFromSlate(slateCompL, layerName)
+function compNameFromSlate(selectedComps) {
+    //  regex pro hledani slatu
+    var regex = slateRegexSimple();
+    const newCompNames = [];
+    //  prochazime vyber
+    for (var i = 0; i < selectedComps.length; i++) {
+        if (selectedComps[i] instanceof CompItem) {
+            //  najdeme slaty
+            var slateArr = layerInspectToComp(selectedComps[i], regex);
+            //  pokud je comp slate jdeme dovnitr
+            if (slateArr.length == 1) { // nasel se se 1 slate
+                var slate = slateArr[0];
+                newCompNames.push(get_compNameFromSlate(slate, /* layerName */));
+            } else {
+                alert(alert_01);
+                //Or if the slate is there its name is not in format \"slate_(vYYMMDD)\".
+            }
+        }
+    }
+    
+    // Check if all items in the array newCompNames are unique
+    var uniqueNames = {};
+    var duplicatesCount = 0;
+    var uniqueCount = 0;
+
+    for (var i = 0; i < newCompNames.length; i++) {
+        if (uniqueNames[newCompNames[i]]) {
+            duplicatesCount++;
+        } else {
+            uniqueNames[newCompNames[i]] = true;
+            uniqueCount++;
+        }
+    }
+    /* var isUnique = true;
+    for (var i = 0; i < newCompNames.length; i++) {
+        if (uniqueNames[newCompNames[i]]) {
+            isUnique = false;
+            break;
+        }
+        uniqueNames[newCompNames[i]] = true;
+    }
+    if (isUnique) {
+        alert("All items in newCompNames are unique.");
+        // alert("All items in newCompNames are unique.");
+    } else {
+        alert("There are duplicate items in newCompNames.");
+        // alert("There are duplicate items in newCompNames.");
+    } */
+
+    if (duplicatesCount > 0) {
+        // alert("There are duplicate items in newCompNames.");
+        alert("There are "  + duplicatesCount + " duplicate items.");
+    } else {
+        // alert("All items in newCompNames are unique.");
+        for (var i = 0; i < selectedComps.length; i++) {
+            if (selectedComps[i] instanceof CompItem) {
+                //  najdeme slaty
+                var slateArr = layerInspectToComp(selectedComps[i], regex);
+                //  pokud je comp slate jdeme dovnitr
+                if (slateArr.length == 1) { // nasel se se 1 slate
+                    var slate = slateArr[0];
+                    change_compNameFromSlate(slate, "layerName", selectedComps[i]);
+
+                } else {
+                    alert(alert_01 + "\n\nComposition:\n\n" + selectedComps[i].name);
+                }
+            }
+        }
+    }
+}
+
+var slateOvator1Undo = 'Comp name from slate';
+//  oznacit lze slate nebo kompozici
+
+function slateOvator1(callback) {
+
+    app.beginUndoGroup(slateOvator1Undo);
+
+    var selected = app.project.selection; // compositions
+
+        if (selected.length == 0) {
+            alert("Select a composition");
+        } else {
+            callback(selected);
+        }
+
+    app.endUndoGroup();
+}
+
+
+
+
 
 //======================================
 //======================================
@@ -592,9 +712,9 @@ var selected = app.project.selection; // compositions
 app.endUndoGroup();
 
 //  slate or comp?
-//  varianta 1 asks if compName is slate...?
+//  podle jmena kompozice zjistujeme jestli je comp nebo slate
     function compOrSlate(selectedComps, callback, fieldLayerName, newTextInput, effectName) {
-        // ??? k cemu je zde
+        //  regex pro hledani slatu
         var regex = slateRegexSimple();
         //  prochazime vyber
         for (var i = 0; i < selectedComps.length; i++) {
@@ -607,23 +727,22 @@ app.endUndoGroup();
                     compNamesMultiSlate(selectedComps[i], callback, fieldLayerName, newTextInput, effectName);
                     //  pokud neni, hledame jestli je uvnitr slate
                 } else {    
-                    // pole jmen slatu v comp
+                    // slate nebo slaty v kompozici
                     var slateArr = layerInspectToComp(selectedComps[i], regex);
-                    if (slateArr.length == 1) {
-                    //  layerInspectToComp - misto AVLayer davame rovnou CompItem
-                    //  findSlateComp() tim padem vyrazena
-                    var slateLayer = slateArr[0];
-                    compNamesMultiSlate(slateLayer, callback, fieldLayerName, newTextInput, effectName);
+                    if (slateArr.length == 1) { // nasel se se 1 slate
+                        //  layerInspectToComp - misto vrstvy (AVLayer) vraci rovnou CompItem slatu
+                        //  findSlateComp() tim padem vyrazena --SMAZAT
+                        var slateLayer = slateArr[0];
+                        compNamesMultiSlate(slateLayer, callback, fieldLayerName, newTextInput, effectName);
                     //findSlateComp(slateLayer, fieldLayerName, newTextInput, effectName);
                 } else {
-                    alert('Too many or no slates.');
-                    //Or if the slate is there its name is not in format \"slate_(vYYMMDD)\".
+                    alert(alert_01 + "\n\nComposition:\n\n" + selectedComps[i].name);
+                    // 'Or if the slate is there its name is not in format: \n' + 
                     }
                 }
             }
         }
-    }
-        
+    }  
         //  hledame slateComp (dle id zdroje)
         //  najdeme zdrojovou comp rovnou spustime akci
         //  presunuto v ramci zjednoduseni primo do compOrSlate() (15e10 240910)
@@ -636,6 +755,7 @@ app.endUndoGroup();
         } */
         
     //  "Fill the slate" - vkladame nazev kompozice do slatu
+    //  "change_compNameFromSlate" - vkladame nazev ze slatu do kompozice
     //  Spusti vkladac pokud je slate pouzit prave v jedne kompozici
     function compNamesMultiSlate(slateCompL, callback, fieldLayerName, input, effectName) {
         
@@ -648,7 +768,7 @@ app.endUndoGroup();
                 
                 if (callback == compNameVkladOvator) {
                     input = newExpression;
-                } else if (callback == compNameFromSlate) {
+                } else if (callback == change_compNameFromSlate) {
                     input = parentComp[0];
                 }
                 callback(slateCompL, fieldLayerName, input, effectName);
@@ -660,7 +780,6 @@ app.endUndoGroup();
             }
         }
     }
-
 }
 
 //======================================

@@ -1,5 +1,5 @@
 /* slateOvator
-250420_v16a06
+250422_v16a07
 
 v01 240103 joining parts 1, 2, 3
 v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -84,6 +84,8 @@ v15e7 UI: output comps pokus o 'justify fill'
 16a05 slateSearchAdvanced() - oprava chyby, kdyz je slate jen jeden. Podminka pro vstup do porovnani byla zalozena na spatne promenne (musi byt zalozena na vysledku vyhledavani nejnovejsiho slatu)
 16a06 compNameFromSlate() presunut do slateOvator1(), pridana kontrola duplikovanych nazvu
       "too many or no slates." alert je nevhodne umisteny tak, ze zmena se provede ve zbytku vyberu
+16a07 alert pred funkci, tak ze se pri nedodrzeni pominky "if (slateArr.length == 1) {}"
+      tj. ze v kazde kompozici je prave 1 slate vubec neprovede slateOvator1() a slateOvator2()
 
 vXX vicekrat pouzity slateSarch vyhodit do fce
 vXX focus target
@@ -96,7 +98,7 @@ vXX z callback fci oddelat instanceof pokud nejsou potreba
 
     function newPanel(thisObj) {
 
-        var vers = '16a06';
+        var vers = '16a07';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -587,36 +589,45 @@ function slateRegexSimple() {
         }
         return foundCompsArr;                  
     }
+
+var alert_01 = 'Too many or no slates.\n' +
+                'Slate name must be in format:\n' +
+                '\"slate_(vYYMMDD)\".';
+
 //======================================
 // UNDER CONSTRUCTION
 //======================================
 //  SlateOvator_part_01
 
-var alert_01 = 'Too many or no slates.\n' +
-                'Slate name must be in format:\n' +
-                '\"slate_(vYYMMDD)\".';
-                
-        //  get_compNameFromSlate(slateCompL, layerName)
 function compNameFromSlate(selectedComps) {
     //  regex pro hledani slatu
     var regex = slateRegexSimple();
     const newCompNames = [];
-    //  prochazime vyber
+
+    // Gather all slateArrs and check if all have exactly one slate
+    var allHaveOneSlate = true;
+    var slateArrs = [];
     for (var i = 0; i < selectedComps.length; i++) {
         if (selectedComps[i] instanceof CompItem) {
-            //  najdeme slaty
             var slateArr = layerInspectToComp(selectedComps[i], regex);
-            //  pokud je comp slate jdeme dovnitr
-            if (slateArr.length == 1) { // nasel se se 1 slate
-                var slate = slateArr[0];
-                newCompNames.push(get_compNameFromSlate(slate, /* layerName */));
-            } else {
-                alert(alert_01);
-                //Or if the slate is there its name is not in format \"slate_(vYYMMDD)\".
+            slateArrs.push(slateArr);
+            if (slateArr.length !== 1) {
+                allHaveOneSlate = false;
+                alert(alert_01 + "\n\nComposition:\n\n" + selectedComps[i].name);
             }
         }
     }
-    
+
+    if (!allHaveOneSlate) {
+        return;
+    }
+
+    // Now we know all selected comps have exactly one slate
+    for (var i = 0; i < selectedComps.length; i++) {
+        var slate = slateArrs[i][0];
+        newCompNames.push(get_compNameFromSlate(slate, /* layerName */));
+    }
+
     // Check if all items in the array newCompNames are unique
     var uniqueNames = {};
     var duplicatesCount = 0;
@@ -630,40 +641,13 @@ function compNameFromSlate(selectedComps) {
             uniqueCount++;
         }
     }
-    /* var isUnique = true;
-    for (var i = 0; i < newCompNames.length; i++) {
-        if (uniqueNames[newCompNames[i]]) {
-            isUnique = false;
-            break;
-        }
-        uniqueNames[newCompNames[i]] = true;
-    }
-    if (isUnique) {
-        alert("All items in newCompNames are unique.");
-        // alert("All items in newCompNames are unique.");
-    } else {
-        alert("There are duplicate items in newCompNames.");
-        // alert("There are duplicate items in newCompNames.");
-    } */
 
     if (duplicatesCount > 0) {
-        // alert("There are duplicate items in newCompNames.");
         alert("There are "  + duplicatesCount + " duplicate items.");
     } else {
-        // alert("All items in newCompNames are unique.");
         for (var i = 0; i < selectedComps.length; i++) {
-            if (selectedComps[i] instanceof CompItem) {
-                //  najdeme slaty
-                var slateArr = layerInspectToComp(selectedComps[i], regex);
-                //  pokud je comp slate jdeme dovnitr
-                if (slateArr.length == 1) { // nasel se se 1 slate
-                    var slate = slateArr[0];
-                    change_compNameFromSlate(slate, "layerName", selectedComps[i]);
-
-                } else {
-                    alert(alert_01 + "\n\nComposition:\n\n" + selectedComps[i].name);
-                }
-            }
+            var slate = slateArrs[i][0];
+            change_compNameFromSlate(slate, "layerName", selectedComps[i]);
         }
     }
 }
@@ -711,8 +695,8 @@ var selected = app.project.selection; // compositions
 
 app.endUndoGroup();
 
-//  slate or comp?
-//  podle jmena kompozice zjistujeme jestli je comp nebo slate
+    //  slate or comp?
+    //  podle jmena kompozice zjistujeme jestli je comp nebo slate
     function compOrSlate(selectedComps, callback, fieldLayerName, newTextInput, effectName) {
         //  regex pro hledani slatu
         var regex = slateRegexSimple();
@@ -722,27 +706,24 @@ app.endUndoGroup();
                 //  je comp slate?
                 var compName = selectedComps[i].name;
                 var slateSearch = regex.test(compName);
-                    // pokud je comp slate jdeme dovnitr
+                // pokud je comp slate jdeme dovnitr
                 if (slateSearch) {
                     compNamesMultiSlate(selectedComps[i], callback, fieldLayerName, newTextInput, effectName);
-                    //  pokud neni, hledame jestli je uvnitr slate
+                // pokud neni, hledame jestli je uvnitr slate
                 } else {    
                     // slate nebo slaty v kompozici
                     var slateArr = layerInspectToComp(selectedComps[i], regex);
-                    if (slateArr.length == 1) { // nasel se se 1 slate
-                        //  layerInspectToComp - misto vrstvy (AVLayer) vraci rovnou CompItem slatu
-                        //  findSlateComp() tim padem vyrazena --SMAZAT
-                        var slateLayer = slateArr[0];
-                        compNamesMultiSlate(slateLayer, callback, fieldLayerName, newTextInput, effectName);
-                    //findSlateComp(slateLayer, fieldLayerName, newTextInput, effectName);
-                } else {
-                    alert(alert_01 + "\n\nComposition:\n\n" + selectedComps[i].name);
-                    // 'Or if the slate is there its name is not in format: \n' + 
+                    if (slateArr.length !== 1) {
+                        alert(alert_01 + "\n\nComposition:\n\n" + selectedComps[i].name);
+                        continue; // skip to next selectedComp
                     }
+                    // pokud je prave jeden slate, proved akci
+                    var slateLayer = slateArr[0];
+                    compNamesMultiSlate(slateLayer, callback, fieldLayerName, newTextInput, effectName);
                 }
             }
         }
-    }  
+    }
         //  hledame slateComp (dle id zdroje)
         //  najdeme zdrojovou comp rovnou spustime akci
         //  presunuto v ramci zjednoduseni primo do compOrSlate() (15e10 240910)

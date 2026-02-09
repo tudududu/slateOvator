@@ -1,5 +1,5 @@
 /* slateOvator
-250426_v16a09
+250622_v16a10
 
 v01 240103 joining parts 1, 2, 3
 v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -88,7 +88,15 @@ v15e7 UI: output comps pokus o 'justify fill'
       tj. ze v kazde kompozici je prave 1 slate vubec neprovede slateOvator1() a slateOvator2()
 16a08 slateOvator2() - prerusi se pokud jsou 2 slaty v kompozici
       slateOvator1() - prerusi se pokud je slate pouzity vicekrat
-16a09 slateOvator2() - pullEssentialProperty ... construction
+16a09 slateOvator2() - pullEssentialProperty - experimental - future
+16a10 slateOvator1() - opraveno - nefungoval pokud vyber nezahrnoval pouze kompozice
+      compNameFromSlate() filtruje na zacatku vyber jen na kompozice
+      problem byl v rozdilne delce poli pokud byl filtr az na urovni smycky
+
+16a11 compNameFromSlate() osetrit
+      !single slate in comp - 16a08
+      one slate in more comps - 16a08
+      slate is linked to another comp OR more slates linked to one comp
 
 vXX vicekrat pouzity slateSarch vyhodit do fce
 vXX focus target
@@ -101,7 +109,7 @@ vXX z callback fci oddelat instanceof pokud nejsou potreba
 
     function newPanel(thisObj) {
 
-        var vers = '16a09';
+        var vers = '16a10';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -508,98 +516,6 @@ function slateRegexSimple() {
         }
     }
     
-    function _pullFromPrimaryComp(parentComp) {
-        var masterLayerName = "Operator";
-        var groupName = "info";
-        var regex = slateRegex();
-        //  hledame layer slatu dle regex
-        var targetLayerArr = layerInspection(parentComp, regex);
-        var targetLayer = targetLayerArr[0];
-        var targetLayerInSlate;
-        // var slateComp = layerInspectToComp(parentComp, regex)
-        var slateComp = targetLayer.source;
-        var slateLayerArr = slateComp.layers;
-        for (var i = 1; i <= slateLayerArr.length; i++) {
-            if (slateLayerArr[i].name == masterLayerName) {
-                targetLayerInSlate = slateLayerArr[i];
-            }
-        }
-        // pullEssentialProperty_v02(targetLayer, targetLayerInSlate, masterLayerName);
-        pullAllEssentialProperties(targetLayer, groupName);
-    }
-    
-    function pullAllEssentialProperties(childLayer, groupName) {
-        var childEPGroup = childLayer.property("Essential Properties");
-        if (!childEPGroup) {
-            alert("No Essential Properties group on child layer.");
-            return;
-        }
-        
-        var group = groupName ? childEPGroup.property(groupName) : childEPGroup;
-        if (!group) {
-            alert("No group named '" + groupName + "' in Essential Properties.");
-            return;
-        }
-        
-        // Get the source comp directly from the childLayer
-        var masterComp = childLayer.source;
-        if (!(masterComp instanceof CompItem)) {
-            alert("Layer source is not a composition.");
-            return;
-        }
-        
-        for (var i = 1; i <= group.numProperties; i++) {
-            var childProp = group.property(i);
-            var propName = childProp.name;
-            
-            // Find matching layer by name in the source comp
-            var masterLayer = null;
-            for (var j = 1; j <= masterComp.numLayers; j++) {
-                if (masterComp.layer(j).name === propName) {
-                    masterLayer = masterComp.layer(j);
-                    break;
-                }
-            }
-            
-            if (masterLayer && masterLayer instanceof TextLayer && 
-                childProp.matchName === "ADBE EP Text Document") {
-                try {
-                    childProp.setValue(masterLayer.property("Source Text").value);
-                } catch (e) {}
-            }
-        }
-    }
-
-/*     function pullEssentialProperty_v02(childLayer, masterLayer, propertyName) {
-        // Get the Essential Properties group on the AV layer (childLayer)
-        var childEPGroup = childLayer.property("Essential Properties");
-        if (!childEPGroup) {
-            alert("No Essential Properties group on child layer.");
-            return;
-        }
-        // Get the "info" group inside Essential Properties
-        var infoGroup = childEPGroup.property("info");
-        if (!infoGroup) {
-            alert("No 'info' group in Essential Properties.");
-            return;
-        }
-        // Get the "Operator" property inside the "info" group
-        var childProp = infoGroup.property(propertyName);
-        if (!childProp) {
-            alert("No Essential Property named '" + propertyName + "' in 'info' group.");
-            return;
-        }
-        // Get the Source Text property on the masterLayer (text layer in precomp)
-        var masterProp = masterLayer.property("Source Text");
-        if (!masterProp) {
-            alert("No Source Text property on master layer.");
-            return;
-        }
-        // Set the Essential Property value to match the master
-        childProp.setValue(masterProp.value);
-    } */
-
-
     function change_compNameFromSlate(slateCompL, layerName, parentComp) {
         //  slateCompL - slate ze ktereho bereme jmeno
         //  layerName - neni pouzita, protoze regex je zadan natvrdo zde uvnitr // zvazit upravu
@@ -694,23 +610,25 @@ var alert_01 = 'Too many or no slates.\n' +
 //======================================
 //  SlateOvator_part_01
 
-function compNameFromSlate(selectedComps) {
+function compNameFromSlate(selectedInput) {
     //  regex pro hledani slatu
     var regex = slateRegexSimple();
     const newCompNames = [];
+
+    const selectedComps = selectedInput.myFilter(function(item) {
+        return item instanceof CompItem;
+    })
 
     // Gather all slateArrs and check if all have exactly one slate
     var allHaveOneSlate = true;
     var allSlatesUsedOnce = true;
     var slateArrs = [];
     for (var i = 0; i < selectedComps.length; i++) {
-        if (selectedComps[i] instanceof CompItem) {
-            var slateArr = layerInspectToComp(selectedComps[i], regex);
-            slateArrs.push(slateArr);
-            if (slateArr.length !== 1) {
-                allHaveOneSlate = false;
-                alert(alert_01 + "\n\nComposition:\n\n" + selectedComps[i].name);
-            }
+        var slateArr = layerInspectToComp(selectedComps[i], regex);
+        slateArrs.push(slateArr);
+        if (slateArr.length !== 1) {
+            allHaveOneSlate = false;
+            alert(alert_01 + "\n\nComposition:\n\n" + selectedComps[i].name);
         }
     }
     
@@ -755,7 +673,7 @@ function compNameFromSlate(selectedComps) {
     if (duplicatesCount > 0) {
         alert("There are "  + duplicatesCount + " duplicate items.");
     } else {
-        for (var i = 0; i < selectedComps.length; i++) {
+    for (var i = 0; i < selectedComps.length; i++) {
             var slate = slateArrs[i][0];
             change_compNameFromSlate(slate, "layerName", selectedComps[i]);
         }
@@ -820,7 +738,7 @@ app.endUndoGroup();
                 if (slateSearch) {
                     compNamesMultiSlate(selectedComps[i], callback, fieldLayerName, newTextInput, effectName);
                 // pokud neni, hledame jestli je uvnitr slate
-                } else {
+                } else {    
                     // slate nebo slaty v kompozici
                     var slateArr = layerInspectToComp(selectedComps[i], regex);
                     if (slateArr.length !== 1) {
@@ -830,10 +748,8 @@ app.endUndoGroup();
                         break; // break out of the loop
                     }
                     // pokud je prave jeden slate, proved akci
-                    var slateComp = slateArr[0];
-                    _pullFromPrimaryComp(selectedComps[i])
-
-                    compNamesMultiSlate(slateComp, callback, fieldLayerName, newTextInput, effectName);
+                    var slateLayer = slateArr[0];
+                    compNamesMultiSlate(slateLayer, callback, fieldLayerName, newTextInput, effectName);
                 }
             }
         }

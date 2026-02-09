@@ -1,5 +1,5 @@
 /* slateOvator
-250622_v16a10
+250622_v16a11
 
 v01 240103 joining parts 1, 2, 3
 v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -92,11 +92,11 @@ v15e7 UI: output comps pokus o 'justify fill'
 16a10 slateOvator1() - opraveno - nefungoval pokud vyber nezahrnoval pouze kompozice
       compNameFromSlate() filtruje na zacatku vyber jen na kompozice
       problem byl v rozdilne delce poli pokud byl filtr az na urovni smycky
-
-16a11 compNameFromSlate() osetrit
+16a11 compNameFromSlate() - osetreno, aby se proces nezastavil, pokud je v selection i něco jineho nez kompozice
       !single slate in comp - 16a08
       one slate in more comps - 16a08
-      slate is linked to another comp OR more slates linked to one comp
+      check if slate is linked to the parent comp
+      (slate is linked to another comp OR more slates linked to one comp)
 
 vXX vicekrat pouzity slateSarch vyhodit do fce
 vXX focus target
@@ -109,7 +109,7 @@ vXX z callback fci oddelat instanceof pokud nejsou potreba
 
     function newPanel(thisObj) {
 
-        var vers = '16a10';
+        var vers = '16a11';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -606,7 +606,7 @@ var alert_01 = 'Too many or no slates.\n' +
                 '\"slate_(vYYMMDD)\".';
 
 //======================================
-// UNDER CONSTRUCTION
+
 //======================================
 //  SlateOvator_part_01
 
@@ -619,10 +619,13 @@ function compNameFromSlate(selectedInput) {
         return item instanceof CompItem;
     })
 
-    // Gather all slateArrs and check if all have exactly one slate
+    // Gather all slateArrs and 
+    // check if all have exactly one slate
     var allHaveOneSlate = true;
     var allSlatesUsedOnce = true;
+    var allCompsLinkedUnique = true;
     var slateArrs = [];
+
     for (var i = 0; i < selectedComps.length; i++) {
         var slateArr = layerInspectToComp(selectedComps[i], regex);
         slateArrs.push(slateArr);
@@ -635,9 +638,9 @@ function compNameFromSlate(selectedInput) {
     if (!allHaveOneSlate) {
         return;
     }
-
+    // UNDER CONSTRUCTION
     // Check if slate is used in multiple comps
-    for (var i = 0; i < slateArrs.length; i++) {
+    /*     for (var i = 0; i < slateArrs.length; i++) {
         var slate = slateArrs[i][0];
         var parentComp = slate.usedIn; // arr parentComp (kde je pouzit)
         if (parentComp.length !== 1) {
@@ -647,6 +650,21 @@ function compNameFromSlate(selectedInput) {
     }
 
     if (!allSlatesUsedOnce) {
+        return;
+    }
+    */    
+
+    // Check if slate is linked to the parent comp
+    for (var i = 0; i < slateArrs.length; i++) {
+        var slate = slateArrs[i][0];
+        var parentComp = slate.usedIn; // arr parentComp (kde je pouzit)
+        if (parentComp.length !== 1) {
+        allCompsLinkedUnique = false;
+        alert("Slate " + slate.name + " is not linked to its parent Comp.");
+        }
+    }
+
+    if (!allCompsLinkedUnique) {
         return;
     }
 

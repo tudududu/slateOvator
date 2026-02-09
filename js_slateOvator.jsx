@@ -1,5 +1,5 @@
 /* slateOvator
-250714_v16b01
+250714_v16b02
 
 v01 240103 joining parts 1, 2, 3
 v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -98,7 +98,8 @@ v15e7 UI: output comps pokus o 'justify fill'
       check if slate is linked to the parent comp
       (slate is linked to another comp OR more slates linked to one comp)
 16a12 compNamesMultiSlate() alert: number of comps added
-16b01   slateOvator1(compNameFromSlate, checkbox_Date.value, checkbox_Version.value);
+16b01 slateOvator1(compNameFromSlate, checkbox_Date.value, checkbox_Version.value);
+16b02 date and version checkboxes in compNameFromSlate group
 
 vXX vicekrat pouzity slateSarch vyhodit do fce
 vXX focus target
@@ -111,7 +112,7 @@ vXX z callback fci oddelat instanceof pokud nejsou potreba
 
     function newPanel(thisObj) {
 
-        var vers = '16b01';
+        var vers = '16b02';
         var title = 'slate0vator (v' + vers + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -237,6 +238,11 @@ vXX z callback fci oddelat instanceof pokud nejsou potreba
         var panel01 = win.add('panel', undefined, undefined, {borderStyle: "sunken"});
             panel01.orientation = 'column';
             panel01.alignChildren = 'fill';
+        var panel01group01 = panel01.add('group', undefined, 'panel01group01');
+            panel01group01.orientation = 'column';
+            panel01group01.alignChildren = 'fill';
+        var panel01group02 = panel01.add('group', undefined, 'panel01group02');
+            panel01group02.orientation = 'row';
         // var panel01_g01 = panel01.add("group", undefined, { name: "panel01_g01" });
         //     panel01_g01.orientation = "row";
         //     panel01_g01.alignment = "fill";
@@ -245,10 +251,12 @@ vXX z callback fci oddelat instanceof pokud nejsou potreba
         //     panel01_g01.margins = 0;
 
         // Apply Button
-        var compNameFSBtn = panel01.add('button', undefined, 'Comp name from slate');
+        var compNameFSBtn = panel01group01.add('button', undefined, 'Comp name from slate');
+        
+        var checkbox_Date = panel01group02.add("checkbox", [undefined,undefined,100,18], ' Date');
+        var checkbox_Version = panel01group02.add("checkbox", [undefined,undefined,100,18], ' Version');
         // compNameFSBtn.alignChildren = 'fill';
         // compNameFSBtn.preferredSize = [200, 30];
-
         // // Draw colored circle element
         // var colorElement = panel01_g01.add('panel', undefined);
         // colorElement.preferredSize = [6, 30]; // Size of the colored element
@@ -349,7 +357,7 @@ vXX z callback fci oddelat instanceof pokud nejsou potreba
         var checkbox_Aspect = panelZeroGroupOne.add("checkbox", [undefined,undefined,100,18], ' Aspect');
         var checkbox_Resolution = panelZeroGroupOne.add("checkbox", [undefined,undefined,100,18], ' Resolution');
         var checkbox_Framerate = panelZeroGroupOne.add("checkbox", [undefined,undefined,100,18], ' Framerate');
-        var checkbox_Date = panelZeroGroupOne.add("checkbox", [undefined,undefined,100,18], ' Date');
+        // var checkbox_Date = panelZeroGroupOne.add("checkbox", [undefined,undefined,100,18], ' Date');
         var checkbox_Subtitle = panelZeroGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Subtitle');
         var checkbox_Language = panelZeroGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Language');
         var checkbox_Brand = panelZeroGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Brand');
@@ -357,7 +365,7 @@ vXX z callback fci oddelat instanceof pokud nejsou potreba
         var checkbox_Title = panelZeroGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Title');
             checkbox_Title.value = true;
         var checkbox_Logo = panelZeroGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Logo');
-        var checkbox_Version = panelZeroGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Version');
+        // var checkbox_Version = panelZeroGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Version');
         
         // --- Action ---
         

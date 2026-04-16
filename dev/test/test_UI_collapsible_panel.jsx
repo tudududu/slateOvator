@@ -25,6 +25,13 @@
         panel05Header.alignment = ['left', 'top'];
         panel05Header.cursor = 'hand';
 
+        // Keep the collapsed panel wide enough so the title never gets truncated.
+        var panel05HeaderMinText = '\u25BC Insert slate';
+        var panel05HeaderMinWidth = panel05Header.graphics.measureString(panel05HeaderMinText)[0] + 16;
+        panel05Header.minimumSize.width = panel05HeaderMinWidth;
+        panel05Header.preferredSize.width = panel05HeaderMinWidth;
+        panel05.minimumSize.width = panel05HeaderMinWidth + 12;
+
         var panel05Content = panel05.add('group');
         panel05Content.orientation = 'column';
         panel05Content.alignChildren = 'fill';

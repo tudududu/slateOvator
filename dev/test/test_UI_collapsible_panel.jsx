@@ -1,5 +1,6 @@
 // test_UI_collapsible_panel
-// not collapsible yet
+// v01
+// button to collapse/expand panel;
 
 (function (thisObj) {
     
@@ -18,7 +19,16 @@
         var panel05 = groupOne.add('panel', undefined, "Insert slate");
         panel05.orientation = 'column';
         panel05.alignChildren = 'fill';
-        panel05.preferredSize = testSize;
+
+        // Keep one visible header row so the panel can be expanded again when collapsed.
+        var panel05Header = panel05.add('group');
+        panel05Header.orientation = 'row';
+        panel05Header.alignChildren = ['right', 'center'];
+        var panel05ToggleBtn = panel05Header.add('button', undefined, 'Collapse');
+
+        var panel05Content = panel05.add('group');
+        panel05Content.orientation = 'column';
+        panel05Content.alignChildren = 'fill';
     
         // Label (fixed width) + DropDownList in a row; returns the DropDownList
         function mkLabeledDropdown(parent, labelText, items, labelWidth) {
@@ -49,19 +59,39 @@
         }
 
         // Apply Button
-        var applyBtn = panel05.add('button', undefined, 'Complete insert');
+        var applyBtn = panel05Content.add('button', undefined, 'Complete insert');
         // applyBtn.preferredSize = [150, 40]; // Adjust size as needed
-        var cbRunLinkData          = panel05.add("checkbox", undefined, "RUN_link_data");
-        var cbRunSaveAsISO         = panel05.add("checkbox", undefined, "RUN_save_as_iso");
-        var cbRunCreateComps       = panel05.add("checkbox", undefined, "RUN_create_compositions");
-        var cbRunInsertRelink      = panel05.add("checkbox", undefined, "RUN_insert_and_relink_footage");
-        var cbRunAddLayers         = panel05.add("checkbox", undefined, "RUN_add_layers_to_comp");
-        var cbRunPackOutputComps   = panel05.add("checkbox", undefined, "RUN_pack_output_comps");
-        var cbRunSetAMEPaths       = panel05.add("checkbox", undefined, "RUN_set_ame_output_paths");
+        var cbRunLinkData          = panel05Content.add("checkbox", undefined, "RUN_link_data");
+        var cbRunSaveAsISO         = panel05Content.add("checkbox", undefined, "RUN_save_as_iso");
+        var cbRunCreateComps       = panel05Content.add("checkbox", undefined, "RUN_create_compositions");
+        var cbRunInsertRelink      = panel05Content.add("checkbox", undefined, "RUN_insert_and_relink_footage");
+        var cbRunAddLayers         = panel05Content.add("checkbox", undefined, "RUN_add_layers_to_comp");
+        var cbRunPackOutputComps   = panel05Content.add("checkbox", undefined, "RUN_pack_output_comps");
+        var cbRunSetAMEPaths       = panel05Content.add("checkbox", undefined, "RUN_set_ame_output_paths");
 
-        var cbEnableModuleTokens = panel05.add("checkbox", undefined, "ENABLE_MODULE_TOKENS");
-        var fldTokenOrder        = mkLabeledField(panel05, "TOKEN_ORDER:", "A, B, C, D", 120);
-        var ddModulePosition     = mkLabeledDropdown(panel05, "MODULE_POSITION:", ["BEFORE_DURATION", "AFTER_DURATION"]);
+        var cbEnableModuleTokens = panel05Content.add("checkbox", undefined, "ENABLE_MODULE_TOKENS");
+        var fldTokenOrder        = mkLabeledField(panel05Content, "TOKEN_ORDER:", "A, B, C, D", 120);
+        var ddModulePosition     = mkLabeledDropdown(panel05Content, "MODULE_POSITION:", ["BEFORE_DURATION", "AFTER_DURATION"]);
+
+        var panel05Expanded = true;
+        function setPanel05Collapsed(collapsed) {
+            panel05Expanded = !collapsed;
+            panel05Content.visible = panel05Expanded;
+            panel05ToggleBtn.text = panel05Expanded ? 'Collapse' : 'Expand';
+
+            // Force the panel to shrink when collapsed and expand naturally when opened.
+            panel05Content.maximumSize.height = panel05Expanded ? 10000 : 0;
+            panel05.maximumSize.height = panel05Expanded ? 10000 : 60;
+            panel05.minimumSize.height = panel05Expanded ? 0 : 60;
+
+            groupOne.layout.layout(true);
+            win.layout.layout(true);
+            win.layout.resize();
+        }
+
+        panel05ToggleBtn.onClick = function () {
+            setPanel05Collapsed(panel05Expanded);
+        };
     
         // Action on button click
         applyBtn.onClick = function () {

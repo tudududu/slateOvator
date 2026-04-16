@@ -1,6 +1,6 @@
 // test_UI_collapsible_panel
-// v01
-// button to collapse/expand panel;
+// v02
+// arrow button to collapse/expand panel;
 
 (function (thisObj) {
     
@@ -15,16 +15,15 @@
         groupOne.orientation = 'column';
         groupOne.alignChildren = 'fill';
 
-        // Panel for inserting slate
-        var panel05 = groupOne.add('panel', undefined, "Insert slate");
+        // Panel for inserting slate — title is empty; the arrow label acts as the title.
+        var panel05 = groupOne.add('panel', undefined, "");
         panel05.orientation = 'column';
         panel05.alignChildren = 'fill';
 
-        // Keep one visible header row so the panel can be expanded again when collapsed.
-        var panel05Header = panel05.add('group');
-        panel05Header.orientation = 'row';
-        panel05Header.alignChildren = ['right', 'center'];
-        var panel05ToggleBtn = panel05Header.add('button', undefined, 'Collapse');
+        // Clickable arrow label at the top-left, doubling as the panel title.
+        var panel05Header = panel05.add('statictext', undefined, '\u25BC Insert slate');
+        panel05Header.alignment = ['left', 'top'];
+        panel05Header.cursor = 'hand';
 
         var panel05Content = panel05.add('group');
         panel05Content.orientation = 'column';
@@ -77,21 +76,21 @@
         function setPanel05Collapsed(collapsed) {
             panel05Expanded = !collapsed;
             panel05Content.visible = panel05Expanded;
-            panel05ToggleBtn.text = panel05Expanded ? 'Collapse' : 'Expand';
+            panel05Header.text = (panel05Expanded ? '\u25BC' : '\u25B6') + ' Insert slate';
 
             // Force the panel to shrink when collapsed and expand naturally when opened.
             panel05Content.maximumSize.height = panel05Expanded ? 10000 : 0;
-            panel05.maximumSize.height = panel05Expanded ? 10000 : 60;
-            panel05.minimumSize.height = panel05Expanded ? 0 : 60;
+            panel05.maximumSize.height = panel05Expanded ? 10000 : 40;
+            panel05.minimumSize.height = panel05Expanded ? 0 : 40;
 
             groupOne.layout.layout(true);
             win.layout.layout(true);
             win.layout.resize();
         }
 
-        panel05ToggleBtn.onClick = function () {
+        panel05Header.addEventListener('click', function () {
             setPanel05Collapsed(panel05Expanded);
-        };
+        });
     
         // Action on button click
         applyBtn.onClick = function () {

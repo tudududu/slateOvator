@@ -1,6 +1,8 @@
 // test_UI_collapsible_panel
-// v04
+// v03 (return to the v03 two commits back)
 // arrow button to collapse/expand panel;
+// One single panel body, custom arrow+title text inside the top area, 
+// hide/show only the body group INSIDE the panel body.
 
 (function (thisObj) {
     
@@ -15,29 +17,26 @@
         groupOne.orientation = 'column';
         groupOne.alignChildren = 'fill';
 
-        // Collapsible Insert slate block:
-        // native-looking header panel on top + body panel below.
-        var panel05Wrap = groupOne.add('group');
-        panel05Wrap.orientation = 'column';
-        panel05Wrap.alignChildren = 'fill';
-        panel05Wrap.spacing = 0;
-        panel05Wrap.margins = 0;
+        // Collapsible block using a single border panel body.
+        var panel05 = groupOne.add('panel', undefined, "");
+        panel05.orientation = 'column';
+        panel05.alignChildren = 'fill';
 
-        var panel05Header = panel05Wrap.add('panel', undefined, '\u25BC Insert slate');
-        panel05Header.alignment = ['fill', 'top'];
-        panel05Header.minimumSize.height = 24;
-        panel05Header.maximumSize.height = 24;
+        // Clickable arrow label inside the panel top area.
+        var panel05Header = panel05.add('statictext', undefined, '\u25BC Insert slate');
+        panel05Header.alignment = ['left', 'top'];
+        panel05Header.cursor = 'hand';
 
-        // Keep the collapsed header wide enough so the title never gets truncated.
+        // Keep collapsed width wide enough so title never truncates.
         var panel05HeaderMinText = '\u25BC Insert slate';
-        var panel05HeaderMinWidth = panel05Header.graphics.measureString(panel05HeaderMinText)[0] + 28;
+        var panel05HeaderMinWidth = panel05Header.graphics.measureString(panel05HeaderMinText)[0] + 16;
         panel05Header.minimumSize.width = panel05HeaderMinWidth;
-        panel05Wrap.minimumSize.width = panel05HeaderMinWidth;
+        panel05Header.preferredSize.width = panel05HeaderMinWidth;
+        panel05.minimumSize.width = panel05HeaderMinWidth + 12;
 
-        var panel05Content = panel05Wrap.add('panel', undefined, '');
+        var panel05Content = panel05.add('group');
         panel05Content.orientation = 'column';
         panel05Content.alignChildren = 'fill';
-        panel05Content.margins = [10, 12, 10, 10];
     
         // Label (fixed width) + DropDownList in a row; returns the DropDownList
         function mkLabeledDropdown(parent, labelText, items, labelWidth) {
@@ -88,10 +87,10 @@
             panel05Content.visible = panel05Expanded;
             panel05Header.text = (panel05Expanded ? '\u25BC' : '\u25B6') + ' Insert slate';
 
-            // Collapse to the header-only top edge.
+            // Collapse to header-only row inside the same panel border.
             panel05Content.maximumSize.height = panel05Expanded ? 10000 : 0;
-            panel05Wrap.maximumSize.height = panel05Expanded ? 10000 : 24;
-            panel05Wrap.minimumSize.height = panel05Expanded ? 0 : 24;
+            panel05.maximumSize.height = panel05Expanded ? 10000 : 40;
+            panel05.minimumSize.height = panel05Expanded ? 0 : 40;
 
             groupOne.layout.layout(true);
             win.layout.layout(true);

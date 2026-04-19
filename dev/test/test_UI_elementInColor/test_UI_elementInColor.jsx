@@ -1,7 +1,7 @@
 //  After Effects script UI test - element in color
 //  241114
-//  v01
-//  button in color, mouseover effect
+//  v02
+//  small red square in the corner of the panel, mouseover effect
 
 (function (thisObj) {
     
@@ -52,12 +52,13 @@
         applyBtn.onDraw = function () {
             var g = applyBtn.graphics;
             var brush = g.newBrush(g.BrushType.SOLID_COLOR, isMouseOver ? [1, 0, 0, 1] : [0.1, 0.1, 0.1, 1]); // Red on hover, grey otherwise
-            g.rectPath(0, 0, applyBtn.size[0], applyBtn.size[1]);
+            // g.rectPath(0, 0, applyBtn.size[0], applyBtn.size[1]);
+            g.rectPath(0, 0, 10, 10);
             g.fillPath(brush);
 
             // Draw the button frame
-            var pen = g.newPen(g.PenType.SOLID_COLOR, [0.9, 0.9, 0.9, 1], 1); // White color
-            g.strokePath(pen);
+            // var pen = g.newPen(g.PenType.SOLID_COLOR, [0.9, 0.9, 0.9, 1], 1); // White color
+            // g.strokePath(pen);
 
             // Draw the button text
             // g.drawString("Apply", g.font, g.newPen(g.PenType.SOLID_COLOR, [0, 0, 0, 1], 1), 10, 10); // Black text

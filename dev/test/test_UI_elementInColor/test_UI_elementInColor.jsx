@@ -1,8 +1,7 @@
 //  After Effects script UI test - element in color
 //  241114
-//  v04
-//  button red on mouseover,
-//  big red banner above the button
+//  v05
+//  big red banner above the button on mouseover over the button
 
 (function (thisObj) {
     
@@ -27,6 +26,7 @@
         var colorElement = panel05.add('panel', undefined);
         colorElement.preferredSize = [100, 100]; // Size of the colored element
         colorElement.graphics.backgroundColor = colorElement.graphics.newBrush(colorElement.graphics.BrushType.SOLID_COLOR, [1, 0, 0, 1]); // Red color
+        colorElement.visible = false; // Initially hidden
 
         // Apply Button
         var applyBtn = panel05.add('button', undefined, 'Complete insert');
@@ -36,21 +36,23 @@
         var isMouseOver = false;
 
         // Customize Button Highlight Color
-        applyBtn.onDraw = function () {
+        /* applyBtn.onDraw = function () {
             var g = applyBtn.graphics;
             var brush = g.newBrush(g.BrushType.SOLID_COLOR, isMouseOver ? [1, 0, 0, 1] : [0.1, 0.1, 0.1, 1]); // Red on hover, grey otherwise
             g.rectPath(0, 0, applyBtn.size[0], applyBtn.size[1]);
             g.fillPath(brush);
-        };
+        }; */
 
         // Mouse event handlers
         applyBtn.addEventListener('mouseover', function () {
             isMouseOver = true;
+            colorElement.visible = true; // Show colored element on hover
             applyBtn.notify('onDraw');
         });
 
         applyBtn.addEventListener('mouseout', function () {
             isMouseOver = false;
+            colorElement.visible = false; // Hide colored element when not hovering
             applyBtn.notify('onDraw');
         });
 

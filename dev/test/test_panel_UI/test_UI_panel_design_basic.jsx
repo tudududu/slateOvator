@@ -1,10 +1,11 @@
 // test_UI_design type01 nt productions
-// 241012
+// 241015
 // UI - newPanel() + doMain() structure; 
-
+// compChanger implementation test; input field + button; alert input value on button click; input validation for number and range;
 
 (function (thisObj) {
-    
+    var message = "";
+
     newPanel(thisObj);
 
     function newPanel(thisObj) {
@@ -16,15 +17,14 @@
             groupOne.orientation = 'column';
             groupOne.alignChildren = 'fill';
         //  input text
-        var startTimeInput = groupOne.add('edittext', undefined, 'yourName');
-            startTimeInput.characters = 10;
-        //  label
-        var label = groupOne.add('statictext', undefined, 'Pass the compName to the slate');
+        groupOne.inDimensionX = groupOne.add('edittext', undefined, undefined);
+        groupOne.inDimensionX.characters = 10;
+        
         //  apply Button
-        var applyBtn = groupOne.add('button', undefined, 'Apply', {name: "ok"});
+        groupOne.okBtn = groupOne.add('button', undefined, 'Apply', {name: "ok"});
         
         // --- Action ---
-        applyBtn.onClick = function () {
+        groupOne.okBtn.onClick = function () {
             doMain(this.parent); // Calls doMain with the win object
         }
 
@@ -34,16 +34,42 @@
         };
         win instanceof Window
             ? (win.center(), win.show()) : (win.layout.layout(true), win.layout.resize());
+    }
 
+    //---------------------------------
+
+    function width(comp, theDialog) {
+    if (theDialog.inDimensionX.text != "") {
+        if (isNaN(parseInt(theDialog.inDimensionX.text))) {
+            message = (message + "Not a number value for Width\r");
+            theDialog.inDimensionX.text = ""; //empty field if it is bad so we don't try anymore
+        } else {
+            var oldWidth = comp.width;
+            var newWidth = (parseInt(theDialog.inDimensionX.text));
+            if ( (newWidth > 30000) || (newWidth < 4) ) {
+                message = (message + "Value out of range for Width\r");
+                theDialog.inDimensionX.text = ""; //empty field if it is bad so we don't try anymore
+            } else {
+                if (oldWidth != newWidth) {
+                    comp.width = newWidth;
+                    message = (message + "Value is OK\r");
+                    }
+                }
+            alert(message);
+            theDialog.inDimensionX.text = "";//empty field if it is bad so we don't try anymore
+            }
+        }
     }
 
     function doMain(theDialog) {
     app.beginUndoGroup("Change Selected Comps");
-    
-    alert(theDialog.widthT.text);
+        var selection = app.project.selection; // compositions
+
+        alert(theDialog.inDimensionX.text);
+        width(selection[0], theDialog);
+
 
     app.endUndoGroup();
     }
 
 })(this);
-

@@ -1,7 +1,7 @@
 //  After Effects script UI test - element in color
-//  241114
-//  v05
-//  big red banner above the button on mouseover over the button
+//  241115
+//  v06_0
+//  small red square in the corner of the panel, mouseover effect on the button
 
 (function (thisObj) {
     
@@ -22,11 +22,23 @@
         panel05.alignChildren = 'fill';
         panel05.preferredSize = testSize;
 
-        // Draw colored element
+        // Draw colored circle element
         var colorElement = panel05.add('panel', undefined);
-        colorElement.preferredSize = [100, 100]; // Size of the colored element
-        colorElement.graphics.backgroundColor = colorElement.graphics.newBrush(colorElement.graphics.BrushType.SOLID_COLOR, [1, 0, 0, 1]); // Red color
+        colorElement.preferredSize = [10, 10]; // Size of the colored element
+        // colorElement.graphics.backgroundColor = colorElement.graphics.newBrush(colorElement.graphics.BrushType.SOLID_COLOR, [1, 0, 0, 1]); // Red color
+        
         colorElement.visible = false; // Initially hidden
+
+        // --- Customize Button Highlight Color ---
+        colorElement.onDraw = function () {
+            var g = colorElement.graphics;
+            // g.clear(); // Clear previous drawings (v7)
+            // var brush = g.newBrush(g.BrushType.SOLID_COLOR, isMouseOver ? [1, 0, 0, 1] : [0.1, 0.1, 0.1, 1]); // Red on hover, grey otherwise
+            var brush = g.newBrush(g.BrushType.SOLID_COLOR, [1, 0, 0, 1]); // Red color (v7)
+            g.rectPath(0, 0, 10, 10);
+            // g.fillBrush(brush); //(v7)
+            g.fillPath(brush);
+        };
 
         // Apply Button
         var applyBtn = panel05.add('button', undefined, 'Complete insert');
@@ -34,14 +46,6 @@
 
         // --- Variables to track mouse state ---
         var isMouseOver = false;
-
-        // Customize Button Highlight Color
-        /* applyBtn.onDraw = function () {
-            var g = applyBtn.graphics;
-            var brush = g.newBrush(g.BrushType.SOLID_COLOR, isMouseOver ? [1, 0, 0, 1] : [0.1, 0.1, 0.1, 1]); // Red on hover, grey otherwise
-            g.rectPath(0, 0, applyBtn.size[0], applyBtn.size[1]);
-            g.fillPath(brush);
-        }; */
 
         // Mouse event handlers
         applyBtn.addEventListener('mouseover', function () {

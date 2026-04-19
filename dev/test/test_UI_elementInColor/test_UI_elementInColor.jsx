@@ -1,7 +1,7 @@
 //  After Effects script UI test - element in color
 //  241116
-//  v06_1
-//  small red circle in the corner of the panel, mouseover effect on the button
+//  v07
+//  red rectangle on the left of the button, mouseover effect on the button
 
 (function (thisObj) {
     
@@ -9,6 +9,7 @@
 
     function newPanel(thisObj) {
         var testSize = [250, 100];
+        var btnSize = [250, 30];
         var win = (thisObj instanceof Panel) ? thisObj : new Window('palette', 'slateOvator2', undefined);
         win.preferredSize = testSize;
 
@@ -17,15 +18,14 @@
         groupOne.alignChildren = 'fill';
 
         // Panel for inserting slate
-        var panel05 = groupOne.add('panel', undefined, "Insert slate");
-        panel05.orientation = 'column';
-        panel05.alignChildren = 'fill';
-        panel05.preferredSize = testSize;
-
+        var panel01 = groupOne.add('panel', undefined, "Insert slate");
+        panel01.orientation = 'row';
+        panel01.preferredSize = btnSize;
+        panel01.alignChildren = 'fill';
+            
         // Draw colored circle element
-        // var colorElement = panel05.add('panel', undefined);
-        var colorElement = panel05.add('panel', [100,15,20,20]); //nic nedela
-        colorElement.preferredSize = [10, 10]; // Size of the colored element
+        var colorElement = panel01.add('panel', undefined);
+        colorElement.preferredSize = [6, 30]; // Size of the colored element
         // colorElement.graphics.backgroundColor = colorElement.graphics.newBrush(colorElement.graphics.BrushType.SOLID_COLOR, [1, 0, 0, 1]); // Red color
         
         colorElement.visible = false; // Initially hidden
@@ -33,17 +33,19 @@
         // --- Customize Button Highlight Color ---
         colorElement.onDraw = function () {
             var g = colorElement.graphics;
-            // g.clear(); // Clear previous drawings (v7) - nefunguje
+            // g.clear(); // Clear previous drawings (v7)
             // var brush = g.newBrush(g.BrushType.SOLID_COLOR, isMouseOver ? [1, 0, 0, 1] : [0.1, 0.1, 0.1, 1]); // Red on hover, grey otherwise
-            var brush = g.newBrush(g.BrushType.SOLID_COLOR, [1, 0, 0, 1]); // Red color (v7)
-            g.ellipsePath(0, 0, 10, 10);
+            var brush = g.newBrush(g.BrushType.SOLID_COLOR, [0.7, 0, 0.0, 1]); // color
+            g.rectPath(0, 0, 4, 29);
             // g.fillBrush(brush); //(v7)
             g.fillPath(brush);
         };
 
         // Apply Button
-        var applyBtn = panel05.add('button', undefined, 'Complete insert');
+        var applyBtn = panel01.add('button', undefined, 'Complete insert');
         // applyBtn.preferredSize = [150, 40]; // Adjust size as needed
+        applyBtn.preferredSize = btnSize;
+        applyBtn.alignChildren = 'fill';
 
         // --- Variables to track mouse state ---
         var isMouseOver = false;

@@ -1,5 +1,5 @@
 /* slateOvator
-260209_v16.3.0
+260723_v16.3.1
 
 v01 240103 joining parts 1, 2, 3
 v02 slateOvator_part3 v08h Insert slate into composition aplikaceDoComp(), fitToCompSize()
@@ -101,11 +101,20 @@ v15e7 UI: output comps pokus o 'justify fill'
 16b01 slateOvator1(compNameFromSlate, checkbox_Date.value, checkbox_Version.value);
 16b02 date and version checkboxes in compNameFromSlate group
 16.3.0 version reset checkbox added to compNameFromSlate() - switch_version_reset
+16.3.1 version reset checkbox added to duplicate names guard in compNameFromSlate()
 
 vXX vicekrat pouzity slateSarch vyhodit do fce
 vXX focus target
 vXX z callback fci oddelat instanceof pokud nejsou potreba
 */
+
+function mkRow(parent) {
+    var row = parent.add("group");
+    row.orientation = "row";
+    row.alignChildren = ["left", "center"];
+    row.spacing = 4;
+    return row;
+}
 
 (function (thisObj) {
     
@@ -113,8 +122,8 @@ vXX z callback fci oddelat instanceof pokud nejsou potreba
 
     function newPanel(thisObj) {
 
-        var vers = '16.3.0';
-        var title = 'slate0vator (v' + vers + ')';
+        var VERSION = '16.3.1';
+        var title = 'slate0vator (v' + VERSION + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
         : new Window('palette', title, undefined);
@@ -369,6 +378,15 @@ vXX z callback fci oddelat instanceof pokud nejsou potreba
         var checkbox_Logo = panelZeroGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Logo');
         // var checkbox_Version = panelZeroGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Version');
         
+        // Bottom-left panel info
+        var footerSpacer = win.add("group");
+        footerSpacer.alignment = ["fill", "fill"];
+
+        var infoRow = mkRow(win);
+        infoRow.alignment = ["fill", "bottom"];
+        var infoText = infoRow.add("statictext", undefined, "Comp Changer - " + VERSION + "\n© 2026 Jan Svatuska", { multiline: true });
+        infoText.alignment = ["left", "bottom"];
+                
         // --- Action ---
         
         var switchesLayerName = "controls";
@@ -600,7 +618,7 @@ function slateRegexSimple() {
         return newCompName;
     }
 
-    function change_compNameFromSlate(slateCompL, layerName, parentComp, switch_date, switch_version, switch_version_reset) {
+    function get_compNameFromSlate(slateCompL, layerName, parentComp, switch_date, switch_version, switch_version_reset) {
         //  slateCompL - slate ze ktereho bereme jmeno
         //  layerName - hledame layer s finalnim jmenem vytvorenym ve slatu
             //  neni pouzita, protoze regex je zadan natvrdo zde uvnitr // zvazit upravu
@@ -612,24 +630,16 @@ function slateRegexSimple() {
         var newNameFromSlate = targetLayer.text.sourceText.value.text;
         var newName = newNameFromSlate.replace(/ /g, '_');  // nahradime mezery podtrzitky
         newName = newCompNameWithDateAndVersion(newName, switch_date, switch_version, switch_version_reset);
-        var oldName = parentComp.name;
-        parentComp.name = newName;
-        app.project.autoFixExpressions(oldName, newName);
-    }
-    
-    function get_compNameFromSlate(slateCompL, layerName) {
-        //  slateCompL - slate ze ktereho bereme jmeno
-        //  layerName - neni pouzita, protoze regex je zadan natvrdo zde uvnitr // zvazit upravu
-        
-        var regex = /fileNameDuo/;
-        //  hledame layer ve slatu dle jmena (vyhledavac nemuze byt omezen na CompItem)
-        var targetLayerArr = layerInspection(slateCompL, regex);
-        var targetLayer = targetLayerArr[0];
-        var newNameFromSlate = targetLayer.text.sourceText.value.text;
-        var newName = newNameFromSlate.replace(/ /g, '_');  // nahradime mezery podtrzitky
         return newName;
     }
     
+    function change_compNameFromSlate(slateCompL, layerName, parentComp, switch_date, switch_version, switch_version_reset) {
+        
+        newName = get_compNameFromSlate(slateCompL, layerName, parentComp, switch_date, switch_version, switch_version_reset);
+        var oldName = parentComp.name;
+        parentComp.name = newName;
+        app.project.autoFixExpressions(oldName, newName);
+    }    
 
 //======================================helper fnc
     function findCompByID(sbgID) {
@@ -740,7 +750,7 @@ function compNameFromSlate(selectedInput, switch_date, switch_version, switch_ve
     // Now we know all selected comps have exactly one slate
     for (var i = 0; i < selectedComps.length; i++) {
         var slate = slateArrs[i][0];
-        newCompNames.push(get_compNameFromSlate(slate, /* layerName */));
+        newCompNames.push(get_compNameFromSlate(slate, "layerName", selectedComps[i], switch_date, switch_version, switch_version_reset));
     }
 
     // Check if all items in the array newCompNames are unique

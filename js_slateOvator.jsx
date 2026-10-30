@@ -1,5 +1,5 @@
 /* slateOvator
-260723
+261030
 */
 
 function mkRow(parent) {
@@ -16,7 +16,7 @@ function mkRow(parent) {
 
     function newPanel(thisObj) {
 
-        var VERSION = '16.3.1';
+        var VERSION = '16.4.0';
         var title = 'slate0vator (v' + VERSION + ')';
     
         var win = (thisObj instanceof Panel) ? thisObj 
@@ -269,7 +269,7 @@ function mkRow(parent) {
             checkbox_Brand.value = true;
         var checkbox_Title = panelZeroGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Title');
             checkbox_Title.value = true;
-        var checkbox_Logo = panelZeroGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Logo');
+        var checkbox_Duration = panelZeroGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Duration');
         // var checkbox_Version = panelZeroGroupTwo.add("checkbox", [undefined,undefined,100,18], ' Version');
         
         // Bottom-left panel info
@@ -311,6 +311,9 @@ function mkRow(parent) {
         function checkTagTitle() {
             slateOvator2(tlacitkovatOr, switchesLayerName, checkbox_Title.value, "title_switch");
         }
+        function checkTagDuration() {
+            slateOvator2(tlacitkovatOr, switchesLayerName, checkbox_Duration.value, "duration_Switch");
+        }
         function checkLogo2() {
             slateOvator2(logoTlacitkovatOr, switchesLayerName, checkbox_Logo.value, 'logo_Switch');
         }
@@ -323,7 +326,8 @@ function mkRow(parent) {
         checkbox_Language.onClick = checkTagLang;
         checkbox_Brand.onClick = checkTagBrand;
         checkbox_Title.onClick = checkTagTitle;
-        checkbox_Logo.onClick = checkLogo2;
+        checkbox_Duration.onClick = checkTagDuration;
+        // checkbox_Logo.onClick = checkLogo2;
 
         // --- ACTIONS ---
         win.onResizing = win.onResize = function () {
